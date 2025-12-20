@@ -1,15 +1,12 @@
-import { useNavigate } from "react-router-dom";
-
 import toast from "react-hot-toast";
 
 import { BsArrowLeft, BsArrowRight } from "react-icons/bs";
 import { BiSearch } from "react-icons/bi";
-import { AiOutlinePlus } from "react-icons/ai";
+
 import { request } from "@/constants/api.tsx";
 
 import ComponentCard from "@/components/common/ComponentCard.tsx";
 import Button from "@/components/ui/button/Button.tsx";
-import { BoxIcon } from "lucide-react";
 import Input from "@/utils/input/InputField.tsx";
 import {
   Table,
@@ -19,26 +16,21 @@ import {
   TableRow,
 } from "@/components/ui/table/index.tsx";
 import { CategoryOperation } from "./CategoryOperation.tsx";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTrigger,
-} from "@/components/ui/dialog.tsx";
-import PopUpAddCategory from "./PopUpAddCategory.tsx";
-const DocumentCategoryList = () => {
-  
-  const { categories, page, totalPage, setPage } = CategoryOperation();
 
-  function dateFormatter(iso: string) {
-    return new Date(iso).toLocaleString("en-GB", {
-      year: "numeric",
-      month: "short",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  }
+import PopUpAddCategory from "./PopUpAddCategory.tsx";
+import { BoxIcon, Trash } from "lucide-react";
+const DocumentCategoryList = () => {
+  const { categories, page, totalPage, setPage, refetch } = CategoryOperation();
+
+    function dateFormatter(iso: string) {
+      return new Date(iso).toLocaleString("en-GB", {
+        year: "numeric",
+        month: "short",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    }
   async function handleDeleteDocument(id: number) {
     toast(
       (t) => (
@@ -58,11 +50,11 @@ const DocumentCategoryList = () => {
               onClick={async () => {
                 toast.dismiss(t.id);
 
-                const loadingId = toast.loading("Deleting service...");
+                const loadingId = toast.loading("Deleting category...");
 
                 try {
                   const res = await request(
-                    `documents/${id}`,
+                    `categories/${id}`,
                     "DELETE",
                     undefined,
                     undefined
@@ -72,6 +64,7 @@ const DocumentCategoryList = () => {
 
                   if (res?.status === "ACCEPTED") {
                     toast.success(`Category Id ${id} deleted successfully`);
+                    refetch();
                   } else {
                     toast.error(res?.detail || "Delete failed");
                   }
@@ -108,23 +101,11 @@ const DocumentCategoryList = () => {
               >
                 Export
               </Button>
-
-              <Dialog>
-                <DialogTrigger asChild>
-                  <Button
-                    size="md"
-                    variant="primary"
-                    startIcon={<AiOutlinePlus className="size-5" />}
-                  >
-                    Create new category
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="w-full  content-center justify-center max-w-[95vw] rounded-3xl md:max-w-[90vw] lg:max-w-[50vw]">
-                  <DialogHeader>
-                    <PopUpAddCategory /> {/*manual component*/}
-                  </DialogHeader>
-                </DialogContent>
-              </Dialog>
+              <PopUpAddCategory
+                categoryId={0}
+                isEditing={false}
+                refetch={refetch}
+              />{" "}
             </>
           }
           searchInput={
@@ -175,32 +156,32 @@ const DocumentCategoryList = () => {
                   <TableRow>
                     <TableCell
                       isHeader
-                      className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                      className="px-5 py-3 font-medium text-gray-500 text-start  dark:text-gray-400"
                     >
                       Category Id
                     </TableCell>
                     <TableCell
                       isHeader
-                      className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                      className="px-5 py-3 font-medium text-gray-500 text-start dark:text-gray-400"
                     >
                       Category Name
                     </TableCell>
                     <TableCell
                       isHeader
-                      className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                      className="px-5 py-3 font-medium text-gray-500 text-start  dark:text-gray-400"
                     >
-                      Created At
+                      Created at
                     </TableCell>
                     <TableCell
                       isHeader
-                      className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                      className="px-5  py-3 font-medium text-gray-500 text-start dark:text-gray-400"
                     >
-                      Updated At
+                      Updated at
                     </TableCell>
 
                     <TableCell
                       isHeader
-                      className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                      className="px-5 py-3 font-medium text-gray-500 text-start  dark:text-gray-400"
                     >
                       Actions
                     </TableCell>
@@ -252,18 +233,19 @@ const DocumentCategoryList = () => {
                       <TableCell className="px-5 py-4 sm:px-6 text-start">
                         <div className="flex items-center gap-3">
                           {/* Update Button */}
-                          <button className="px-3 py-1 text-sm rounded-md bg-blue-500 text-white hover:bg-blue-600">
-                            Update
-                          </button>
-
+                          <PopUpAddCategory
+                            categoryId={item?.categoryId}
+                            isEditing={true}
+                            refetch={refetch}
+                          />{" "}
                           {/* Delete Button */}
                           <button
                             onClick={() =>
                               handleDeleteDocument(item?.categoryId)
                             }
-                            className="px-3 py-1 text-sm rounded-md bg-red-500 text-white hover:bg-red-600"
+                            className="p-2 text-sm rounded-md bg-red-500 text-white hover:bg-red-600"
                           >
-                            Delete
+                            <Trash size="24" color="#ffffff" />
                           </button>
                         </div>
                       </TableCell>

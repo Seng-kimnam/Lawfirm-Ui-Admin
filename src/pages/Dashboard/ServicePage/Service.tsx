@@ -103,7 +103,7 @@ const Service = () => {
     try {
       if (isCreate) {
         await postService(newService);
-        toast.success("<p className='text-2xl'>Service created successfully</p>");
+        toast.success("Service created successfully");
       } else {
         await putService(newService);
         toast.success("Service updated successfully");

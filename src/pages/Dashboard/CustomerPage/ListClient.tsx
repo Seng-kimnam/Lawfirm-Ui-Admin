@@ -19,20 +19,37 @@ import { BiSearch } from "react-icons/bi";
 import { AiOutlinePlus } from "react-icons/ai";
 import { ServiceItem } from "../../../model/Service.tsx";
 import { request } from "@/constants/api.tsx";
-const ListService = () => {
+import { GetClient } from "@/Service/ClientService.tsx";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTrigger,
+} from "@/components/ui/dialog.tsx";
+import EmbeddedPdfViewer from "@/utils/EmbeddedPdfViewer.tsx";
+const ListClient = () => {
   const navigate = useNavigate();
-  const { list, page, totalPage, setPage } = GetService();
+  const { clientList, page, totalPage, setPage } = GetClient();
 
   // Ensure list is an array
   const handleUpdate = (item: ServiceItem) => {
     navigate(`/service/${item.serviceId}`);
   };
 
+  function dateFormatter(iso: string) {
+    return new Date(iso).toLocaleString("en-GB", {
+      year: "numeric",
+      month: "short",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  }
   async function handleDeleteService(id: number) {
     toast(
       (t) => (
         <div className="flex flex-col font-extrabold text-black text-lg  gap-2">
-          <p>Are you sure you want to delete service ID {id}?</p>
+          <p>Are you sure you want to delete Client id {id}?</p>
 
           <div className="flex justify-end gap-2">
             <button
@@ -121,7 +138,7 @@ const ListService = () => {
               <span>
                 Showing page {page} of {totalPage}
               </span>
-              <span>Total row : {list?.length}</span>
+              <span>Total row : {clientList?.length}</span>
               <div className="flex gap-2">
                 <Button disabled={page === 1} onClick={() => setPage(page - 1)}>
                   <BsArrowLeft className=" font-bold" />
@@ -149,44 +166,74 @@ const ListService = () => {
           }
         >
           <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
-            <div className="max-w-full overflow-x-auto">
+            <div className="max-w-[1140px] overflow-x-auto ">
               <Table>
                 {/* Table Header */}
-                <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
+                <TableHeader className="border-b   bg-black   border-gray-100 dark:border-white/[0.05]">
                   <TableRow>
                     <TableCell
                       isHeader
                       className="px-5 py-3 font-medium text-gray-500 text-center dark:text-gray-400"
                     >
-                      Service Id
+                      Id
                     </TableCell>
                     <TableCell
                       isHeader
                       className="px-5 py-3 font-medium text-gray-500 text-center dark:text-gray-400"
                     >
-                      Service Name
+                      Name
                     </TableCell>
                     <TableCell
                       isHeader
                       className="px-5 py-3 font-medium text-gray-500 text-center dark:text-gray-400"
                     >
-                      Service Type
+                      Email
                     </TableCell>
                     <TableCell
                       isHeader
                       className="px-5 py-3 font-medium text-gray-500 text-center dark:text-gray-400"
                     >
-                      Description
+                      Status
+                    </TableCell>
+                    <TableCell
+                      isHeader
+                      className="px-5 py-3 m-3 whitespace-nowrap min-w-40 font-medium text-gray-500 text-center dark:text-gray-400"
+                    >
+                      <span>Phone Number</span>
                     </TableCell>
                     <TableCell
                       isHeader
                       className="px-5 py-3 font-medium text-gray-500 text-center dark:text-gray-400"
                     >
-                      Base Price
+                      Address
                     </TableCell>
                     <TableCell
                       isHeader
                       className="px-5 py-3 font-medium text-gray-500 text-center dark:text-gray-400"
+                    >
+                      message
+                    </TableCell>
+                    <TableCell
+                      isHeader
+                      className="px-5 py-3 font-medium text-gray-500 text-center dark:text-gray-400"
+                    >
+                      Image
+                    </TableCell>
+                    <TableCell
+                      isHeader
+                      className="px-5 py-3 font-medium text-gray-500 text-center dark:text-gray-400"
+                    >
+                      Created At
+                    </TableCell>
+                    <TableCell
+                      isHeader
+                      className="px-5 py-3 font-medium text-gray-500 text-center dark:text-gray-400"
+                    >
+                      Updated At
+                    </TableCell>
+                    <TableCell
+                      isHeader
+                      className="px-5 py-3 bg-black font-medium text-gray-500 text-center dark:text-gray-400"
                     >
                       Actions
                     </TableCell>
@@ -195,25 +242,25 @@ const ListService = () => {
 
                 {/* Table Body */}
                 <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
-                  {list.map((item) => (
-                    <TableRow key={item.serviceId}>
+                  {clientList.map((item) => (
+                    <TableRow className="h-20" key={item.clientId}>
                       <TableCell className="px-5 py-4 sm:px-6 text-center">
                         <div className="flex items-center gap-3">
                           <div>
                             <span className="block font-medium text-gray-800   text-theme-sm dark:text-white/90">
-                              {item.serviceId ?? "N/A"}
+                              {item.clientId ?? "N/A"}
                             </span>
                           </div>
                         </div>
                       </TableCell>
                       <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm  dark:text-white/90">
-                        {item.serviceName ?? "N/A"}
+                        {item.clientName ?? "N/A"}
                       </TableCell>
                       <TableCell className="px-5 py-4 sm:px-6 text-center">
                         <div className="flex items-center gap-3">
                           <div>
                             <span className="block font-medium text-gray-800 text-theme-sm dark:text-white/90">
-                              {item.expertiseName ?? "N/A"}
+                              {item.email ?? "N/A"}
                             </span>
                           </div>
                         </div>
@@ -222,7 +269,7 @@ const ListService = () => {
                         <div className="flex items-center gap-3">
                           <div>
                             <span className="block font-medium text-gray-800 text-theme-sm dark:text-white/90">
-                              {item.description ?? "N/A"}
+                              {item.status ?? "N/A"}
                             </span>
                           </div>
                         </div>
@@ -231,7 +278,75 @@ const ListService = () => {
                         <div className="flex items-center gap-3">
                           <div>
                             <span className="block font-medium text-gray-800 text-theme-sm dark:text-white/90">
-                              {(item.basePrice ?? "N/A") + " $"}
+                              {item.phoneNumber ?? "N/A"}
+                            </span>
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell className="px-5 py-4 sm:px-6 text-start">
+                        <div className="flex items-center gap-3">
+                          <div>
+                            <span className="block font-medium text-gray-800 text-theme-sm dark:text-white/90">
+                              {item.address ?? "N/A"}
+                            </span>
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell className="px-5 py-4 sm:px-6 text-start">
+                        <div className="flex items-center gap-3">
+                          <div>
+                            <span className="block font-medium text-gray-800 text-theme-sm dark:text-white/90">
+                              {item.complaint ?? "N/A"}
+                            </span>
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell className="px-5 py-4 sm:px-6 text-start">
+                        <div className="flex items-center gap-3">
+                          <div>
+                            <Dialog>
+                              <DialogTrigger asChild>
+                                <img
+                                  className="h-20 w-28"
+                                  src={`http://localhost:8080/api/v1/files/preview-file/${item.clientImage}`}
+                                  alt={item.clientImage}
+                                  title={item.clientImage}
+                                />
+                              </DialogTrigger>
+                              <DialogContent className="w-full z-999999  content-center justify-center max-w-[95vw] md:max-w-[90vw] lg:max-w-[80vw]">
+                                <DialogHeader>
+                                  {/* <DialogTitle>{title}</DialogTitle> */}
+                                  <p className="text-center text-3xl underline  font-battambang tracking-wide">
+                                    {item.clientImage}
+                                  </p>
+                                  {/* <PdfViewer /> */}
+                                </DialogHeader>
+                                <img
+                                  className="h-[80vh] object-cover border-2 border-black "
+                                  src={`http://localhost:8080/api/v1/files/preview-file/${item.clientImage}`}
+                                  alt={item.clientImage}
+                                />
+                                {/* Hello */}
+                              </DialogContent>
+                            </Dialog>
+                          </div>
+                        </div>
+                      </TableCell>
+
+                      <TableCell className="px-5 py-4 whitespace-nowrap sm:px-6 text-start">
+                        <div className="flex items-center gap-3">
+                          <div>
+                            <span className="block font-medium text-gray-800 text-theme-sm dark:text-white/90">
+                              {dateFormatter(item.createdAt) ?? "N/A"}
+                            </span>
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell className="px-5 py-4 whitespace-nowrap sm:px-6 text-start">
+                        <div className="flex items-center gap-3">
+                          <div>
+                            <span className="block font-medium text-gray-800 text-theme-sm dark:text-white/90">
+                              {dateFormatter(item.updatedAt) ?? "N/A"}
                             </span>
                           </div>
                         </div>
@@ -240,7 +355,7 @@ const ListService = () => {
                         <div className="flex items-center gap-3">
                           {/* Update Button */}
                           <button
-                            onClick={() => handleUpdate(item)}
+                            // onClick={() => handleUpdate(item)}
                             className="px-3 py-1 text-sm rounded-md bg-blue-500 text-white hover:bg-blue-600"
                           >
                             Update
@@ -248,7 +363,7 @@ const ListService = () => {
 
                           {/* Delete Button */}
                           <button
-                            onClick={() => handleDeleteService(item?.serviceId)}
+                            onClick={() => handleDeleteService(item?.clientId)}
                             className="px-3 py-1 text-sm rounded-md bg-red-500 text-white hover:bg-red-600"
                           >
                             Delete
@@ -267,4 +382,4 @@ const ListService = () => {
   );
 };
 
-export default ListService;
+export default ListClient;

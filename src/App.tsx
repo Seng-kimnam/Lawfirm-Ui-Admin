@@ -27,7 +27,7 @@ import AddTask from "./pages/Dashboard/TaskPage/AddTask.tsx";
 import ListTask from "./pages/Dashboard/TaskPage/ListTask.tsx";
 import AddCustomer from "./pages/Dashboard/CustomerPage/AddCustomer.tsx";
 import Role from "./pages/Dashboard/UserPage/Role.tsx";
-import ListCustomer from "./pages/Dashboard/CustomerPage/ListCustomer.tsx";
+import ListCustomer from "./pages/Dashboard/CustomerPage/ListClient.tsx";
 import ServiceType from "./pages/Dashboard/ServicePage/ServiceType.tsx";
 import AddFileDocument from "./pages/Dashboard/filePage/AddFileDocument.tsx";
 import ListFileDocument from "./pages/Dashboard/filePage/ListFileDocument.tsx";

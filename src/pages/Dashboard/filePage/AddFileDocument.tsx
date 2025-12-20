@@ -175,7 +175,6 @@ const AddFileDocument = () => {
       const fd = new FormData();
       fd.append("file", data?.fileCover);
 
-      console.log("cover ", formData);
       const { payload } = await request(
         `files/upload-file`,
         "POST",

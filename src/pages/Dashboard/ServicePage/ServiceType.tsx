@@ -187,31 +187,31 @@ const ServiceTypes = () => {
                   <TableRow>
                     <TableCell
                       isHeader
-                      className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                      className="px-5 py-3 font-medium text-gray-500   dark:text-gray-400"
                     >
                       ID
                     </TableCell>
                     <TableCell
                       isHeader
-                      className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                      className="px-5 py-3 font-medium text-gray-500   dark:text-gray-400"
                     >
                       Service Name
                     </TableCell>
                     <TableCell
                       isHeader
-                      className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                      className="px-5 py-3 font-medium text-gray-500   dark:text-gray-400"
                     >
                       Created At
                     </TableCell>
                     <TableCell
                       isHeader
-                      className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                      className="px-5 py-3 font-medium text-gray-500   dark:text-gray-400"
                     >
                       Updated At
                     </TableCell>
                     <TableCell
                       isHeader
-                      className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                      className="px-5 py-3 font-medium text-gray-500   dark:text-gray-400"
                     >
                       Action
                     </TableCell>
@@ -222,8 +222,8 @@ const ServiceTypes = () => {
                 <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
                   {list.map((item) => (
                     <TableRow key={item.expertiseId}>
-                      <TableCell className="px-5 py-4 sm:px-6 text-start">
-                        <div className="flex items-center gap-3">
+                      <TableCell className="px-5 py-4 sm:px-6 ">
+                        <div className="flex items-center justify-center gap-3">
                           <div>
                             <span className="block font-medium text-gray-800 text-theme-sm dark:text-white/90">
                               {item.expertiseId ?? "N/A"}
@@ -231,11 +231,11 @@ const ServiceTypes = () => {
                           </div>
                         </div>
                       </TableCell>
-                      {/* <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm  dark:text-white/90">
+                      {/* <TableCell className="px-4 py-3 text-gray-500  text-theme-sm  dark:text-white/90">
                         {item.expertiseId ?? "N/A"}
                       </TableCell> */}
-                      <TableCell className="px-5 py-4 sm:px-6 text-start">
-                        <div className="flex items-center gap-3">
+                      <TableCell className="px-5 py-4 sm:px-6 ">
+                        <div className="flex items-center justify-center gap-3">
                           <div>
                             <span className="block font-medium text-gray-800 text-theme-sm dark:text-white/90">
                               {item.expertName ?? "N/A"}
@@ -243,8 +243,8 @@ const ServiceTypes = () => {
                           </div>
                         </div>
                       </TableCell>
-                      <TableCell className="px-5 py-4 sm:px-6 text-start">
-                        <div className="flex items-center gap-3">
+                      <TableCell className="px-5 py-4 sm:px-6 ">
+                        <div className="flex items-center justify-center gap-3">
                           <div>
                             <span className="block font-medium text-gray-800 text-theme-sm dark:text-white/90">
                               {new Date(
@@ -258,8 +258,8 @@ const ServiceTypes = () => {
                           </div>
                         </div>
                       </TableCell>
-                      <TableCell className="px-5 py-4 sm:px-6 text-start">
-                        <div className="flex items-center gap-3">
+                      <TableCell className="px-5 py-4 sm:px-6 ">
+                        <div className="flex items-center  justify-center gap-3">
                           <div>
                             <span className="block font-medium text-gray-800 text-theme-sm dark:text-white/90">
                               {new Date(
@@ -273,8 +273,8 @@ const ServiceTypes = () => {
                           </div>
                         </div>
                       </TableCell>
-                      <TableCell className="px-5 py-4 sm:px-6 text-start">
-                        <div className="flex items-center gap-3">
+                      <TableCell className="px-5 py-4 sm:px-6 ">
+                        <div className="flex items-center justify-center gap-3">
                           {/* Update Button */}
                           <button
                             onClick={() => handleUpdate(item)}
