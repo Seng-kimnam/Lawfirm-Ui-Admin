@@ -37,8 +37,6 @@ export const postServiceTypeUrl = "expertises";
 export const putServiceTypeUrl = "expertises/";
 export const deleteServiceTypeUrl = "expertises/";
 
-
-
 // Role
 export const getRoleUrl = "roles";
 export const getRoleByIdUrl = "roles/";
@@ -46,10 +44,23 @@ export const postRoleUrl = "roles";
 export const putRoleUrl = "roles/";
 export const deleteRoleUrl = "roles/";
 
-
-// client 
+// client
 
 export const getClientList = (page: Number) => {
   return `clients?page=${page}&size=10&sortBy=clientId&ascending=true`;
 };
 
+// court
+
+export const getCourtList = (page: Number) => {
+  return `courts?page=${page}&size=10&sortBy=courtId&ascending=true`;
+};
+
+// case
+export const getCaseList = (page: Number) => {
+  return `cases?page=${page}&size=10&sortBy=caseId&ascending=true`;
+};
+
+export const getTaskList = (page: Number) => {
+  return `tasks?page=${page}&size=10&sortBy=taskId&ascending=true`;
+};

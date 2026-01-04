@@ -24,6 +24,8 @@ import {
   putServiceType,
 } from "../../../Service/ServiceTypeService.tsx";
 import { ServiceType } from "../../../model/ServiceType.tsx";
+import { Edit, Trash } from "lucide-react";
+import toast from "react-hot-toast";
 const ServiceTypes = () => {
   const [newServiceType, setNewServiceType] = useState<ServiceType>({
     expertiseId: 0,
@@ -34,14 +36,21 @@ const ServiceTypes = () => {
 
   const [open, setOpen] = useState<boolean>(false);
   const { list, page, totalPage, setPage, refetch } = GetServiceType();
-  const handleOk = async () => {
+  async function handleOk() {
     if (newServiceType.expertName === "") {
       return;
     }
     if (newServiceType.expertiseId === 0) {
-      await postServiceType(newServiceType);
+      const res = await postServiceType(newServiceType);
+      console.log("res ", res);
+      if (res?.success) {
+        toast.success("Service Type create successfully");
+      }
     } else {
-      await putServiceType(newServiceType);
+      const res = await putServiceType(newServiceType);
+      if (res?.success) {
+        toast.success("Service Type update successfully");
+      }
     }
     setNewServiceType({
       expertiseId: 0,
@@ -51,32 +60,72 @@ const ServiceTypes = () => {
     });
     setOpen(false);
     refetch();
-  };
-  // Refresh handler
-  const handleRefresh = () => {
-    refetch();
-  };
-  const handleUpdate = (item: ServiceType) => {
+  }
+
+  function handleUpdate(item: ServiceType) {
     setNewServiceType(item);
     setOpen(true);
-  };
-  const handleDelete = async (expertiseId: number) => {
-    if (!expertiseId) return; // early return if no ID
+  }
+  function handleCreate() {
+    setNewServiceType({
+      expertiseId: 0,
+      expertName: "",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+    setOpen(true);
+  }
+  async function handleDeleteService(id: number) {
+    toast(
+      (t) => (
+        <div className="flex flex-col font-extrabold text-black text-lg  gap-2">
+          <p>Are you sure you want to delete service type Id {id}?</p>
 
-    const confirmed = window.confirm(
-      `Are you sure you want to delete service type with ID "${expertiseId}"?`
+          <div className="flex justify-end gap-2">
+            <button
+              className="px-3 py-1 text-[16px] text-black bg-gray-300 rounded"
+              onClick={() => toast.dismiss(t.id)}
+            >
+              Cancel
+            </button>
+
+            <button
+              className="px-3 py-1 text-[16px] bg-red-600 text-white rounded"
+              onClick={async () => {
+                toast.dismiss(t.id);
+
+                const loadingId = toast.loading("Deleting service...");
+
+                try {
+                  const res = await deleteServiceTypes(id);
+
+                  toast.dismiss(loadingId);
+
+                  if (res?.status === "ACCEPTED") {
+                    toast.success(
+                      `Service type with Id ${id} deleted successfully`
+                    );
+                    refetch();
+                  } else {
+                    toast.error(res?.detail || "Delete failed");
+                  }
+                } catch (error) {
+                  toast.dismiss(loadingId);
+                  toast.error("Server error. Please try again.");
+                }
+              }}
+            >
+              Confirm
+            </button>
+          </div>
+        </div>
+      ),
+      {
+        // kit jea millisecond
+        duration: Infinity, // stays until user clicks
+      }
     );
-
-    if (!confirmed) return; // exit if user cancels
-
-    try {
-      await deleteServiceTypes(expertiseId);
-      refetch(); // refresh the list after deletion
-    } catch (error) {
-      console.error("Failed to delete service type:", error);
-      alert("An error occurred while deleting the service type.");
-    }
-  };
+  }
 
   return (
     <div>
@@ -127,15 +176,7 @@ const ServiceTypes = () => {
           desc="A list of all services available in the system."
           headerActions={
             <>
-              <Button
-                size="sm"
-                variant="outline"
-                startIcon={<BoxIcon className="size-5" />}
-                onClick={handleRefresh}
-              >
-                Refresh
-              </Button>
-              <Button size="sm" variant="primary" onClick={() => setOpen(true)}>
+              <Button size="sm" variant="primary" onClick={handleCreate}>
                 Create Service
               </Button>
             </>
@@ -187,25 +228,25 @@ const ServiceTypes = () => {
                   <TableRow>
                     <TableCell
                       isHeader
-                      className="px-5 py-3 font-medium text-gray-500   dark:text-gray-400"
+                      className="px-5 py-3 font-medium text-lg text-gray-500   dark:text-gray-400"
                     >
-                      ID
+                      Id
                     </TableCell>
                     <TableCell
                       isHeader
-                      className="px-5 py-3 font-medium text-gray-500   dark:text-gray-400"
+                      className="px-5 py-3 font-medium text-gray-500  text-lg dark:text-gray-400"
                     >
                       Service Name
                     </TableCell>
                     <TableCell
                       isHeader
-                      className="px-5 py-3 font-medium text-gray-500   dark:text-gray-400"
+                      className="px-5 py-3 font-medium text-gray-500   text-lg dark:text-gray-400"
                     >
                       Created At
                     </TableCell>
                     <TableCell
                       isHeader
-                      className="px-5 py-3 font-medium text-gray-500   dark:text-gray-400"
+                      className="px-5 py-3 font-medium text-gray-500 text-lg  dark:text-gray-400"
                     >
                       Updated At
                     </TableCell>
@@ -274,21 +315,23 @@ const ServiceTypes = () => {
                         </div>
                       </TableCell>
                       <TableCell className="px-5 py-4 sm:px-6 ">
-                        <div className="flex items-center justify-center gap-3">
+                        <div className="flex justify-center items-center gap-3">
                           {/* Update Button */}
                           <button
                             onClick={() => handleUpdate(item)}
-                            className="px-3 py-1 text-sm rounded-md bg-blue-500 text-white hover:bg-blue-600"
+                            className="p-2 text-sm rounded-md bg-blue-500 text-white hover:bg-blue-600"
                           >
-                            Update
+                            <Edit size="24" color="#ffffff" />
                           </button>
 
                           {/* Delete Button */}
                           <button
-                            onClick={() => handleDelete(item.expertiseId)}
-                            className="px-3 py-1 text-sm rounded-md bg-red-500 text-white hover:bg-red-600"
+                            onClick={() =>
+                              handleDeleteService(item?.expertiseId)
+                            }
+                            className="p-2 text-sm rounded-md bg-red-500 text-white hover:bg-red-600"
                           >
-                            Delete
+                            <Trash size="24" color="#ffffff" />
                           </button>
                         </div>
                       </TableCell>

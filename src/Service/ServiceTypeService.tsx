@@ -1,4 +1,9 @@
-import { deleteServiceTypeUrl, getServiceTypeUrl, postServiceTypeUrl, putServiceTypeUrl } from "../constants/constants_url";
+import {
+  deleteServiceTypeUrl,
+  getServiceTypeUrl,
+  postServiceTypeUrl,
+  putServiceTypeUrl,
+} from "../constants/constants_url";
 import { ServiceType } from "../model/ServiceType";
 import { request } from "../constants/api";
 import { useEffect, useState } from "react";
@@ -9,15 +14,17 @@ export const GetServiceType = () => {
   const [totalPage, setTotalPage] = useState(1);
   const fetchData = async () => {
     try {
-      const res = await request(getServiceTypeUrl(page), "GET",undefined, undefined);
+      const res = await request(
+        getServiceTypeUrl(page),
+        "GET",
+        undefined,
+        undefined
+      );
 
       if (!res || !res.payload) throw new Error("No data received");
-        console.log("service type response:", res);
       // map data from API
       setList(res.payload.content || []);
       setTotalPage(res.payload.totalPages || 1);
-      console.log("Fetched service types:", res.payload.content);
-
     } catch (error) {
       console.error("Error fetching service types:", error);
     }
@@ -30,15 +37,14 @@ export const GetServiceType = () => {
   return { list, page, setPage, totalPage, refetch: fetchData };
 };
 
-
 // Fetch Add Roles
 export const postServiceType = async (req: ServiceType) => {
   try {
-    const response = await request(postServiceTypeUrl, "POST", req ,{
+    const response = await request(postServiceTypeUrl, "POST", req, {
       Authorization: `Bearer ${localStorage.getItem("token")}`,
     });
-    if (response.status === 200) {
-      return response.data;
+    if (response.success) {
+      return response;
     }
   } catch (error) {
     alert(Error);
@@ -51,14 +57,21 @@ export const putServiceType = async (req: ServiceType) => {
     if (!req.expertiseId) {
       throw new Error("ServiceType ID is required for update");
     }
-    const response = await request(putServiceTypeUrl + req.expertiseId, "PUT", req, {
-      Authorization: `Bearer ${localStorage.getItem("token")}`,
-    });
-    if (response.status === 200) {
-      return response.data;
+    const response = await request(
+      putServiceTypeUrl + req.expertiseId,
+      "PUT",
+      req,
+      {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      }
+    );
+    if (response.success) {
+      return response;
     }
   } catch (error: any) {
-    alert(error.response?.data?.message || error.message || "Something went wrong");
+    alert(
+      error.response?.data?.message || error.message || "Something went wrong"
+    );
   }
 };
 
@@ -68,16 +81,22 @@ export const deleteServiceTypes = async (expertiseId: Number) => {
     if (!expertiseId) {
       throw new Error("ServiceType ID is required for delete");
     }
-    const response = await request(deleteServiceTypeUrl + expertiseId, "DELETE", undefined, {
-      Authorization: `Bearer ${localStorage.getItem("token")}`,
-    });
-   
-    
-    if (response.status === 200) {
-     console.log("Delete successful" , response);
-     return response;
+    const response = await request(
+      deleteServiceTypeUrl + expertiseId,
+      "DELETE",
+      undefined,
+      {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      }
+    );
+
+    if (response.success) {
+      console.log("Delete successful", response);
+      return response;
     }
   } catch (error: any) {
-    alert(error.response?.data?.message || error.message || "Something went wrong");
+    alert(
+      error.response?.data?.message || error.message || "Something went wrong"
+    );
   }
 };

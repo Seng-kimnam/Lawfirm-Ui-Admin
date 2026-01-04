@@ -1,4 +1,5 @@
 import {
+  getCaseList,
   getClientList,
   getServiceUrl,
   postServiceUrl,
@@ -8,38 +9,34 @@ import { ServiceItem } from "../model/Service";
 import { request } from "../constants/api";
 import { useEffect, useState } from "react";
 import { ClientInterface, ClientRequest } from "@/model/Client";
+import { CaseInterface, CaseRequest } from "@/model/Case";
 
-export const GetClient = () => {
-  const [clientList, setClientList] = useState<ClientInterface[]>([]);
+export const  GetCase = () => {
+  const [casesList, setCaseList] = useState<CaseInterface[]>([]);
   // const [expert , setExpert ] = useState<ServiceItem[]>([]);
   const [page, setPage] = useState<number>(1); // backend uses page 0-based
   const [totalPage, setTotalPage] = useState(1);
   const fetchData = async () => {
     try {
-      const res = await request(
-        getClientList(page),
-        "GET",
-        undefined,
-        undefined
-      );
+      const res = await request(getCaseList(page), "GET", undefined, undefined);
 
       // console.log("res", res);
       if (!res || !res.payload) throw new Error("No data received");
 
       // map data from API
-      setClientList(res?.payload?.content || []);
+      setCaseList(res?.payload?.content || []);
       // setExpert(res.payload.content || []);
       setTotalPage(res.payload.totalPages || 1);
     } catch (error) {
       console.error("Error fetching services:", error);
     }
   };
-  
+
   useEffect(() => {
     fetchData();
-  }, []); // refetch when page changes
+  }, [casesList]); // refetch when page changes
 
-  return { clientList, page, setPage, totalPage, refetch: fetchData };
+  return { casesList, page, setPage, totalPage, refetch: fetchData };
 };
 
 // // fetchServiceById
@@ -57,17 +54,13 @@ export const GetClient = () => {
 // };
 
 // Fetch Add Service
-export const postService = async (req: ClientRequest) => {
-  try {
-    const response = await request("clients", "POST", req, {
-      Authorization: `Bearer ${localStorage.getItem("token")}`,
-    });
-    if (response.status === "CREATED") {
-      return response.data;
-    }
-  } catch (error) {
-    alert(Error);
-  }
+export const postCaseService = async (req: CaseRequest) => {
+  const response = await request("cases", "POST", req, {
+    Authorization: `Bearer ${localStorage.getItem("token")}`,
+  });
+
+  console.log("service response:", response);
+  return response; // Always return the response (even if success: false)
 };
 
 // Update Service

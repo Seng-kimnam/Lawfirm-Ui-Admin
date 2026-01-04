@@ -1,6 +1,5 @@
 import ComponentCard from "../../../components/common/ComponentCard";
-import Badge from "../../../components/ui/badge/Badge";
-import { GetService } from "../../../Service/ListServiceService";
+
 import Input from "../../../utils/input/InputField.tsx";
 import { useNavigate } from "react-router-dom";
 import {
@@ -10,39 +9,52 @@ import {
   TableHeader,
   TableRow,
 } from "../../../components/ui/table";
+import toast from "react-hot-toast";
+
 import Button from "../../../utils/button/Button";
 import { BoxIcon } from "../../../icons";
-import { BsArrowLeft, BsArrowRight, BsExclamation } from "react-icons/bs";
+import { BsArrowLeft, BsArrowRight } from "react-icons/bs";
 import { BiSearch } from "react-icons/bi";
-import { GetCase } from "@/Service/CaseService.tsx";
-import { Edit, Trash } from "lucide-react";
-import toast from "react-hot-toast";
-import { request } from "@/constants/api.tsx";
-const ListService = () => {
-  const navigate = useNavigate();
-  const { casesList, page, totalPage, setPage } = GetCase();
-  // Ensure list is an array
+import { AiOutlinePlus } from "react-icons/ai";
 
-  function goto(path: string) {
-    navigate(path);
+import { request } from "@/constants/api.tsx";
+import { GetClient } from "@/Service/ClientService.tsx";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTrigger,
+} from "@/components/ui/dialog.tsx";
+
+import { Edit, Trash } from "lucide-react";
+import { useEffect } from "react";
+import { GetCourt } from "@/Service/CourtService.tsx";
+const ListCourt = () => {
+  const navigate = useNavigate();
+  const { courtList, page, totalPage, setPage, refetch } = GetCourt();
+
+  // Ensure list is an array
+  const routeForUpdate = (id: number) => {
+    navigate(`/edit-court/${id}`);
+  };
+
+  function dateFormatter(iso: string) {
+    return new Date(iso).toLocaleString("en-GB", {
+      year: "numeric",
+      month: "short",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
   }
-  function formatReadableStatus(status: string) {
-    switch (status) {
-      case "IN_PROGRESSING":
-        return "In Progressing";
-      case "DONE":
-        return "Done";
-      case "PENDING":
-        return "Pending";
-      default:
-        return status;
-    }
-  }
-  async function handleDeleteCase(id: number) {
+  useEffect(() => {
+    refetch;
+  }, []);
+  async function handleDeleteService(id: number) {
     toast(
       (t) => (
         <div className="flex flex-col font-extrabold text-black text-lg  gap-2">
-          <p>Are you sure you want to delete Case id {id}?</p>
+          <p>Are you sure you want to delete Client id {id}?</p>
 
           <div className="flex justify-end gap-2">
             <button
@@ -57,11 +69,11 @@ const ListService = () => {
               onClick={async () => {
                 toast.dismiss(t.id);
 
-                const loadingId = toast.loading("Deleting case...");
+                const loadingId = toast.loading("Deleting service...");
 
                 try {
                   const res = await request(
-                    `cases/${id}`,
+                    `services/${id}`,
                     "DELETE",
                     undefined,
                     undefined
@@ -70,7 +82,7 @@ const ListService = () => {
                   toast.dismiss(loadingId);
 
                   if (res?.status === "ACCEPTED") {
-                    toast.success(`Case ID ${id} deleted successfully`);
+                    toast.success(`Service ID ${id} deleted successfully`);
                   } else {
                     toast.error(res?.detail || "Delete failed");
                   }
@@ -91,6 +103,7 @@ const ListService = () => {
       }
     );
   }
+
   return (
     <div>
       <div className="space-y-6">
@@ -102,17 +115,19 @@ const ListService = () => {
               <Button
                 size="md"
                 variant="primary"
-                onClick={() => navigate("/add-case")}
+                startIcon={<AiOutlinePlus className="size-5" />}
+                onClick={() => navigate("/add-court")}
               >
-                Create Case
+                Create Court
               </Button>
             </>
           }
           searchInput={
             <Input
               type="text"
-              placeholder="Search service..."
+              placeholder="Search by name location..."
               icon={<BiSearch className="w-5 h-5" />}
+              // className="px-6 py-5 flex items-center justify-between border-t border-gray-100 dark:border-gray-800"
               id="input"
             />
           }
@@ -121,6 +136,7 @@ const ListService = () => {
               <span>
                 Showing page {page} of {totalPage}
               </span>
+              <span>Total row : {courtList?.length}</span>
               <div className="flex gap-2">
                 <Button disabled={page === 1} onClick={() => setPage(page - 1)}>
                   <BsArrowLeft className=" font-bold" />
@@ -148,63 +164,51 @@ const ListService = () => {
           }
         >
           <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
-            <div className=" max-w-[1130px] overflow-x-auto">
+            <div className="overflow-x-auto ">
               <Table>
                 {/* Table Header */}
-                <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
+                <TableHeader className="border-b   bg-black   border-gray-100 dark:border-white/[0.05]">
                   <TableRow>
                     <TableCell
                       isHeader
-                      className="px-5 py-3 font-mediumbg bg-black text-gray-500 text-start whitespace-nowrap dark:text-gray-400"
+                      className="px-5 py-3 font-medium whitespace-nowrap w-20 text-gray-500 text-center dark:text-gray-400"
                     >
-                      Case Id
+                      Court Id
                     </TableCell>
                     <TableCell
                       isHeader
-                      className="px-5 py-3 font-mediumbg bg-black text-gray-500 text-start whitespace-nowrap dark:text-gray-400"
-                    >
-                      Client Name
-                    </TableCell>
-                    <TableCell
-                      isHeader
-                      className="px-5 py-3 font-mediumbg bg-black text-gray-500 text-start whitespace-nowrap dark:text-gray-400"
+                      className="px-5 py-3 font-medium whitespace-nowrap w-40 text-gray-500 text-center dark:text-gray-400"
                     >
                       Court Name
                     </TableCell>
                     <TableCell
                       isHeader
-                      className="px-5 py-3 font-medium bg-black text-gray-500 text-start whitespace-nowrap dark:text-gray-400"
+                      className="px-5 py-3 font-medium text-gray-500 text-center dark:text-gray-400"
                     >
-                      Title
+                      Type
+                    </TableCell>
+                    <TableCell
+                      isHeader
+                      className="px-5 py-3 font-medium text-gray-500 text-center dark:text-gray-400"
+                    >
+                      Location
+                    </TableCell>
+                    <TableCell
+                      isHeader
+                      className="px-5 py-3 m-3 whitespace-nowrap min-w-40 font-medium text-gray-500 text-center dark:text-gray-400"
+                    >
+                      <span>Contact Number</span>
                     </TableCell>
 
                     <TableCell
                       isHeader
-                      className="px-5 py-3 w-80 font-medium  bg-black text-gray-500 text-start whitespace-nowrap dark:text-gray-400"
-                    >
-                      Status
-                    </TableCell>
-                    <TableCell
-                      isHeader
-                      className="px-5 py-3 font-medium bg-black text-gray-500 text-start whitespace-nowrap dark:text-gray-400"
-                    >
-                      Start Date
-                    </TableCell>
-                    <TableCell
-                      isHeader
-                      className="px-5 py-3 font-medium bg-black text-gray-500 text-start whitespace-nowrap dark:text-gray-400"
-                    >
-                      End Date
-                    </TableCell>
-                    <TableCell
-                      isHeader
-                      className="px-5 py-3 font-medium bg-black text-gray-500 text-start whitespace-nowrap dark:text-gray-400"
+                      className="px-5 py-3 font-medium text-gray-500 text-center dark:text-gray-400"
                     >
                       Created At
                     </TableCell>
                     <TableCell
                       isHeader
-                      className="px-5 py-3 font-medium  bg-black text-gray-500 text-start whitespace-nowrap dark:text-gray-400"
+                      className="px-5 py-3 font-medium text-gray-500 text-center dark:text-gray-400"
                     >
                       Updated At
                     </TableCell>
@@ -219,107 +223,62 @@ const ListService = () => {
 
                 {/* Table Body */}
                 <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
-                  {casesList.map((item) => (
-                    <TableRow key={item.caseId}>
-                      <TableCell className="px-5 py-4 sm:px-6 text-start">
+                  {courtList.map((item) => (
+                    <TableRow className="h-20" key={item.courtId}>
+                      <TableCell className="px-5 py-4 sm:px-6 text-center">
                         <div className="flex items-center gap-3">
                           <div>
-                            <span className="block font-medium text-gray-800 text-theme-sm dark:text-white/90">
-                              {item.caseId ?? "N/A"}
-                            </span>
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell className="px-5 py-4 sm:px-6 text-start">
-                        <div className="flex items-center gap-3">
-                          <div>
-                            <span className="block font-medium text-gray-800 text-theme-sm dark:text-white/90">
-                              {item.client.clientName ?? "N/A"}
+                            <span className="block font-medium text-gray-800   text-theme-sm dark:text-white/90">
+                              {item.courtId ?? "N/A"}
                             </span>
                           </div>
                         </div>
                       </TableCell>
                       <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm  dark:text-white/90">
-                        {item.court.courtName ?? "N/A"}
+                        {item.courtName ?? "N/A"}
+                      </TableCell>
+                      <TableCell className="px-5 py-4 sm:px-6 text-center">
+                        <div className="flex items-center gap-3">
+                          <div>
+                            <span className="block font-medium text-gray-800 text-theme-sm dark:text-white/90">
+                              {item.courtType ?? "N/A"}
+                            </span>
+                          </div>
+                        </div>
                       </TableCell>
                       <TableCell className="px-5 py-4 sm:px-6 text-start">
                         <div className="flex items-center gap-3">
                           <div>
                             <span className="block font-medium text-gray-800 text-theme-sm dark:text-white/90">
-                              {item.title ?? "N/A"}
+                              {item.location ?? "N/A"}
+                            </span>
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell className="px-5 py-4 sm:px-6 text-start">
+                        <div className="flex items-center gap-3">
+                          <div>
+                            <span className="block font-medium text-gray-800 text-theme-sm dark:text-white/90">
+                              {item.contactNumber ?? "N/A"}
                             </span>
                           </div>
                         </div>
                       </TableCell>
 
-                      <TableCell className="px-5 py-4 sm:px-6 text-center">
+                      <TableCell className="px-5 py-4 whitespace-nowrap sm:px-6 text-start">
                         <div className="flex items-center gap-3">
                           <div>
-                            <span className="whitespace-nowrap w-60  font-medium text-gray-800 text-theme-sm dark:text-white/90">
-                              {/* {(item.status ?? "N/A") + " "} */}
-                              {formatReadableStatus(item.status ?? "N/A")}
+                            <span className="block font-medium text-gray-800 text-theme-sm dark:text-white/90">
+                              {dateFormatter(item.createdAt) ?? "N/A"}
                             </span>
                           </div>
                         </div>
                       </TableCell>
-                      <TableCell className="px-5 py-4 sm:px-6 text-start">
+                      <TableCell className="px-5 py-4 whitespace-nowrap sm:px-6 text-start">
                         <div className="flex items-center gap-3">
                           <div>
                             <span className="block font-medium text-gray-800 text-theme-sm dark:text-white/90">
-                              {new Date(
-                                item.startDate ?? ""
-                              ).toLocaleDateString("en-US", {
-                                year: "numeric",
-                                month: "long",
-                                day: "numeric",
-                              })}
-                            </span>
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell className="px-5 py-4 sm:px-6 text-start">
-                        <div className="flex items-center gap-3">
-                          <div>
-                            <span className="block font-medium text-gray-800 text-theme-sm dark:text-white/90">
-                              {new Date(item.endDate ?? "").toLocaleDateString(
-                                "en-US",
-                                {
-                                  year: "numeric",
-                                  month: "long",
-                                  day: "numeric",
-                                }
-                              )}
-                            </span>
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell className="px-5 py-4 sm:px-6 text-start">
-                        <div className="flex items-center gap-3">
-                          <div>
-                            <span className="block font-medium text-gray-800 text-theme-sm dark:text-white/90">
-                              {new Date(
-                                item.createdAt ?? ""
-                              ).toLocaleDateString("en-US", {
-                                year: "numeric",
-                                month: "long",
-                                day: "numeric",
-                              })}
-                            </span>
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell className="px-5 py-4 sm:px-6 text-start">
-                        <div className="flex items-center gap-3">
-                          <div>
-                            <span className="block font-medium text-gray-800 text-theme-sm dark:text-white/90">
-                              {new Date(item.upatedAt ?? "").toLocaleDateString(
-                                "en-US",
-                                {
-                                  year: "numeric",
-                                  month: "long",
-                                  day: "numeric",
-                                }
-                              )}
+                              {dateFormatter(item.updatedAt) ?? "N/A"}
                             </span>
                           </div>
                         </div>
@@ -328,7 +287,7 @@ const ListService = () => {
                         <div className="flex items-center gap-3">
                           {/* Update Button */}
                           <button
-                            onClick={() => goto(`/edit-case/${item.caseId}`)}
+                            onClick={() => routeForUpdate(item.courtId)}
                             className="p-2 text-sm rounded-md bg-blue-500 text-white hover:bg-blue-600"
                           >
                             <Edit size="24" color="#ffffff" />
@@ -336,16 +295,10 @@ const ListService = () => {
 
                           {/* Delete Button */}
                           <button
-                            onClick={() => handleDeleteCase(item?.caseId)}
+                            onClick={() => handleDeleteService(item?.courtId)}
                             className="p-2 text-sm rounded-md bg-red-500 text-white hover:bg-red-600"
                           >
                             <Trash size="24" color="#ffffff" />
-                          </button>
-                          <button
-                            onClick={() => goto("/case-detail-info")}
-                            className="p-2 text-sm rounded-md bg-green-700 text-white hover:bg-green-500"
-                          >
-                            <BsExclamation size="24" color="#ffffff" />
                           </button>
                         </div>
                       </TableCell>
@@ -361,4 +314,4 @@ const ListService = () => {
   );
 };
 
-export default ListService;
+export default ListCourt;

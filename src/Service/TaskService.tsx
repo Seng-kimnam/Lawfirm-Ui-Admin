@@ -1,6 +1,7 @@
 import {
   getClientList,
   getServiceUrl,
+  getTaskList,
   postServiceUrl,
   putServiceUrl,
 } from "../constants/constants_url";
@@ -8,38 +9,34 @@ import { ServiceItem } from "../model/Service";
 import { request } from "../constants/api";
 import { useEffect, useState } from "react";
 import { ClientInterface, ClientRequest } from "@/model/Client";
+import { TaskInterface, taskRequest } from "@/model/Task";
 
-export const GetClient = () => {
-  const [clientList, setClientList] = useState<ClientInterface[]>([]);
+export const GetTask = () => {
+  const [taskList, setTaskList] = useState<TaskInterface[]>([]);
   // const [expert , setExpert ] = useState<ServiceItem[]>([]);
   const [page, setPage] = useState<number>(1); // backend uses page 0-based
   const [totalPage, setTotalPage] = useState(1);
   const fetchData = async () => {
     try {
-      const res = await request(
-        getClientList(page),
-        "GET",
-        undefined,
-        undefined
-      );
+      const res = await request(getTaskList(page), "GET", undefined, undefined);
 
       // console.log("res", res);
       if (!res || !res.payload) throw new Error("No data received");
 
       // map data from API
-      setClientList(res?.payload?.content || []);
+      setTaskList(res?.payload?.content || []);
       // setExpert(res.payload.content || []);
       setTotalPage(res.payload.totalPages || 1);
     } catch (error) {
       console.error("Error fetching services:", error);
     }
   };
-  
+
   useEffect(() => {
     fetchData();
   }, []); // refetch when page changes
 
-  return { clientList, page, setPage, totalPage, refetch: fetchData };
+  return { taskList, page, setPage, totalPage, refetch: fetchData };
 };
 
 // // fetchServiceById
@@ -57,13 +54,13 @@ export const GetClient = () => {
 // };
 
 // Fetch Add Service
-export const postService = async (req: ClientRequest) => {
+export const postTask = async (req: taskRequest) => {
   try {
-    const response = await request("clients", "POST", req, {
+    const response = await request("tasks", "POST", req, {
       Authorization: `Bearer ${localStorage.getItem("token")}`,
     });
-    if (response.status === "CREATED") {
-      return response.data;
+    if (response.success) {
+      return response;
     }
   } catch (error) {
     alert(Error);
@@ -71,16 +68,16 @@ export const postService = async (req: ClientRequest) => {
 };
 
 // Update Service
-export const putService = async (req: ServiceItem) => {
+export const putTask = async (req: taskRequest, id: number) => {
   try {
-    if (!req.serviceId) {
-      throw new Error("Service ID is required for update");
+    if (!id) {
+      throw new Error("Task ID is required for update");
     }
-    const response = await request(putServiceUrl + req.serviceId, "PUT", req, {
+    const response = await request(`tasks/${id}`, "PUT", req, {
       Authorization: `Bearer ${localStorage.getItem("token")}`,
     });
-    if (response.status === 200) {
-      return response.data;
+    if (response.success) {
+      return response;
     }
   } catch (error: any) {
     alert(

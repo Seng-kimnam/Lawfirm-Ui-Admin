@@ -11,6 +11,8 @@ export interface ClientInterface {
   updatedAt: string;
 }
 
+
+
 export interface ClientRequest {
   clientName: string;
   email: string;
@@ -19,4 +21,10 @@ export interface ClientRequest {
   address: string;
   complaint: string;
   clientImage: string;
+}
+
+export interface ClientStatus {
+  statusId: number;
+  key: string;
+  value: string;
 }

@@ -55,8 +55,9 @@ const navItems: NavItem[] = [
     name: "Case Documents",
     subItems: [
       // { name: "Services", path: "/", pro: false },
-      { name: "Add Case", path: "/addcase", pro: false },
-      { name: "List Case", path: "/listcase", pro: false },
+      { name: "Add Case", path: "/add-case", pro: false },
+      { name: "List Case", path: "/list-case", pro: false },
+      // { name: "Case Detail Information", path: "/case-detail-info", pro: false },
     ],
   },
   {
@@ -85,10 +86,18 @@ const navItems: NavItem[] = [
   },
   {
     icon: <HiUsers />,
-    name: "Customers",
+    name: "Our Client",
     subItems: [
-      { name: "Add Customer", path: "/addcustomer", pro: false },
-      { name: "List Customer", path: "/listcustomer", pro: false },
+      // { name: "Add Customer", path: "/addcustomer", pro: false },
+      { name: "Client List", path: "/list-client", pro: false },
+    ],
+  },
+  {
+    icon: <HiUsers />,
+    name: "Court",
+    subItems: [
+      // { name: "Add Customer", path: "/addcustomer", pro: false },
+      { name: "Court List", path: "/list-court", pro: false },
     ],
   },
   {

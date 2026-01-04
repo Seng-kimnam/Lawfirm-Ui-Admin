@@ -1,5 +1,6 @@
 import {
   getClientList,
+  getCourtList,
   getServiceUrl,
   postServiceUrl,
   putServiceUrl,
@@ -8,16 +9,17 @@ import { ServiceItem } from "../model/Service";
 import { request } from "../constants/api";
 import { useEffect, useState } from "react";
 import { ClientInterface, ClientRequest } from "@/model/Client";
+import { CourtInterface, CourtRequest } from "@/model/Court";
 
-export const GetClient = () => {
-  const [clientList, setClientList] = useState<ClientInterface[]>([]);
+export const GetCourt = () => {
+  const [courtList, setCourtList] = useState<CourtInterface[]>([]);
   // const [expert , setExpert ] = useState<ServiceItem[]>([]);
   const [page, setPage] = useState<number>(1); // backend uses page 0-based
   const [totalPage, setTotalPage] = useState(1);
   const fetchData = async () => {
     try {
       const res = await request(
-        getClientList(page),
+        getCourtList(page),
         "GET",
         undefined,
         undefined
@@ -27,19 +29,19 @@ export const GetClient = () => {
       if (!res || !res.payload) throw new Error("No data received");
 
       // map data from API
-      setClientList(res?.payload?.content || []);
+      setCourtList(res?.payload?.content || []);
       // setExpert(res.payload.content || []);
       setTotalPage(res.payload.totalPages || 1);
     } catch (error) {
       console.error("Error fetching services:", error);
     }
   };
-  
+
   useEffect(() => {
     fetchData();
   }, []); // refetch when page changes
 
-  return { clientList, page, setPage, totalPage, refetch: fetchData };
+  return { courtList, page, setPage, totalPage, refetch: fetchData };
 };
 
 // // fetchServiceById
@@ -57,13 +59,13 @@ export const GetClient = () => {
 // };
 
 // Fetch Add Service
-export const postService = async (req: ClientRequest) => {
+export const postNewCourtService = async (req: CourtRequest) => {
   try {
-    const response = await request("clients", "POST", req, {
+    const response = await request("courts", "POST", req, {
       Authorization: `Bearer ${localStorage.getItem("token")}`,
     });
-    if (response.status === "CREATED") {
-      return response.data;
+    if (response.success) {
+      return response;
     }
   } catch (error) {
     alert(Error);
@@ -71,16 +73,16 @@ export const postService = async (req: ClientRequest) => {
 };
 
 // Update Service
-export const putService = async (req: ServiceItem) => {
+export const putCourtService = async (req: CourtRequest, id: number) => {
   try {
-    if (!req.serviceId) {
-      throw new Error("Service ID is required for update");
+    if (!id) {
+      throw new Error("Court Id is required for update");
     }
-    const response = await request(putServiceUrl + req.serviceId, "PUT", req, {
+    const response = await request(`courts/${id}`, "PUT", req, {
       Authorization: `Bearer ${localStorage.getItem("token")}`,
     });
-    if (response.status === 200) {
-      return response.data;
+    if (response.status === "ACCEPTED") {
+      return response;
     }
   } catch (error: any) {
     alert(

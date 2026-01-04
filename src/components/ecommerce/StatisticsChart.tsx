@@ -1,8 +1,27 @@
 import Chart from "react-apexcharts";
 import { ApexOptions } from "apexcharts";
 import ChartTab from "../common/ChartTab";
+import { GetClient } from "@/Service/ClientService";
+import { ClientInterface } from "@/model/Client";
+import { getRoles } from "@/Service/RoleService";
 
 export default function StatisticsChart() {
+  const { clientList } = GetClient();
+  const { list } = getRoles();
+  console.log("client list in statistics chart:", clientList);
+  function getClientStatisticByMonth(list: any[]) {
+    const monthCounts: number[] = Array(12).fill(0); // this mean 12 element & start from 0 to 11
+    list.forEach((l) => {
+      if (!l.createdAt) return;
+      const month = new Date(l.createdAt).getMonth(); // return as index
+      console.log("month:", month);
+      monthCounts[month]++;
+    });
+    return monthCounts;
+  }
+  const monthlyDataOfClient = getClientStatisticByMonth(clientList);
+  const roleMonthly = getClientStatisticByMonth(list);
+  console.log("monthly data:", monthlyDataOfClient);
   const options: ApexOptions = {
     legend: {
       show: false, // Hide legend
@@ -103,12 +122,12 @@ export default function StatisticsChart() {
 
   const series = [
     {
-      name: "Sales",
-      data: [180, 190, 170, 160, 175, 165, 170, 205, 230, 210, 240, 235],
+      name: "Client Request",
+      data: monthlyDataOfClient,
     },
     {
-      name: "Revenue",
-      data: [40, 30, 50, 40, 55, 40, 70, 100, 110, 120, 150, 140],
+      name: "Role System",
+      data: roleMonthly, // will be modified later
     },
   ];
   return (

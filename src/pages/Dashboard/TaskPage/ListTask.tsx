@@ -12,31 +12,86 @@ import {
 } from "../../../components/ui/table";
 import Button from "../../../utils/button/Button";
 import { BoxIcon } from "../../../icons";
-import { BsArrowLeft, BsArrowRight } from "react-icons/bs";
+import { BsArrowLeft, BsArrowRight, BsExclamation } from "react-icons/bs";
 import { BiSearch } from "react-icons/bi";
+import { GetTask } from "@/Service/TaskService.tsx";
+import { Edit, Trash } from "iconsax-reactjs";
+import toast from "react-hot-toast";
+import { request } from "@/constants/api.tsx";
 const ListService = () => {
   const navigate = useNavigate();
-  const { list, page, totalPage, setPage } = GetService();
+  const { taskList, page, totalPage, setPage, refetch } = GetTask();
+  console.log("taskList", taskList);
+  const goto = useNavigate();
+  function handleViewDetails(id: number) {
+    navigate(`/service-detail/${id}`);
+  }
+  async function handleDeleteCase(id: number) {
+    toast(
+      (t) => (
+        <div className="flex flex-col font-extrabold text-black text-lg  gap-2">
+          <p>Are you sure you want to delete Task id {id}?</p>
+
+          <div className="flex justify-end gap-2">
+            <button
+              className="px-3 py-1 text-[16px] text-black bg-gray-300 rounded"
+              onClick={() => toast.dismiss(t.id)}
+            >
+              Cancel
+            </button>
+
+            <button
+              className="px-3 py-1 text-[16px] bg-red-600 text-white rounded"
+              onClick={async () => {
+                toast.dismiss(t.id);
+
+                const loadingId = toast.loading("Deleting task...");
+
+                try {
+                  const res = await request(
+                    `cases/${id}`,
+                    "DELETE",
+                    undefined,
+                    undefined
+                  );
+
+                  toast.dismiss(loadingId);
+
+                  if (res?.status === "ACCEPTED") {
+                    toast.success(`Task ID ${id} deleted successfully`);
+                  } else {
+                    toast.error(res?.detail || "Delete failed");
+                  }
+                } catch (error) {
+                  toast.dismiss(loadingId);
+                  toast.error("Server error. Please try again.");
+                }
+              }}
+            >
+              Confirm
+            </button>
+          </div>
+        </div>
+      ),
+      {
+        // kit jea millisecond
+        duration: Infinity, // stays until user clicks
+      }
+    );
+  }
   // Ensure list is an array
   return (
     <div>
       <div className="space-y-6">
         <ComponentCard
-          title="List Services"
-          desc="A list of all services available in the system."
+          title="List Of Laywer Tasks"
+          desc="A list of all taks available in the system."
           headerActions={
             <>
               <Button
                 size="md"
-                variant="outline"
-                startIcon={<BoxIcon className="size-5" />}
-              >
-                Export
-              </Button>
-              <Button
-                size="md"
                 variant="primary"
-                onClick={() => navigate("/service")}
+                onClick={() => navigate("/addtask")}
               >
                 Create Service
               </Button>
@@ -82,82 +137,119 @@ const ListService = () => {
           }
         >
           <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
-            <div className="max-w-full overflow-x-auto">
+            <div className="max-w-[1130px] overflow-x-auto">
               <Table>
                 {/* Table Header */}
                 <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
                   <TableRow>
                     <TableCell
                       isHeader
-                      className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                      className="px-5 py-3 font-medium text-gray-500  whitespace-nowrap dark:text-gray-400"
                     >
-                      Task Name
+                      Task Id
                     </TableCell>
                     <TableCell
                       isHeader
-                      className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                      className="px-5 py-3 font-medium text-gray-500  whitespace-nowrap dark:text-gray-400"
                     >
-                      Service Type
+                      Lawyer Name
                     </TableCell>
                     <TableCell
                       isHeader
-                      className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                      className="px-5 py-3 font-medium text-gray-500  whitespace-nowrap dark:text-gray-400"
                     >
-                      Description
+                      Client Name
                     </TableCell>
                     <TableCell
                       isHeader
-                      className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                      className="px-5 py-3 font-medium text-gray-500  whitespace-nowrap dark:text-gray-400"
                     >
-                      Base Price
+                      Court Name
+                    </TableCell>
+                    <TableCell
+                      isHeader
+                      className="px-5 py-3 font-medium text-gray-500  whitespace-nowrap dark:text-gray-400"
+                    >
+                      Title
+                    </TableCell>
+                    <TableCell
+                      isHeader
+                      className="px-5 py-3 font-medium text-gray-500  whitespace-nowrap dark:text-gray-400"
+                    >
+                      Priority
+                    </TableCell>
+                    <TableCell
+                      isHeader
+                      className="px-5 py-3 font-medium text-gray-500  whitespace-nowrap dark:text-gray-400"
+                    >
+                      Status
+                    </TableCell>
+                    <TableCell
+                      isHeader
+                      className="px-5 py-3 font-medium text-gray-500  whitespace-nowrap dark:text-gray-400"
+                    >
+                      Due Date
                     </TableCell>
                     {/* <TableCell
                       isHeader
-                      className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                      className="px-5 py-3 font-medium text-gray-500  text-theme-xs dark:text-gray-400"
                     >
                       Created By
                     </TableCell> */}
                     <TableCell
                       isHeader
-                      className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                      className="px-5 py-3 font-medium text-gray-500  text-theme-xs dark:text-gray-400"
                     >
                       Created At
                     </TableCell>
                     <TableCell
                       isHeader
-                      className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                      className="px-5 py-3 font-medium text-gray-500  text-theme-xs dark:text-gray-400"
                     >
                       Updated At
+                    </TableCell>
+                    <TableCell
+                      isHeader
+                      className="px-5 py-3 font-medium text-gray-500  text-theme-xs dark:text-gray-400"
+                    >
+                      Action
                     </TableCell>
                   </TableRow>
                 </TableHeader>
 
                 {/* Table Body */}
                 <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
-                  {list.map((item) => (
-                    <TableRow key={item.serviceId}>
-                      <TableCell className="px-5 py-4 sm:px-6 text-start">
+                  {taskList.map((item) => (
+                    <TableRow key={item.taskId}>
+                      <TableCell className="px-5 py-4 sm:px-6 ">
                         <div className="flex items-center gap-3">
                           <div>
                             <span className="block font-medium text-gray-800 text-theme-sm dark:text-white/90">
-                              {item.serviceName ?? "N/A"}
+                              {item.taskId ?? "N/A"}
                             </span>
                           </div>
                         </div>
                       </TableCell>
-                      <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm  dark:text-white/90">
-                        {item.expertiseId ?? "N/A"}
+                      <TableCell className="px-4 py-3 text-gray-500  text-theme-sm  dark:text-white/90">
+                        {item.lawyer.fullName ?? "N/A"}
                       </TableCell>
-                      <TableCell className="px-5 py-4 sm:px-6 text-start">
+                      <TableCell className="px-4 py-3 text-gray-500  text-theme-sm  dark:text-white/90">
+                        {item.legalCase.client.clientName ?? "N/A"}
+                      </TableCell>
+                      <TableCell className="px-4 py-3 text-gray-500  text-theme-sm  dark:text-white/90">
+                        {item.legalCase.court.courtName ?? "N/A"}
+                      </TableCell>
+
+                      <TableCell className="px-5 py-4 sm:px-6 ">
                         <div className="flex items-center gap-3">
                           <div>
                             <span className="block font-medium text-gray-800 text-theme-sm dark:text-white/90">
-                              {item.description ?? "N/A"}
+                              {item.title ?? "N/A"}
                             </span>
                           </div>
                         </div>
                       </TableCell>
-                      {/* <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-white/90">
+                      {/* <TableCell className="px-4 py-3 text-gray-500  text-theme-sm dark:text-white/90">
                         <Badge
                           size="sm"
                           color={
@@ -171,20 +263,29 @@ const ListService = () => {
                           {item.status}
                         </Badge>
                       </TableCell> */}
-                      <TableCell className="px-5 py-4 sm:px-6 text-start">
+                      <TableCell className="px-5 py-4 sm:px-6 ">
                         <div className="flex items-center gap-3">
                           <div>
                             <span className="block font-medium text-gray-800 text-theme-sm dark:text-white/90">
-                              {(item.basePrice ?? "N/A") + " $"}
+                              {item.priority ?? "N/A"}
                             </span>
                           </div>
                         </div>
                       </TableCell>
-                      <TableCell className="px-5 py-4 sm:px-6 text-start">
+                      <TableCell className="px-5 py-4 sm:px-6 ">
                         <div className="flex items-center gap-3">
                           <div>
                             <span className="block font-medium text-gray-800 text-theme-sm dark:text-white/90">
-                              {new Date(item.createdAt ?? "").toLocaleDateString(
+                              {item.status ?? "N/A"}
+                            </span>
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell className="px-5 py-4 sm:px-6 ">
+                        <div className="flex items-center gap-3">
+                          <div>
+                            <span className="block font-medium text-gray-800 text-theme-sm dark:text-white/90">
+                              {new Date(item.dueDate ?? "").toLocaleDateString(
                                 "en-US",
                                 {
                                   year: "numeric",
@@ -196,20 +297,61 @@ const ListService = () => {
                           </div>
                         </div>
                       </TableCell>
-                      <TableCell className="px-5 py-4 sm:px-6 text-start">
+                      <TableCell className="px-5 py-4 sm:px-6 ">
                         <div className="flex items-center gap-3">
                           <div>
                             <span className="block font-medium text-gray-800 text-theme-sm dark:text-white/90">
-                              {new Date(item.updatedAt ?? "").toLocaleDateString(
-                                "en-US",
-                                {
-                                  year: "numeric",
-                                  month: "long",
-                                  day: "numeric",
-                                }
-                              )}
+                              {new Date(
+                                item.createdAt ?? ""
+                              ).toLocaleDateString("en-US", {
+                                year: "numeric",
+                                month: "long",
+                                day: "numeric",
+                              })}
                             </span>
                           </div>
+                        </div>
+                      </TableCell>
+                      <TableCell className="px-5 py-4 sm:px-6 ">
+                        <div className="flex items-center gap-3">
+                          <div>
+                            <span className="block font-medium text-gray-800 text-theme-sm dark:text-white/90">
+                              {new Date(
+                                item.updatedAt ?? ""
+                              ).toLocaleDateString("en-US", {
+                                year: "numeric",
+                                month: "long",
+                                day: "numeric",
+                              })}
+                            </span>
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell className="px-5 py-4 sm:px-6 ">
+                        <div className="flex items-center gap-3">
+                          {/* Update Button */}
+                          <button
+                            onClick={() => goto(`/edit-task/${item.taskId}`)}
+                            className="p-2 text-sm rounded-md bg-blue-500 text-white hover:bg-blue-600"
+                          >
+                            <Edit size="24" color="#ffffff" />
+                          </button>
+
+                          {/* Delete Button */}
+                          <button
+                            onClick={() => handleDeleteCase(item?.taskId)}
+                            className="p-2 text-sm rounded-md bg-red-500 text-white hover:bg-red-600"
+                          >
+                            <Trash size="24" color="#ffffff" />
+                          </button>
+                          <button
+                            onClick={() =>
+                              goto(`/task-detail-info/${item.taskId}`)
+                            }
+                            className="p-2 text-sm rounded-md bg-green-700 text-white hover:bg-green-500"
+                          >
+                            <BsExclamation size="24" color="#ffffff" />
+                          </button>
                         </div>
                       </TableCell>
                     </TableRow>

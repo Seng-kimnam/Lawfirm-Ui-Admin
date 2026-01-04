@@ -119,7 +119,7 @@ const Service = () => {
     refetch();
     navigation("/list-service");
   };
-  console.log("name ", serviceForUpdate); 
+ 
 
   return (
     <div>

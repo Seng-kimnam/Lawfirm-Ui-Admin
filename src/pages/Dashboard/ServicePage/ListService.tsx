@@ -19,20 +19,21 @@ import { BiSearch } from "react-icons/bi";
 import { AiOutlinePlus } from "react-icons/ai";
 import { ServiceItem } from "../../../model/Service.tsx";
 import { request } from "@/constants/api.tsx";
+import { Edit, Trash } from "lucide-react";
 const ListService = () => {
   const navigate = useNavigate();
   const { list, page, totalPage, setPage } = GetService();
 
   // Ensure list is an array
-  const handleUpdate = (item: ServiceItem) => {
-    navigate(`/service/${item.serviceId}`);
+  const handleUpdate = (serviceId: number) => {
+    navigate(`/service/${serviceId}`);
   };
 
   async function handleDeleteService(id: number) {
     toast(
       (t) => (
         <div className="flex flex-col font-extrabold text-black text-lg  gap-2">
-          <p>Are you sure you want to delete service ID {id}?</p>
+          <p>Are you sure you want to delete service Id {id}?</p>
 
           <div className="flex justify-end gap-2">
             <button
@@ -60,7 +61,7 @@ const ListService = () => {
                   toast.dismiss(loadingId);
 
                   if (res?.status === "ACCEPTED") {
-                    toast.success(`Service ID ${id} deleted successfully`);
+                    toast.success(`Service Id ${id} deleted successfully`);
                   } else {
                     toast.error(res?.detail || "Delete failed");
                   }
@@ -236,22 +237,22 @@ const ListService = () => {
                           </div>
                         </div>
                       </TableCell>
-                      <TableCell className="px-5 py-4 sm:px-6 text-start">
-                        <div className="flex items-center gap-3">
+                      <TableCell className="px-5 py-4 sm:px-6  text-start">
+                        <div className="flex justify-center items-center gap-3">
                           {/* Update Button */}
                           <button
-                            onClick={() => handleUpdate(item)}
-                            className="px-3 py-1 text-sm rounded-md bg-blue-500 text-white hover:bg-blue-600"
+                            onClick={() => handleUpdate(item.serviceId)}
+                            className="p-2 text-sm rounded-md bg-blue-500 text-white hover:bg-blue-600"
                           >
-                            Update
+                            <Edit size="24" color="#ffffff" />
                           </button>
 
                           {/* Delete Button */}
                           <button
                             onClick={() => handleDeleteService(item?.serviceId)}
-                            className="px-3 py-1 text-sm rounded-md bg-red-500 text-white hover:bg-red-600"
+                            className="p-2 text-sm rounded-md bg-red-500 text-white hover:bg-red-600"
                           >
-                            Delete
+                            <Trash size="24" color="#ffffff" />
                           </button>
                         </div>
                       </TableCell>

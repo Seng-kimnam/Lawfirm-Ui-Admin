@@ -1,3 +1,6 @@
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router";
+import { isTokenExpired } from "../utils/jwt";
 import { SidebarProvider, useSidebar } from "../context/SidebarContext";
 import { Outlet } from "react-router";
 import AppHeader from "./AppHeader";
@@ -6,6 +9,23 @@ import AppSidebar from "./AppSidebar";
 
 const LayoutContent: React.FC = () => {
   const { isExpanded, isHovered, isMobileOpen } = useSidebar();
+  const navigate = useNavigate();
+  const [checked, setChecked] = useState(false);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+
+    if (!token || isTokenExpired(token)) {
+      localStorage.removeItem("token");
+      navigate("/signin", { replace: true });
+      return;
+    }
+
+    setChecked(true);
+  }, [navigate]);
+
+  // ⛔ BLOCK UI until auth is checked
+  if (!checked) return null;
 
   return (
     <div className="min-h-screen xl:flex">
@@ -26,14 +46,10 @@ const LayoutContent: React.FC = () => {
     </div>
   );
 };
-
-const AppLayout: React.FC = () => {
+export default function AppLayout() {
   return (
     <SidebarProvider>
       <LayoutContent />
     </SidebarProvider>
-    
   );
-};
-
-export default AppLayout;
+}

@@ -214,7 +214,7 @@ const AddFileDocument = () => {
         undefined,
         "application/json"
       );
-      console.log("Document created successfully", response);
+      
       if (response?.success) {
         handleCancelUpdate();
       }

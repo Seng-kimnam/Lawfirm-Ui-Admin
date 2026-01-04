@@ -17,7 +17,7 @@ import { BoxIcon } from "../../../icons";
 import { BsArrowLeft, BsArrowRight } from "react-icons/bs";
 import { BiSearch } from "react-icons/bi";
 import { AiOutlinePlus } from "react-icons/ai";
-import { ServiceItem } from "../../../model/Service.tsx";
+
 import { request } from "@/constants/api.tsx";
 import { GetClient } from "@/Service/ClientService.tsx";
 import {
@@ -26,14 +26,16 @@ import {
   DialogHeader,
   DialogTrigger,
 } from "@/components/ui/dialog.tsx";
-import EmbeddedPdfViewer from "@/utils/EmbeddedPdfViewer.tsx";
+
+import { Edit, Trash } from "lucide-react";
+import { useEffect } from "react";
 const ListClient = () => {
   const navigate = useNavigate();
-  const { clientList, page, totalPage, setPage } = GetClient();
+  const { clientList, page, totalPage, setPage, refetch } = GetClient();
 
   // Ensure list is an array
-  const handleUpdate = (item: ServiceItem) => {
-    navigate(`/service/${item.serviceId}`);
+  const routeForUpdate = (id: number) => {
+    navigate(`/edit-client/${id}`);
   };
 
   function dateFormatter(iso: string) {
@@ -45,6 +47,9 @@ const ListClient = () => {
       minute: "2-digit",
     });
   }
+  useEffect(() => {
+    refetch;
+  }, []);
   async function handleDeleteService(id: number) {
     toast(
       (t) => (
@@ -166,7 +171,7 @@ const ListClient = () => {
           }
         >
           <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
-            <div className="max-w-[1140px] overflow-x-auto ">
+            <div className="max-w-[1100px] overflow-x-auto ">
               <Table>
                 {/* Table Header */}
                 <TableHeader className="border-b   bg-black   border-gray-100 dark:border-white/[0.05]">
@@ -355,18 +360,18 @@ const ListClient = () => {
                         <div className="flex items-center gap-3">
                           {/* Update Button */}
                           <button
-                            // onClick={() => handleUpdate(item)}
-                            className="px-3 py-1 text-sm rounded-md bg-blue-500 text-white hover:bg-blue-600"
+                            onClick={() => routeForUpdate(item.clientId)}
+                            className="p-2 text-sm rounded-md bg-blue-500 text-white hover:bg-blue-600"
                           >
-                            Update
+                            <Edit size="24" color="#ffffff" />
                           </button>
 
                           {/* Delete Button */}
                           <button
                             onClick={() => handleDeleteService(item?.clientId)}
-                            className="px-3 py-1 text-sm rounded-md bg-red-500 text-white hover:bg-red-600"
+                            className="p-2 text-sm rounded-md bg-red-500 text-white hover:bg-red-600"
                           >
-                            Delete
+                            <Trash size="24" color="#ffffff" />
                           </button>
                         </div>
                       </TableCell>

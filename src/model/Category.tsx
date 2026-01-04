@@ -5,6 +5,6 @@ export interface CategoryInterface {
   updatedAt: string;
 }
 
-export interface  CategoryRequest {
+export interface CategoryRequest {
   categoryName: string;
 }

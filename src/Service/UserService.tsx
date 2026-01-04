@@ -1,68 +1,100 @@
-import { loginUrl } from "../constants/constants_url";
-import {request} from "../constants/api";
-// // import { useState } from "react";
+import { useEffect, useState } from "react";
 
-// export const login = async (email: string, password: string ) => {
-//   try {
-//     const data = {
-//           email: email,
-//           password: password,
-//       }
-//     const res = await request(loginUrl,"post" ,data);
-//     if (!res || !res.list) throw new Error("No data received");
-//     // console.log(res);
-//     if (res.status === 200) {
-//       localStorage.setItem("token", res.data["data"]["access_token"]);
-//       if (res.user){
-//                   localStorage.setItem('id',res.user.id);
-//                   localStorage.setItem('user_name',res.user.user_name);
-//                   localStorage.setItem('email',res.user.email);
-//                   if (res.user.staff){
-//                       localStorage.setItem('image',res.user.staff.image);
-//                       localStorage.setItem('phone',res.user.staff.phone);
-//                   }
-//               }
-//       return res.data;
-//     }
-//   } catch (error) {
-//     console.log(error);
-//   }
-//   return null;
-// };
+import { registerUrl } from "../constants/constants_url";
+import { request } from "../constants/api";
+import { Lawyer, Lawyers } from "@/model/Lawyer";
 
-export const login = async (email: string, password: string) => {
+export const GetLawyers = () => {
+  const [list, setList] = useState<Lawyer[]>([]);
+  const [page, setPage] = useState<number>(1);
+  const [totalPage, setTotalPage] = useState(1);
+  const [totalElements, setTotalElements] = useState<number>(0);
+  const fetchData = async () => {
+    try {
+      const res = await request("lawyers", "GET", undefined, undefined);
+
+      if (!res || !res.payload) throw new Error("No data received");
+      // map data from API
+      setList(res.payload || []);
+
+      setTotalPage(res.payload.totalPages || 1);
+      setTotalElements(res?.payload?.totalElements);
+    } catch (error) {
+      console.error("Error fetching lawyers:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, [page]);
+
+  return { list, page, totalElements, setPage, totalPage, refetch: fetchData };
+};
+
+// Add Lawyer
+const token = localStorage.getItem("token");
+export const postLawyer = async (data: Lawyer) => {
   try {
-    const data = { email, password };
-
-    const res = await request(loginUrl, "post", data);
-    console.log("API response:", res);
-
-    // If backend returns error format
-    if (!res || res.status !== 200) {
-      return { error: res?.message || "Invalid email or password" };
+    const response = await request(registerUrl, "POST", data, {
+      Authorization: `Bearer ${token}`,
+    });
+    if (response.status === 200) {
+      return response.data;
     }
-
-    // Example backend structure: res.data.data.access_token
-    const token = res.data?.data?.access_token;
-    if (token) {
-      localStorage.setItem("token", token);
-    }
-
-    if (res.user) {
-      localStorage.setItem("id", res.user.id);
-      localStorage.setItem("user_name", res.user.user_name);
-      localStorage.setItem("email", res.user.email);
-
-      if (res.user.staff) {
-        localStorage.setItem("image", res.user.staff.image);
-        localStorage.setItem("phone", res.user.staff.phone);
-      }
-    }
-
-    return res; // return entire response on success
-
   } catch (error) {
-    console.log("Login error:", error);
-    return { error: "Network error" };
+    alert(Error);
+  }
+};
+
+export const registerLawyerService = async (data: Lawyers) => {
+  const formData = new FormData();
+  formData.append("fullName", data.fullName);
+  formData.append("title", data.title);
+  formData.append("roleId", String(data.roleId));
+  formData.append("gender", data.gender);
+  formData.append("email", data.email);
+  formData.append("phoneNumber", data.phoneNumber);
+  formData.append("password", data.password);
+  formData.append("description", data.description);
+  formData.append("lawyerStatus", data.lawyerStatus);
+
+  data.expertiseIdList.forEach((id: number) =>
+    formData.append("expertiseIdList", String(id))
+  );
+
+  formData.append("facebookLink", data.facebookLink ?? "");
+  formData.append("tiktokLink", data.tiktokLink ?? "");
+  formData.append("telegramLink", data.telegramLink ?? "");
+
+  if (data.image) {
+    formData.append("image", data.image);
+  }
+
+  const response = await request(
+    "auths/register",
+    "POST",
+    formData,
+    undefined,
+    "multipart/form-data"
+  );
+
+  return response.data;
+};
+// Update Lawyer
+// fetchLawyerById
+export const fetchLawyerById = async (
+  id: number | string
+): Promise<Lawyers | null> => {
+  try {
+    const res = await request(`lawyers/${id}`, "GET", undefined, {
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
+    });
+
+    if (!res || !res.payload) return null;
+
+    return res.payload;
+  } catch (err) {
+    console.error("Error fetching lawyer by ID:", err);
+    return null;
   }
 };
