@@ -11,7 +11,7 @@ export interface CaseInterface {
   startDate: string;
   endDate: string;
   createdAt: string;
-  upatedAt: string;
+  updatedAt: string;
 }
 
 export interface CaseStatus {

@@ -1,6 +1,5 @@
 import ComponentCard from "../../../components/common/ComponentCard";
-import Badge from "../../../components/ui/badge/Badge";
-import { GetService } from "../../../Service/ListServiceService";
+
 import Input from "../../../utils/input/InputField.tsx";
 import { useNavigate } from "react-router-dom";
 import {
@@ -11,13 +10,12 @@ import {
   TableRow,
 } from "../../../components/ui/table";
 import Button from "../../../utils/button/Button";
-import { BoxIcon } from "../../../icons";
-import { BsArrowLeft, BsArrowRight, BsExclamation } from "react-icons/bs";
 import { BiSearch } from "react-icons/bi";
 import { GetCase } from "@/Service/CaseService.tsx";
-import { Edit, Trash } from "lucide-react";
 import toast from "react-hot-toast";
 import { request } from "@/constants/api.tsx";
+import { BsArrowLeft, BsArrowRight, BsExclamation } from "react-icons/bs";
+import { Edit, Trash } from "iconsax-reactjs";
 const ListService = () => {
   const navigate = useNavigate();
   const { casesList, page, totalPage, setPage } = GetCase();
@@ -29,7 +27,7 @@ const ListService = () => {
   function formatReadableStatus(status: string) {
     switch (status) {
       case "IN_PROGRESSING":
-        return "In Progressing";
+        return "In Progress";
       case "DONE":
         return "Done";
       case "PENDING":
@@ -186,25 +184,25 @@ const ListService = () => {
                     </TableCell>
                     <TableCell
                       isHeader
-                      className="px-5 py-3 font-medium bg-black text-gray-500 text-start whitespace-nowrap dark:text-gray-400"
+                      className="px-5 py-3 font-medium bg-black text-gray-500 text-center whitespace-nowrap min-w-44 dark:text-gray-400"
                     >
                       Start Date
                     </TableCell>
                     <TableCell
                       isHeader
-                      className="px-5 py-3 font-medium bg-black text-gray-500 text-start whitespace-nowrap dark:text-gray-400"
+                      className="px-5 py-3 font-medium bg-black text-gray-500 text-start whitespace-nowrap min-w-44 dark:text-gray-400"
                     >
                       End Date
                     </TableCell>
                     <TableCell
                       isHeader
-                      className="px-5 py-3 font-medium bg-black text-gray-500 text-start whitespace-nowrap dark:text-gray-400"
+                      className="px-5 py-3 font-medium bg-black text-gray-500 text-start whitespace-nowrap min-w-44 dark:text-gray-400"
                     >
                       Created At
                     </TableCell>
                     <TableCell
                       isHeader
-                      className="px-5 py-3 font-medium  bg-black text-gray-500 text-start whitespace-nowrap dark:text-gray-400"
+                      className="px-5 py-3 font-medium  bg-black text-gray-500 text-start whitespace-nowrap min-w-44 dark:text-gray-400"
                     >
                       Updated At
                     </TableCell>
@@ -312,7 +310,7 @@ const ListService = () => {
                         <div className="flex items-center gap-3">
                           <div>
                             <span className="block font-medium text-gray-800 text-theme-sm dark:text-white/90">
-                              {new Date(item.upatedAt ?? "").toLocaleDateString(
+                              {new Date(item.updatedAt ?? "").toLocaleDateString(
                                 "en-US",
                                 {
                                   year: "numeric",
@@ -342,7 +340,7 @@ const ListService = () => {
                             <Trash size="24" color="#ffffff" />
                           </button>
                           <button
-                            onClick={() => goto("/case-detail-info")}
+                            onClick={() => goto(`/case-detail-info/${item.caseId}` )}
                             className="p-2 text-sm rounded-md bg-green-700 text-white hover:bg-green-500"
                           >
                             <BsExclamation size="24" color="#ffffff" />

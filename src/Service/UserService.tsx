@@ -11,7 +11,7 @@ export const GetLawyers = () => {
   const [totalElements, setTotalElements] = useState<number>(0);
   const fetchData = async () => {
     try {
-      const res = await request("lawyers", "GET", undefined, undefined);
+      const res = await request("admin/lawyers/no-pagination", "GET", undefined, undefined);
 
       if (!res || !res.payload) throw new Error("No data received");
       // map data from API

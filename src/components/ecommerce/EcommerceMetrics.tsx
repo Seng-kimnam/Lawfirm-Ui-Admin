@@ -27,7 +27,10 @@ export default function EcommerceMetrics() {
               Customers
             </span>
             <h4 className="mt-2 font-bold text-lg text-gray-800  dark:text-white/90">
-              <span className="animate-caret-blink text-2xl font-bold duration-200 delay-300 px-2 inline-block ">{clientList?.length}</span> requests
+              <span className="animate-caret-blink text-2xl font-bold duration-200 delay-300 px-2 inline-block ">
+                {clientList?.length}
+              </span>{" "}
+              requests
             </h4>
           </div>
           <Badge color="success">
@@ -48,7 +51,7 @@ export default function EcommerceMetrics() {
             <span className="text-lg text-gray-500 dark:text-gray-400">
               Our Lawyers
             </span>
-            <h4 className="mt-2 font-bold text-gray-800 text-title-sm dark:text-white/90">
+            <h4 className="mt-2 animate-caret-blink  font-bold text-gray-800 text-title-sm dark:text-white/90">
               {totalElements}
             </h4>
           </div>

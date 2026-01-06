@@ -186,7 +186,7 @@ const ListService = () => {
                     </TableCell>
                     <TableCell
                       isHeader
-                      className="px-5 py-3 font-medium text-gray-500  whitespace-nowrap dark:text-gray-400"
+                      className="px-5 py-3 font-medium text-gray-500  whitespace-nowrap min-w-40 dark:text-gray-400"
                     >
                       Due Date
                     </TableCell>
@@ -198,13 +198,13 @@ const ListService = () => {
                     </TableCell> */}
                     <TableCell
                       isHeader
-                      className="px-5 py-3 font-medium text-gray-500  text-theme-xs dark:text-gray-400"
+                      className="px-5 py-3 font-medium text-gray-500  whitespace-nowrap min-w-40  dark:text-gray-400"
                     >
                       Created At
                     </TableCell>
                     <TableCell
                       isHeader
-                      className="px-5 py-3 font-medium text-gray-500  text-theme-xs dark:text-gray-400"
+                      className="px-5 py-3 font-medium text-gray-500  whitespace-nowrap min-w-40 dark:text-gray-400"
                     >
                       Updated At
                     </TableCell>

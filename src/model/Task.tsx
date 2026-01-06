@@ -1,9 +1,9 @@
 import { CaseInterface } from "./Case";
-import { Lawyers } from "./Lawyer";
+import { Lawyer, Lawyers } from "./Lawyer";
 
 export interface TaskInterface {
   taskId: number;
-  lawyer: Lawyers;
+  lawyer: Lawyer;
   legalCase: CaseInterface;
   title: string;
   description: string;
