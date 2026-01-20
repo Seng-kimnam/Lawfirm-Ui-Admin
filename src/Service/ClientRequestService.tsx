@@ -1,5 +1,4 @@
 import {
-  getCaseList,
   getClientList,
   getServiceUrl,
   postServiceUrl,
@@ -8,46 +7,17 @@ import {
 import { ServiceItem } from "../model/Service";
 import { request } from "../constants/api";
 import { useEffect, useState } from "react";
-import { ClientInterface, ClientRequest } from "@/model/Client";
-import { CaseInterface, CaseRequest } from "@/model/Case";
+import { ClientInterface, ClientRequest, ClientRequestInterface } from "@/model/Client";
 
-export const GetCase = () => {
-  const [casesList, setCaseList] = useState<CaseInterface[]>([]);
+export const GetClientRequest = () => {
+  const [clientRequestList, setClientRequestList] = useState<ClientRequestInterface[]>([]);
   // const [expert , setExpert ] = useState<ServiceItem[]>([]);
   const [page, setPage] = useState<number>(1); // backend uses page 0-based
   const [totalPage, setTotalPage] = useState(1);
   const fetchData = async () => {
     try {
-      const res = await request(getCaseList(page), "GET", undefined, undefined);
-
-      // console.log("res", res);
-      if (!res || !res.payload) throw new Error("No data received");
-
-      // map data from API
-      setCaseList(res?.payload?.content || []);
-      // setExpert(res.payload.content || []);
-      setTotalPage(res.payload.totalPages || 1);
-    } catch (error) {
-      console.error("Error fetching services:", error);
-    }
-  };
-
-  useEffect(() => {
-    fetchData();
-  }, []); // refetch when page changes
-
-  return { casesList, page, setPage, totalPage, refetch: fetchData };
-};
-
-export const GetCaseNoPagination = () => {
-  const [casesList, setCaseList] = useState<CaseInterface[]>([]);
-  // const [expert , setExpert ] = useState<ServiceItem[]>([]);
-  const [page, setPage] = useState<number>(1); // backend uses page 0-based
-  // const [totalPage, setTotalPage] = useState(1);
-  const fetchData = async () => {
-    try {
       const res = await request(
-        "cases/no-pagination",
+        getClientList(page),
         "GET",
         undefined,
         undefined
@@ -57,19 +27,20 @@ export const GetCaseNoPagination = () => {
       if (!res || !res.payload) throw new Error("No data received");
 
       // map data from API
-      setCaseList(res?.payload || []);
+      setClientRequestList(res?.payload?.content || []);
       // setExpert(res.payload.content || []);
-      // setTotalPage(res.payload.totalPages || 1);
+      setTotalPage(res.payload.totalPages || 1);
     } catch (error) {
       console.error("Error fetching services:", error);
     }
   };
-
+  
   useEffect(() => {
     fetchData();
   }, []); // refetch when page changes
+  
 
-  return { casesList, page, setPage, refetch: fetchData };
+  return { clientRequestList, page, setPage, totalPage, refetch: fetchData };
 };
 
 // // fetchServiceById
@@ -87,13 +58,17 @@ export const GetCaseNoPagination = () => {
 // };
 
 // Fetch Add Service
-export const postCaseService = async (req: CaseRequest) => {
-  const response = await request("cases", "POST", req, {
-    Authorization: `Bearer ${localStorage.getItem("token")}`,
-  });
-
-  console.log("service response:", response);
-  return response; // Always return the response (even if success: false)
+export const postService = async (req: ClientRequest) => {
+  try {
+    const response = await request("clients", "POST", req, {
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
+    });
+    if (response.status === "CREATED") {
+      return response.data;
+    }
+  } catch (error) {
+    alert(Error);
+  }
 };
 
 // Update Service

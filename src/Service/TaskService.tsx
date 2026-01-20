@@ -5,11 +5,11 @@ import {
   postServiceUrl,
   putServiceUrl,
 } from "../constants/constants_url";
-import { ServiceItem } from "../model/Service";
+
 import { request } from "../constants/api";
 import { useEffect, useState } from "react";
-import { ClientInterface, ClientRequest } from "@/model/Client";
-import { TaskInterface, taskRequest } from "@/model/Task";
+
+import { TaskInterface, TaskRequest } from "@/model/Task";
 
 export const GetTask = () => {
   const [taskList, setTaskList] = useState<TaskInterface[]>([]);
@@ -54,7 +54,7 @@ export const GetTask = () => {
 // };
 
 // Fetch Add Service
-export const postTask = async (req: taskRequest) => {
+export const postTask = async (req: TaskRequest) => {
   try {
     const response = await request("tasks", "POST", req, {
       Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -68,7 +68,7 @@ export const postTask = async (req: taskRequest) => {
 };
 
 // Update Service
-export const putTask = async (req: taskRequest, id: number) => {
+export const putTask = async (req: TaskRequest, id: number) => {
   try {
     if (!id) {
       throw new Error("Task ID is required for update");

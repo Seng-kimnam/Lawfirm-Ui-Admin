@@ -55,7 +55,7 @@ const ListService = () => {
                     `services/${id}`,
                     "DELETE",
                     undefined,
-                    undefined
+                    undefined,
                   );
 
                   toast.dismiss(loadingId);
@@ -79,7 +79,7 @@ const ListService = () => {
       {
         // kit jea millisecond
         duration: Infinity, // stays until user clicks
-      }
+      },
     );
   }
 
@@ -91,13 +91,6 @@ const ListService = () => {
           desc="A list of all services available in the system."
           headerActions={
             <>
-              <Button
-                size="md"
-                variant="outline"
-                startIcon={<BoxIcon className="size-5" />}
-              >
-                Export
-              </Button>
               <Button
                 size="md"
                 variant="primary"

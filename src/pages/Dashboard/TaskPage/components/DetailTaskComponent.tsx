@@ -21,7 +21,7 @@ import { Link, Links } from "react-router";
 interface TaskDetailProps {
   taskId: number | null;
   legalCase?: CaseInterface;
-  lawyer ?: Lawyer ;
+  lawyer?: Lawyer;
   title?: string;
   description?: string;
   status?: string;
@@ -67,7 +67,6 @@ const DetailTaskComponent = ({
     lawyerStatus,
     email,
     phoneNumber,
-
     image,
     facebookLink,
     tiktokLink,
@@ -136,7 +135,7 @@ const DetailTaskComponent = ({
             </div>
             <div
               className={`flex items-center gap-2 px-4 py-2 rounded-full border ${getStatusColor(
-                status
+                status,
               )}`}
             >
               {getStatusIcon(status)}
@@ -162,15 +161,15 @@ const DetailTaskComponent = ({
             <div className="flex items-center gap-3 mb-6">
               <User className="w-6 h-6 text-blue-600 dark:text-blue-400" />
               <h3 className="text-xl font-bold text-slate-800 dark:text-slate-100">
-                Client Information
+                Lawyer Information
               </h3>
             </div>
 
             <div className="flex items-start gap-6 mb-8">
               {image ? (
                 <img
-                  src={image}
-                  alt={fullName}
+                  src={`http://localhost:8080/api/v1/files/preview-file/${image}`}
+                  alt={image}
                   className="w-24 h-24 rounded-xl object-cover border-2 border-blue-100 dark:border-blue-900 shadow-md"
                 />
               ) : (
@@ -185,11 +184,11 @@ const DetailTaskComponent = ({
                 </h4>
                 <div
                   className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(
-                    status
+                    lawyerStatus,
                   )}`}
                 >
-                  {getStatusIcon(status)}
-                  {status || "Unknown"}
+                  {getStatusIcon(lawyerStatus)}
+                  {lawyerStatus || "Unknown"}
                 </div>
               </div>
             </div>
@@ -329,7 +328,7 @@ const DetailTaskComponent = ({
                     Client Registered
                   </span>
                   <span className="text-slate-800 dark:text-slate-200 font-medium">
-                    {formatDate(  clientCreatedAt?.toString())}
+                    {formatDate(clientCreatedAt?.toString())}
                   </span>
                 </div>
                 <div className="flex justify-between items-center">

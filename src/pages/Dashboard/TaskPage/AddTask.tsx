@@ -13,8 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select.tsx";
-import { GetClient } from "@/Service/ClientService.tsx";
-import { GetCourt } from "@/Service/CourtService.tsx";
+
 import { useForm } from "react-hook-form";
 import {
   Popover,
@@ -22,14 +21,17 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover.tsx";
 import { Calendar2 } from "iconsax-reactjs";
-import { format, setMonth } from "date-fns";
+import { format } from "date-fns";
 import { Calendar } from "@/components/ui/calendar.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { CaseRequest, CaseStatus } from "@/model/Case.tsx";
-import { GetCase, postCaseService } from "@/Service/CaseService.tsx";
+import { GetCase } from "@/Service/CaseService.tsx";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router";
 import { GetLawyers } from "@/Service/UserService.tsx";
+
+import { postTask } from "@/Service/TaskService.tsx";
+import { TaskRequest } from "@/model/Task.tsx";
 
 const AddTask = () => {
   const { list } = GetLawyers();
@@ -42,7 +44,6 @@ const AddTask = () => {
   const [monthStart, setMonthStart] = useState(new Date());
   const [monthEnd, setMonthEnd] = useState(new Date());
 
-  const today = new Date();
   const {
     watch,
     control,
@@ -51,20 +52,21 @@ const AddTask = () => {
     register,
     setValue,
     handleSubmit,
-  } = useForm<CaseRequest>({
+  } = useForm<TaskRequest>({
     defaultValues: {
+      caseId: 0,
+      lawyerId: 0,
       title: "",
-      description: "",
-      status: "PENDING",
-      clientId: 0,
-      courtId: 0,
+      description: "string",
+      status: "UNDER_PROGRESS",
+      taskPriority: "LOW",
       startedDate: "",
-      endedDate: "",
+      dueDate: "",
     },
   });
-  const courtId = watch("courtId");
-  const clientId = watch("clientId");
-  const status = watch("status");
+
+  // Use watch with all fields at once to reduce re-renders
+  const { caseId, lawyerId, status } = watch();
   const currentYear = new Date().getFullYear();
   const years = Array.from(
     { length: 2099 - currentYear + 1 },
@@ -86,13 +88,10 @@ const AddTask = () => {
   ];
   const caseStatus: CaseStatus[] = [
     {
-      value: "PENDING",
-      label: "Pending",
+      value: "UNDER_PROGRESS",
+      label: "Under Progress",
     },
-    {
-      value: "IN_PROGRESSING",
-      label: "In Process",
-    },
+
     {
       value: "DONE",
       label: "Done",
@@ -127,11 +126,12 @@ const AddTask = () => {
     reset({
       title: "",
       description: "",
-      status: "PENDING",
-      clientId: 0,
-      courtId: 0,
+      status: "UNDER_PROGRESS",
+      caseId: 0,
+      lawyerId: 0,
       startedDate: "",
-      endedDate: "",
+      dueDate: "",
+      taskPriority: "LOW",
     });
 
     // date states
@@ -147,15 +147,16 @@ const AddTask = () => {
     setOpenStart(false);
     setOpenEnd(false);
   }, [reset]);
-  async function handleOperation(data: CaseRequest) {
+
+  async function handleOperation(data: TaskRequest) {
     try {
-      const response = await postCaseService(data);
+      const response = await postTask(data);
 
       // This block only runs for 2xx statuses
       if (response?.success) {
         // Success: show success message, reset form, etc.
 
-        toast.success("Case created successfully");
+        toast.success("Task created successfully");
       }
 
       // handle other successful but non-ideal cases here if needed
@@ -192,6 +193,7 @@ const AddTask = () => {
     goto("/list-case");
     resetFormUI();
   }
+
   return (
     <div>
       <PageMeta
@@ -207,9 +209,9 @@ const AddTask = () => {
                 <Label>Lawyer Name</Label>
 
                 <Select
-                  value={clientId ? clientId.toString() : ""}
+                  value={lawyerId ? lawyerId.toString() : ""}
                   onValueChange={(value) => {
-                    setValue("clientId", Number(value), {
+                    setValue("lawyerId", Number(value), {
                       shouldValidate: true,
                     });
                   }}
@@ -234,16 +236,16 @@ const AddTask = () => {
                 </Select>
                 <input
                   type="hidden"
-                  {...register("clientId", { valueAsNumber: true })}
+                  {...register("lawyerId", { valueAsNumber: true })}
                 />
               </div>
               <div>
                 <Label>Case Name</Label>
 
                 <Select
-                  value={courtId ? courtId.toString() : ""}
+                  value={caseId ? caseId.toString() : ""}
                   onValueChange={(value) =>
-                    setValue("courtId", Number(value), { shouldValidate: true })
+                    setValue("caseId", Number(value), { shouldValidate: true })
                   }
                 >
                   <SelectTrigger className="w-full ">
@@ -263,7 +265,7 @@ const AddTask = () => {
                 </Select>
                 <input
                   type="hidden"
-                  {...register("courtId", { valueAsNumber: true })}
+                  {...register("caseId", { valueAsNumber: true })}
                 />
               </div>
 
@@ -311,7 +313,7 @@ const AddTask = () => {
                   <PopoverTrigger asChild>
                     <Button
                       variant="outline"
-                      className="w-full rounded-xl h-12 border-0  font-normal   px-4 bg-white md:bg-light-gray"
+                      className="w-full rounded-xl h-12 border-2 font-normal px-4 bg-gray-800 hover:bg-gray-700 text-left justify-start"
                     >
                       <div className="flex items-center w-full">
                         <div className="mr-2 text-gray-400 flex-shrink-0">
@@ -319,8 +321,8 @@ const AddTask = () => {
                         </div>
                         <span
                           className={`text-base ${
-                            startDate ? "text-white" : "text-[#818283]"
-                          } text-base`}
+                            startDate ? "text-white" : "text-gray-400"
+                          }`}
                         >
                           {startDate
                             ? format(startDate, "PPP")
@@ -329,12 +331,9 @@ const AddTask = () => {
                       </div>
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent
-                    className="w-auto p-0 z-99999  -mb-10"
-                    align="start"
-                  >
-                    <div className="p-3 border-b ">
-                      <div className="flex gap-2 ">
+                  <PopoverContent className="w-auto p-0 z-[9999]" align="start">
+                    <div className="p-3 border-b">
+                      <div className="flex gap-2">
                         <Select
                           value={monthStart.getMonth().toString()}
                           onValueChange={handleStartMonthChange}
@@ -342,7 +341,7 @@ const AddTask = () => {
                           <SelectTrigger className="w-[140px]">
                             <SelectValue />
                           </SelectTrigger>
-                          <SelectContent className="max-h-[100px] z-999999">
+                          <SelectContent className="max-h-[200px] overflow-y-auto z-[99999]">
                             {months.map((monthName, index) => (
                               <SelectItem key={index} value={index.toString()}>
                                 {monthName}
@@ -357,7 +356,7 @@ const AddTask = () => {
                           <SelectTrigger className="w-[100px]">
                             <SelectValue />
                           </SelectTrigger>
-                          <SelectContent className="max-h-[100px] z-999999">
+                          <SelectContent className="max-h-[200px] overflow-y-auto z-[99999]">
                             {years.map((year) => (
                               <SelectItem key={year} value={year.toString()}>
                                 {year}
@@ -381,7 +380,7 @@ const AddTask = () => {
                         // Clear end date if it's before the new start date
                         if (endDate && selectedDate > endDate) {
                           setEndDate(undefined);
-                          setValue("endedDate", "", { shouldValidate: true });
+                          setValue("dueDate", "", { shouldValidate: true });
                         }
 
                         setOpenStart(false);
@@ -396,13 +395,13 @@ const AddTask = () => {
                 <input type="hidden" {...register("startedDate")} />
               </div>
               <div>
-                <Label>End Date</Label>
+                <Label>Due Date</Label>
 
                 <Popover open={openEnd} onOpenChange={setOpenEnd}>
                   <PopoverTrigger asChild>
                     <Button
                       variant="outline"
-                      className="w-full rounded-xl h-12 border-0  font-normal   px-4 bg-white md:bg-light-gray"
+                      className="w-full rounded-xl h-12 border-2 font-normal px-4 bg-gray-800 hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed text-left justify-start"
                       disabled={!startDate}
                     >
                       <div className="flex items-center w-full">
@@ -411,8 +410,8 @@ const AddTask = () => {
                         </div>
                         <span
                           className={`text-base ${
-                            endDate ? "text-white" : "text-[#818283]"
-                          } text-base`}
+                            endDate ? "text-white" : "text-gray-400"
+                          }`}
                         >
                           {endDate
                             ? format(endDate, "PPP")
@@ -423,9 +422,9 @@ const AddTask = () => {
                       </div>
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0  -mb-10" align="start">
-                    <div className="p-3 border-b ">
-                      <div className="flex gap-2 ">
+                  <PopoverContent className="w-auto p-0 z-[9999]" align="start">
+                    <div className="p-3 border-b">
+                      <div className="flex gap-2">
                         <Select
                           value={monthEnd.getMonth().toString()}
                           onValueChange={handleEndMonthChange}
@@ -433,7 +432,7 @@ const AddTask = () => {
                           <SelectTrigger className="w-[140px]">
                             <SelectValue />
                           </SelectTrigger>
-                          <SelectContent>
+                          <SelectContent className="max-h-[200px] overflow-y-auto z-[99999]">
                             {months.map((monthName, index) => (
                               <SelectItem key={index} value={index.toString()}>
                                 {monthName}
@@ -448,7 +447,7 @@ const AddTask = () => {
                           <SelectTrigger className="w-[100px]">
                             <SelectValue />
                           </SelectTrigger>
-                          <SelectContent className="max-h-[200px]">
+                          <SelectContent className="max-h-[200px] overflow-y-auto z-[99999]">
                             {years.map((year) => (
                               <SelectItem key={year} value={year.toString()}>
                                 {year}
@@ -465,7 +464,7 @@ const AddTask = () => {
                         if (!selectedDate) return;
 
                         setEndDate(selectedDate);
-                        setValue("endedDate", selectedDate.toISOString(), {
+                        setValue("dueDate", selectedDate.toISOString(), {
                           shouldValidate: true,
                         });
                         setOpenEnd(false);
@@ -484,7 +483,7 @@ const AddTask = () => {
                     />
                   </PopoverContent>
                 </Popover>
-                <input type="hidden" {...register("endedDate")} />
+                <input type="hidden" {...register("dueDate")} />
               </div>
             </div>
             <div className="max-w-full">
@@ -509,7 +508,7 @@ const AddTask = () => {
               </Button>
             </div>
             <div className="space-y-6">
-              <Button type="submit">Create new case</Button>
+              <Button type="submit">Create new task</Button>
             </div>
           </div>
         </div>

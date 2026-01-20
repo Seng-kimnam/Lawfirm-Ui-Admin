@@ -2,14 +2,29 @@ import Chart from "react-apexcharts";
 import { ApexOptions } from "apexcharts";
 import ChartTab from "../common/ChartTab";
 import { GetClient } from "@/Service/ClientService";
-import { ClientInterface } from "@/model/Client";
+
 import { getRoles } from "@/Service/RoleService";
+import { GetLawyers } from "@/Service/UserService";
+import { useEffect, useState } from "react";
+import { request } from "@/constants/api";
 
 export default function StatisticsChart() {
   const { clientList } = GetClient();
-  const { list } = getRoles();
-  console.log("client list in statistics chart:", clientList);
-  function getClientStatisticByMonth(list: any[]) {
+  const { list } = GetLawyers();
+
+  type ChartPayload = {
+    period: string;
+    year?: number;
+    categories: string[];
+    data: number[];
+  };
+
+  const [period, setPeriod] = useState<"monthly" | "quarterly" | "annually">(
+    "monthly"
+  );
+  const [year, setYear] = useState(new Date().getFullYear());
+  const [chart, setChart] = useState<ChartPayload | null>(null);
+  function getStatisticByMonth(list: any[]) {
     const monthCounts: number[] = Array(12).fill(0); // this mean 12 element & start from 0 to 11
     list.forEach((l) => {
       if (!l.createdAt) return;
@@ -19,115 +34,39 @@ export default function StatisticsChart() {
     });
     return monthCounts;
   }
-  const monthlyDataOfClient = getClientStatisticByMonth(clientList);
-  const roleMonthly = getClientStatisticByMonth(list);
-  console.log("monthly data:", monthlyDataOfClient);
-  const options: ApexOptions = {
-    legend: {
-      show: false, // Hide legend
-      position: "top",
-      horizontalAlign: "left",
-    },
-    colors: ["#465FFF", "#9CB9FF"], // Define line colors
-    chart: {
-      fontFamily: "Outfit, sans-serif",
-      height: 310,
-      type: "line", // Set the chart type to 'line'
-      toolbar: {
-        show: false, // Hide chart toolbar
-      },
-    },
-    stroke: {
-      curve: "straight", // Define the line style (straight, smooth, or step)
-      width: [2, 2], // Line width for each dataset
-    },
+  const monthlyDataOfClient = getStatisticByMonth(clientList);
+  const lawyerMonthly = getStatisticByMonth(list);
+  useEffect(() => {
+    const fetchStats = async () => {
+      const params = new URLSearchParams({
+        period,
+        ...(period !== "annually" && { year: year.toString() }),
+      });
 
-    fill: {
-      type: "gradient",
-      gradient: {
-        opacityFrom: 0.55,
-        opacityTo: 0,
-      },
-    },
-    markers: {
-      size: 0, // Size of the marker points
-      strokeColors: "#fff", // Marker border color
-      strokeWidth: 2,
-      hover: {
-        size: 6, // Marker size on hover
-      },
-    },
-    grid: {
-      xaxis: {
-        lines: {
-          show: false, // Hide grid lines on x-axis
-        },
-      },
-      yaxis: {
-        lines: {
-          show: true, // Show grid lines on y-axis
-        },
-      },
-    },
-    dataLabels: {
-      enabled: false, // Disable data labels
-    },
-    tooltip: {
-      enabled: true, // Enable tooltip
-      x: {
-        format: "dd MMM yyyy", // Format for x-axis tooltip
-      },
-    },
+      const res = await request(
+        `admins/statistics/clients?${params.toString()}`,
+        "GET",
+        undefined,
+        undefined,
+        undefined
+      );
+
+      setChart(res?.payload);
+    };
+
+    fetchStats();
+  }, [period, year]);
+
+  const options = {
     xaxis: {
-      type: "category", // Category-based x-axis
-      categories: [
-        "Jan",
-        "Feb",
-        "Mar",
-        "Apr",
-        "May",
-        "Jun",
-        "Jul",
-        "Aug",
-        "Sep",
-        "Oct",
-        "Nov",
-        "Dec",
-      ],
-      axisBorder: {
-        show: false, // Hide x-axis border
-      },
-      axisTicks: {
-        show: false, // Hide x-axis ticks
-      },
-      tooltip: {
-        enabled: false, // Disable tooltip for x-axis points
-      },
-    },
-    yaxis: {
-      labels: {
-        style: {
-          fontSize: "12px", // Adjust font size for y-axis labels
-          colors: ["#6B7280"], // Color of the labels
-        },
-      },
-      title: {
-        text: "", // Remove y-axis title
-        style: {
-          fontSize: "0px",
-        },
-      },
+      categories: chart?.categories ?? [],
     },
   };
 
   const series = [
     {
       name: "Client Request",
-      data: monthlyDataOfClient,
-    },
-    {
-      name: "Role System",
-      data: roleMonthly, // will be modified later
+      data: chart?.data ?? [],
     },
   ];
   return (
@@ -142,7 +81,7 @@ export default function StatisticsChart() {
           </p>
         </div>
         <div className="flex items-start w-full gap-3 sm:justify-end">
-          <ChartTab />
+          <ChartTab period={period} onChange={setPeriod} />
         </div>
       </div>
 

@@ -20,6 +20,7 @@ import { BiSolidReport } from "react-icons/bi";
 import { HiUsers } from "react-icons/hi2";
 import { MdEditDocument } from "react-icons/md";
 import { BsCalendarDateFill } from "react-icons/bs";
+import { Courthouse, UserOctagon } from "iconsax-reactjs";
 // import SidebarWidget from "./SidebarWidget";
 
 type NavItem = {
@@ -52,7 +53,7 @@ const navItems: NavItem[] = [
   },
   {
     icon: <IoDocumentTextSharp />,
-    name: "Case Documents",
+    name: "Case ",
     subItems: [
       // { name: "Services", path: "/", pro: false },
       { name: "Add Case", path: "/add-case", pro: false },
@@ -72,7 +73,7 @@ const navItems: NavItem[] = [
   },
   {
     icon: <IoDocumentTextSharp />,
-    name: "Task Documents",
+    name: "Task",
     subItems: [
       // { name: "Services", path: "/", pro: false },
       { name: "Add Task", path: "/addtask", pro: false },
@@ -81,42 +82,38 @@ const navItems: NavItem[] = [
   },
   {
     icon: <BsCalendarDateFill />,
-    name: "Appointment",
-    path: "/calendar",
-  },
-  {
-    icon: <HiUsers />,
-    name: "Our Client",
+    name: "Appointments",
+
     subItems: [
-      // { name: "Add Customer", path: "/addcustomer", pro: false },
-      { name: "Client List", path: "/list-client", pro: false },
+      // { name: "Services", path: "/", pro: false },
+      { name: "List Appointment", path: "/list-appointment", pro: false },
+      { name: "Add Appointment", path: "/add-appointment", pro: false },
+      { name: "Calender", path: "/appointment-calender", pro: false },
     ],
   },
   {
     icon: <HiUsers />,
+    name: "Client Control",
+    subItems: [
+      // { name: "Add Customer", path: "/addcustomer", pro: false },
+      { name: "Client List", path: "/list-client", pro: false },
+      { name: "Poster ", path: "/poster", pro: false },
+    ],
+  },
+  {
+    icon: <UserOctagon size="32" color="#d9e3f0" />,
+    name: "Our Lawyer",
+    subItems: [
+      // { name: "Add Customer", path: "/addcustomer", pro: false },
+      { name: "Lawyer List", path: "/list-lawyer", pro: false },
+    ],
+  },
+  {
+    icon: <Courthouse size="32" color="#d9e3f0" />,
     name: "Court",
     subItems: [
       // { name: "Add Customer", path: "/addcustomer", pro: false },
       { name: "Court List", path: "/list-court", pro: false },
-    ],
-  },
-  {
-    icon: <BiSolidReport />,
-    name: "Reports",
-    path: "/",
-  },
-  {
-    icon: <MdEditDocument />,
-    name: "Requests",
-    path: "/",
-  },
-  {
-    icon: <IoSettings />,
-    name: "Settings",
-    subItems: [
-      { name: "Add User", path: "/", pro: false },
-      { name: "List User", path: "/", pro: false },
-      { name: "Roles", path: "/role", pro: false },
     ],
   },
 
@@ -180,14 +177,14 @@ const AppSidebar: React.FC = () => {
     index: number;
   } | null>(null);
   const [subMenuHeight, setSubMenuHeight] = useState<Record<string, number>>(
-    {}
+    {},
   );
   const subMenuRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   // const isActive = (path: string) => location.pathname === path;
   const isActive = useCallback(
     (path: string) => location.pathname === path,
-    [location.pathname]
+    [location.pathname],
   );
 
   useEffect(() => {
@@ -369,8 +366,8 @@ const AppSidebar: React.FC = () => {
           isExpanded || isMobileOpen
             ? "w-[290px]"
             : isHovered
-            ? "w-[290px]"
-            : "w-[90px]"
+              ? "w-[290px]"
+              : "w-[90px]"
         }
         ${isMobileOpen ? "translate-x-0" : "-translate-x-full"}
         lg:translate-x-0`}

@@ -14,7 +14,7 @@ export interface Lawyer {
     roleId: number;
     roleName: string; // "ROLE_LAWYER"//7
   };
-
+  expertises: string[];
   email: string; //4
   phoneNumber: string; //5
   facebookLink: string;
@@ -54,3 +54,5 @@ export interface multiOptionsEx {
   text: string;
   selected: boolean;
 }
+
+export interface LawyerProfile {}

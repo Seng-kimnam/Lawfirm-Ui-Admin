@@ -17,7 +17,7 @@ export const GetClient = () => {
   const fetchData = async () => {
     try {
       const res = await request(
-        getClientList(page),
+        "clients/without-pagination",
         "GET",
         undefined,
         undefined
@@ -27,14 +27,14 @@ export const GetClient = () => {
       if (!res || !res.payload) throw new Error("No data received");
 
       // map data from API
-      setClientList(res?.payload?.content || []);
+      setClientList(res?.payload || []);
       // setExpert(res.payload.content || []);
       setTotalPage(res.payload.totalPages || 1);
     } catch (error) {
       console.error("Error fetching services:", error);
     }
   };
-  
+
   useEffect(() => {
     fetchData();
   }, []); // refetch when page changes

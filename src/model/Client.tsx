@@ -28,3 +28,11 @@ export interface ClientStatus {
   key: string;
   value: string;
 }
+
+
+export interface ClientRequestInterface {
+
+  email : string;
+  clientName : string;
+  requestCount : number;
+}

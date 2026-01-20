@@ -11,8 +11,13 @@ export const GetLawyers = () => {
   const [totalElements, setTotalElements] = useState<number>(0);
   const fetchData = async () => {
     try {
-      const res = await request("admin/lawyers/no-pagination", "GET", undefined, undefined);
-
+      const res = await request(
+        "admins/lawyers/no-pagination",
+        "GET",
+        undefined,
+        undefined,
+      );
+      console.log("service ", res);
       if (!res || !res.payload) throw new Error("No data received");
       // map data from API
       setList(res.payload || []);
@@ -59,7 +64,7 @@ export const registerLawyerService = async (data: Lawyers) => {
   formData.append("lawyerStatus", data.lawyerStatus);
 
   data.expertiseIdList.forEach((id: number) =>
-    formData.append("expertiseIdList", String(id))
+    formData.append("expertiseIdList", String(id)),
   );
 
   formData.append("facebookLink", data.facebookLink ?? "");
@@ -75,7 +80,7 @@ export const registerLawyerService = async (data: Lawyers) => {
     "POST",
     formData,
     undefined,
-    "multipart/form-data"
+    "multipart/form-data",
   );
 
   return response.data;
@@ -83,7 +88,7 @@ export const registerLawyerService = async (data: Lawyers) => {
 // Update Lawyer
 // fetchLawyerById
 export const fetchLawyerById = async (
-  id: number | string
+  id: number | string,
 ): Promise<Lawyers | null> => {
   try {
     const res = await request(`lawyers/${id}`, "GET", undefined, {

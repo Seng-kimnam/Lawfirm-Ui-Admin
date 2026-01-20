@@ -18,6 +18,7 @@ import { GetTask } from "@/Service/TaskService.tsx";
 import { Edit, Trash } from "iconsax-reactjs";
 import toast from "react-hot-toast";
 import { request } from "@/constants/api.tsx";
+import { AiOutlinePlus } from "react-icons/ai";
 const ListService = () => {
   const navigate = useNavigate();
   const { taskList, page, totalPage, setPage, refetch } = GetTask();
@@ -52,7 +53,7 @@ const ListService = () => {
                     `cases/${id}`,
                     "DELETE",
                     undefined,
-                    undefined
+                    undefined,
                   );
 
                   toast.dismiss(loadingId);
@@ -76,7 +77,7 @@ const ListService = () => {
       {
         // kit jea millisecond
         duration: Infinity, // stays until user clicks
-      }
+      },
     );
   }
   // Ensure list is an array
@@ -90,10 +91,11 @@ const ListService = () => {
             <>
               <Button
                 size="md"
+                startIcon={<AiOutlinePlus className="size-5" />}
                 variant="primary"
                 onClick={() => navigate("/addtask")}
               >
-                Create Service
+                Create Task
               </Button>
             </>
           }
@@ -291,7 +293,7 @@ const ListService = () => {
                                   year: "numeric",
                                   month: "long",
                                   day: "numeric",
-                                }
+                                },
                               )}
                             </span>
                           </div>
@@ -302,7 +304,7 @@ const ListService = () => {
                           <div>
                             <span className="block font-medium text-gray-800 text-theme-sm dark:text-white/90">
                               {new Date(
-                                item.createdAt ?? ""
+                                item.createdAt ?? "",
                               ).toLocaleDateString("en-US", {
                                 year: "numeric",
                                 month: "long",
@@ -317,7 +319,7 @@ const ListService = () => {
                           <div>
                             <span className="block font-medium text-gray-800 text-theme-sm dark:text-white/90">
                               {new Date(
-                                item.updatedAt ?? ""
+                                item.updatedAt ?? "",
                               ).toLocaleDateString("en-US", {
                                 year: "numeric",
                                 month: "long",

@@ -37,6 +37,13 @@ import ListCourt from "./pages/Dashboard/CourtPages/ListCourt.tsx";
 import CourtForm from "./pages/Dashboard/CourtPages/CourtForm.tsx";
 import CaseDetail from "./pages/Dashboard/CasePage/CaseDetail.tsx";
 import TaskDetail from "./pages/Dashboard/TaskPage/TaskDetail.tsx";
+import ClientRequestDetail from "./pages/Dashboard/CustomerPage/ClientRequestDetail.tsx";
+import AppointmentList from "./pages/Dashboard/appointment/AppointmentList.tsx";
+import AddAppointment from "./pages/Dashboard/appointment/AddAppointment.tsx";
+import AppointmentDetail from "./pages/Dashboard/appointment/AppointmentDetail.tsx";
+import Poster from "./pages/Dashboard/CustomerPage/Poster.tsx";
+import LawyerList from "./pages/Dashboard/Lawyer/LawyerList.tsx";
+import LawyerForm from "./pages/Dashboard/Lawyer/LawyerForm.tsx";
 
 export default function App() {
   return (
@@ -50,7 +57,20 @@ export default function App() {
               <Route path="/" element={<Home />} />
               {/* Others Page */}
               <Route path="/profile" element={<UserProfiles />} />
-              <Route path="/calendar" element={<Calendar />} />
+
+              <Route path="/list-appointment" element={<AppointmentList />} />
+              <Route path="/add-appointment" element={<AddAppointment />} />
+              <Route
+                path="/edit-appointment/:id"
+                element={<AddAppointment />}
+              />
+              <Route path="/appointment-calender" element={<Calendar />} />
+
+              <Route
+                path="/appointment-detail/:id"
+                element={<AppointmentDetail />}
+              />
+
               <Route path="/blank" element={<Blank />} />
               <Route path="/service" element={<Service />} />
               <Route path="/service/:id" element={<Service />} />
@@ -58,6 +78,11 @@ export default function App() {
               <Route path="/add-case" element={<AddCase />} />
               <Route path="/edit-case/:id" element={<AddCase />} />
               <Route path="/case-detail-info/:id" element={<CaseDetail />} />
+              <Route
+                path="/client-request-info"
+                element={<ClientRequestDetail />}
+              />
+              <Route path="/poster" element={<Poster />} />
               {/* file doc  */}
               <Route path="/add-file-doc" element={<AddFileDocument />} />
               <Route path="/edit-file-doc/:id" element={<AddFileDocument />} />
@@ -69,7 +94,6 @@ export default function App() {
               <Route path="/case-detail-info/:id" element={<CaseDetail />} />
               <Route path="/task-detail-info/:id" element={<TaskDetail />} />
               <Route path="/edit-task/:id" element={<AddTask />} />
-
 
               <Route path="/list-service" element={<ListService />} />
               {/* client */}
@@ -96,6 +120,9 @@ export default function App() {
               {/* Charts */}
               <Route path="/line-chart" element={<LineChart />} />
               <Route path="/bar-chart" element={<BarChart />} />
+              {/* lawyer */}
+              <Route path="/list-lawyer" element={<LawyerList />} />
+              <Route path="/edit-lawyer/:id" element={<LawyerForm />} />
             </Route>
           </Route>
 

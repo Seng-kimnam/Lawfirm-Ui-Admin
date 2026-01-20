@@ -22,7 +22,10 @@ export default defineConfig({
     },
   },
   // server: {
-  //   port: 5174,
-  //   host: true
+  //   host: true,
+  //   port: 5173,
+  //   allowedHosts: [
+  //     "inanely-pseudoanatomical-holley.ngrok-free.dev" // allow your ngrok hostname
+  //   ]
   // }
 });

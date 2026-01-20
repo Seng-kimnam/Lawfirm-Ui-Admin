@@ -30,7 +30,7 @@ export const getCategoryWithPagination = (page: number) => {
 };
 
 export const getDocumentWithPagination = (page: number) => {
-  return `documents?page=${page}&size=10&sortBy=docId&ascending=true`;
+  return `documents/all-docs?page=${page}&size=10&sortBy=docId&ascending=true`;
 };
 export const getServiceTypeByIdUrl = "expertises/";
 export const postServiceTypeUrl = "expertises";
@@ -63,4 +63,12 @@ export const getCaseList = (page: Number) => {
 
 export const getTaskList = (page: Number) => {
   return `tasks?page=${page}&size=10&sortBy=taskId&ascending=true`;
+};
+
+export const getClientDetailByEmail = (email: string | null) => {
+  return `clients/request?email=${email}&page=1&size=5&sortBy=clientId&ascending=true`;
+};
+
+export const getAppointmentList = (page: Number) => {
+  return `appointments?page=${page}&size=10&sortBy=appointmentId&ascending=true`;
 };

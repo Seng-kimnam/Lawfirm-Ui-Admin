@@ -24,13 +24,14 @@ export interface TaskPriority {
   label: string;
 }
 
-export interface taskRequest {
+export interface TaskRequest {
   caseId: number;
   lawyerId: number;
   title: string;
   description: string;
   status: string;
   taskPriority: string;
+  startedDate: string;
   dueDate: string;
 }
 

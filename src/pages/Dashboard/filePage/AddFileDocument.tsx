@@ -27,6 +27,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog.tsx";
 import EmbeddedPdfViewer from "@/utils/EmbeddedPdfViewer.tsx";
+import toast from "react-hot-toast";
 
 type DocumentFormData = {
   docId: number;
@@ -50,7 +51,7 @@ const AddFileDocument = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [isUpdating, setIsUpdating] = useState<Boolean>(false);
   const [DocForUpdate, setDocForUpdate] = useState<DocumentFormData | null>(
-    null
+    null,
   );
   const goBack = useNavigate();
 
@@ -74,7 +75,7 @@ const AddFileDocument = () => {
           "categories/without-pagination",
           "GET",
           undefined,
-          undefined
+          undefined,
         );
         // const
         setCategories(res?.payload);
@@ -95,7 +96,7 @@ const AddFileDocument = () => {
         const doc = res.payload;
 
         const category = categories.find(
-          (c) => c.categoryName === doc.categoryName
+          (c) => c.categoryName === doc.categoryName,
         );
 
         setIsUpdating(true);
@@ -180,7 +181,7 @@ const AddFileDocument = () => {
         "POST",
         fd,
         undefined,
-        "multipart/form-data"
+        "multipart/form-data",
       );
 
       formData.append("fileCover", payload?.fileName);
@@ -197,7 +198,7 @@ const AddFileDocument = () => {
         "POST",
         fd,
         undefined,
-        "multipart/form-data"
+        "multipart/form-data",
       );
 
       formData.append("fileUrl", resPdfFile?.objectName);
@@ -212,10 +213,13 @@ const AddFileDocument = () => {
         isUpdating ? "PUT" : "POST",
         formData,
         undefined,
-        "application/json"
+        "application/json",
       );
-      
+
       if (response?.success) {
+        toast.success(
+          `${isUpdating ? "Update" : "Create"} new file document successfully. `,
+        );
         handleCancelUpdate();
       }
     } catch (error) {

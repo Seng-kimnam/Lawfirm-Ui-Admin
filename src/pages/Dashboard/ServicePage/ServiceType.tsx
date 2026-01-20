@@ -26,6 +26,7 @@ import {
 import { ServiceType } from "../../../model/ServiceType.tsx";
 import { Edit, Trash } from "lucide-react";
 import toast from "react-hot-toast";
+import { AiOutlinePlus } from "react-icons/ai";
 const ServiceTypes = () => {
   const [newServiceType, setNewServiceType] = useState<ServiceType>({
     expertiseId: 0,
@@ -103,7 +104,7 @@ const ServiceTypes = () => {
 
                   if (res?.status === "ACCEPTED") {
                     toast.success(
-                      `Service type with Id ${id} deleted successfully`
+                      `Service type with Id ${id} deleted successfully`,
                     );
                     refetch();
                   } else {
@@ -123,7 +124,7 @@ const ServiceTypes = () => {
       {
         // kit jea millisecond
         duration: Infinity, // stays until user clicks
-      }
+      },
     );
   }
 
@@ -131,7 +132,7 @@ const ServiceTypes = () => {
     <div>
       <CustomModal
         open={open}
-        title="Form Service"
+        title="Form Service Type"
         onOk={handleOk}
         onCancel={() => setOpen(false)}
         footer={
@@ -155,7 +156,7 @@ const ServiceTypes = () => {
         }
       >
         <div>
-          <Label htmlFor="input">Service Name</Label>
+          <Label htmlFor="input">Service Type Name</Label>
           <Input
             type="text"
             placeholder="Enter service name"
@@ -176,8 +177,13 @@ const ServiceTypes = () => {
           desc="A list of all services available in the system."
           headerActions={
             <>
-              <Button size="sm" variant="primary" onClick={handleCreate}>
-                Create Service
+              <Button
+                startIcon={<AiOutlinePlus className="size-5" />}
+                size="sm"
+                variant="primary"
+                onClick={handleCreate}
+              >
+                Create Service Type
               </Button>
             </>
           }
@@ -236,7 +242,7 @@ const ServiceTypes = () => {
                       isHeader
                       className="px-5 py-3 font-medium text-gray-500  text-lg dark:text-gray-400"
                     >
-                      Service Name
+                      Service Type Name
                     </TableCell>
                     <TableCell
                       isHeader
@@ -289,7 +295,7 @@ const ServiceTypes = () => {
                           <div>
                             <span className="block font-medium text-gray-800 text-theme-sm dark:text-white/90">
                               {new Date(
-                                item.createdAt ?? ""
+                                item.createdAt ?? "",
                               ).toLocaleDateString("en-US", {
                                 year: "numeric",
                                 month: "long",
@@ -304,7 +310,7 @@ const ServiceTypes = () => {
                           <div>
                             <span className="block font-medium text-gray-800 text-theme-sm dark:text-white/90">
                               {new Date(
-                                item.updatedAt ?? ""
+                                item.updatedAt ?? "",
                               ).toLocaleDateString("en-US", {
                                 year: "numeric",
                                 month: "long",

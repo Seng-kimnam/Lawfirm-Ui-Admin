@@ -43,6 +43,7 @@ const DetailComponent = ({
   const [isLoading, setIsLoading] = useState(true);
   useEffect(() => {
     setTimeout(() => setIsLoading(false), 2000);
+    // return clearTimeout(2000);
   }, [client, court]);
   if (!client || !court || isLoading) {
     return (
@@ -128,7 +129,7 @@ const DetailComponent = ({
             </div>
             <div
               className={`flex items-center gap-2 px-4 py-2 rounded-full border ${getStatusColor(
-                status
+                status,
               )}`}
             >
               {getStatusIcon(status)}
@@ -161,8 +162,8 @@ const DetailComponent = ({
             <div className="flex items-start gap-6 mb-8">
               {clientImage ? (
                 <img
-                  src={clientImage}
-                  alt={clientName}
+                  src={`http://localhost/api/v1/files/preview-file/${clientImage}`}
+                  alt={clientImage}
                   className="w-24 h-24 rounded-xl object-cover border-2 border-blue-100 dark:border-blue-900 shadow-md"
                 />
               ) : (
@@ -177,7 +178,7 @@ const DetailComponent = ({
                 </h4>
                 <div
                   className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(
-                    clientStatus
+                    clientStatus,
                   )}`}
                 >
                   {getStatusIcon(clientStatus)}

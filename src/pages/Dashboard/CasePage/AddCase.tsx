@@ -41,7 +41,6 @@ const AddCase = () => {
   const [monthStart, setMonthStart] = useState(new Date());
   const [monthEnd, setMonthEnd] = useState(new Date());
 
-  const today = new Date();
   const {
     watch,
     control,

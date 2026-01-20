@@ -28,10 +28,10 @@ export const request = (
   method: Method,
   data?: object,
   params?: object,
-  contentType?: string
+  contentType?: string,
 ) => {
   const token = localStorage.getItem("token");
-
+  // console.log("token", token);
   const headers: any = {
     "Content-Type": contentType || "application/json",
     Accept: "application/json",
@@ -49,7 +49,11 @@ export const request = (
     params: params,
     headers: headers,
   })
-    .then((response) => response.data)
+    .then((response) => {
+      console.log("res api " , response)
+     return response.data;
+    
+    })
     .catch((error) => {
       throw error; // so caller can catch it
     });

@@ -1,284 +1,503 @@
+"use client";
+
 import { useState, useRef, useEffect } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
-import { EventInput, DateSelectArg, EventClickArg } from "@fullcalendar/core";
-import { Modal } from "../components/ui/modal";
-import { useModal } from "../hooks/useModal";
-import PageMeta from "../components/common/PageMeta";
+import type {
+  EventInput,
+  DateSelectArg,
+  EventClickArg,
+} from "@fullcalendar/core";
+import { Modal } from "@/components/ui/modal";
+import { CalendarDays, MapPin, Clock, User, Briefcase } from "lucide-react";
+import type {
+  AppointmentFormData,
+  AppointmentInterface,
+} from "@/model/Appointment";
+import {
+  GetAllAppointment,
+  PostAppointmentService,
+} from "@/Service/AppointmentService";
+import { useModal } from "@/hooks/useModal";
+import { Controller, useForm } from "react-hook-form";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { GetCaseNoPagination } from "@/Service/CaseService";
+import Label from "@/components/form/Label";
+import { P } from "node_modules/framer-motion/dist/types.d-DagZKalS";
+import toast from "react-hot-toast";
 
 interface CalendarEvent extends EventInput {
   extendedProps: {
-    calendar: string;
+    appointment: AppointmentInterface;
   };
 }
 
-const Calendar: React.FC = () => {
-  const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(
-    null
-  );
-  const [eventTitle, setEventTitle] = useState("");
-  const [eventStartDate, setEventStartDate] = useState("");
-  const [eventEndDate, setEventEndDate] = useState("");
-  const [eventLevel, setEventLevel] = useState("");
+// Status colors mapping
+const statusColors: Record<string, string> = {
+  PENDING: "bg-amber-500",
+  CONFIRMED: "bg-emerald-500",
+  CANCELLED: "bg-red-500",
+  COMPLETED: "bg-blue-500",
+};
+
+const statusBorderColors: Record<string, string> = {
+  PENDING: "border-l-amber-500",
+  CONFIRMED: "border-l-emerald-500",
+  CANCELLED: "border-l-red-500",
+  COMPLETED: "border-l-blue-500",
+};
+
+const AppointmentCalendar = () => {
+  const [selectedAppointment, setSelectedAppointment] =
+    useState<AppointmentInterface | null>(null);
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const calendarRef = useRef<FullCalendar>(null);
   const { isOpen, openModal, closeModal } = useModal();
+  const { appointmentList, loading } = GetAllAppointment();
+  const { casesList } = GetCaseNoPagination();
 
-  const calendarsEvents = {
-    Danger: "danger",
-    Success: "success",
-    Primary: "primary",
-    Warning: "warning",
-  };
+  const {
+    register,
+    control,
+    handleSubmit,
+    reset,
+    setValue,
+    watch,
+    formState: { errors },
+  } = useForm<AppointmentFormData>({
+    defaultValues: {
+      taskId: 0,
+      purpose: "",
+      location: "",
+      appointmentDate: "",
+      appointmentTime: "09:00",
+      meetingType: "IN_PERSON",
+      status: "PENDING",
+    },
+  });
+
+  function dateFormatter(iso: string) {
+    return new Date(iso).toLocaleString("en-GB", {
+      year: "numeric",
+      month: "short",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  }
 
   useEffect(() => {
-    // Initialize with some events
-    setEvents([
-      {
-        id: "1",
-        title: "Event Conf.",
-        start: new Date().toISOString().split("T")[0],
-        extendedProps: { calendar: "Danger" },
+    const calendarEvents: CalendarEvent[] = appointmentList.map((apt) => ({
+      id: apt.appointmentId.toString(),
+      title: `${apt.purpose} - ${apt.task.lawyer.fullName}`,
+      start: `${apt.appointmentDate}T${apt.appointmentTime}:00`,
+      backgroundColor: statusColors[apt.status]?.replace("bg-", ""),
+      borderColor: "transparent",
+      extendedProps: {
+        appointment: apt,
       },
-      {
-        id: "2",
-        title: "Meeting",
-        start: new Date(Date.now() + 86400000).toISOString().split("T")[0],
-        extendedProps: { calendar: "Success" },
-      },
-      {
-        id: "3",
-        title: "Workshop",
-        start: new Date(Date.now() + 172800000).toISOString().split("T")[0],
-        end: new Date(Date.now() + 259200000).toISOString().split("T")[0],
-        extendedProps: { calendar: "Primary" },
-      },
-    ]);
-  }, []);
+    }));
+    setEvents(calendarEvents);
+  }, [appointmentList]);
 
   const handleDateSelect = (selectInfo: DateSelectArg) => {
-    resetModalFields();
-    setEventStartDate(selectInfo.startStr);
-    setEventEndDate(selectInfo.endStr || selectInfo.startStr);
+    setSelectedAppointment(null);
+    reset({
+      taskId: 0,
+      purpose: "",
+      location: "",
+      appointmentDate: selectInfo.startStr.split("T")[0],
+      appointmentTime: "09:00",
+      meetingType: "IN_PERSON",
+      status: "PENDING",
+    });
     openModal();
   };
 
   const handleEventClick = (clickInfo: EventClickArg) => {
-    const event = clickInfo.event;
-    setSelectedEvent(event as unknown as CalendarEvent);
-    setEventTitle(event.title);
-    setEventStartDate(event.start?.toISOString().split("T")[0] || "");
-    setEventEndDate(event.end?.toISOString().split("T")[0] || "");
-    setEventLevel(event.extendedProps.calendar);
+    const appointment = clickInfo.event.extendedProps
+      .appointment as AppointmentInterface;
+    setSelectedAppointment(appointment);
+    reset({
+      taskId: appointment.task?.taskId || 0,
+      purpose: appointment.purpose,
+      location: appointment.location,
+      appointmentDate: appointment.appointmentDate,
+      appointmentTime: appointment.appointmentTime,
+      meetingType:
+        appointment.meetingType as AppointmentFormData["meetingType"],
+      status: appointment.status as AppointmentFormData["status"],
+    });
     openModal();
   };
 
-  const handleAddOrUpdateEvent = () => {
-    if (selectedEvent) {
-      // Update existing event
-      setEvents((prevEvents) =>
-        prevEvents.map((event) =>
-          event.id === selectedEvent.id
-            ? {
-                ...event,
-                title: eventTitle,
-                start: eventStartDate,
-                end: eventEndDate,
-                extendedProps: { calendar: eventLevel },
-              }
-            : event
-        )
-      );
-    } else {
-      // Add new event
-      const newEvent: CalendarEvent = {
-        id: Date.now().toString(),
-        title: eventTitle,
-        start: eventStartDate,
-        end: eventEndDate,
-        allDay: true,
-        extendedProps: { calendar: eventLevel },
-      };
-      setEvents((prevEvents) => [...prevEvents, newEvent]);
+  const onSubmit = async (data: AppointmentFormData) => {
+    console.log("data", data);
+    try {
+      const res = await PostAppointmentService(data);
+      toast.success(res?.message);
+    } catch (e: any) {
+      toast.error(e);
     }
     closeModal();
-    resetModalFields();
   };
 
-  const resetModalFields = () => {
-    setEventTitle("");
-    setEventStartDate("");
-    setEventEndDate("");
-    setEventLevel("");
-    setSelectedEvent(null);
+  const handleDelete = () => {
+    // TODO: Add delete logic
   };
+
+  const renderEventContent = (eventInfo: {
+    event: { extendedProps: { appointment: AppointmentInterface } };
+    timeText: string;
+  }) => {
+    const appointment = eventInfo.event.extendedProps.appointment;
+    return (
+      <div
+        className={`flex flex-col p-1.5 rounded text-xs text-white border-l-4 ${
+          statusBorderColors[appointment.status]
+        } bg-opacity-90`}
+        style={{ backgroundColor: getStatusColor(appointment.status) }}
+      >
+        <div className="font-medium truncate">{appointment.purpose}</div>
+        <div className="opacity-90 truncate">
+          {appointment.task.lawyer.fullName}
+        </div>
+        <div className="opacity-75 text-[10px]">{eventInfo.timeText}</div>
+      </div>
+    );
+  };
+
+  if (loading) {
+    return (
+      <div className="rounded-2xl border border-border bg-card shadow-sm p-8">
+        <div className="flex items-center justify-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          <span className="ml-3 text-muted-foreground">
+            Loading appointments...
+          </span>
+        </div>
+      </div>
+    );
+  }
+
+  // Watch form values for controlled radio buttons
+  const meetingType = watch("meetingType");
+  const status = watch("status");
 
   return (
-    <>
-      <PageMeta
-        title="React.js Calendar Dashboard | TailAdmin - Next.js Admin Dashboard Template"
-        description="This is React.js Calendar Dashboard page for TailAdmin - React.js Tailwind CSS Admin Dashboard Template"
-      />
-      <div className="rounded-2xl border  border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
-        <div className="custom-calendar">
-          <FullCalendar
-            ref={calendarRef}
-            plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-            initialView="dayGridMonth"
-            headerToolbar={{
-              left: "prev,next addEventButton",
-              center: "title",
-              right: "dayGridMonth,timeGridWeek,timeGridDay",
-            }}
-            events={events}
-            selectable={true}
-            select={handleDateSelect}
-            eventClick={handleEventClick}
-            eventContent={renderEventContent}
-            customButtons={{
-              addEventButton: {
-                text: "Add Event +",
-                click: openModal,
-              },
-            }}
-          />
+    <div className="rounded-2xl border border-border bg-card shadow-sm">
+      <div className="p-4">
+        {/* Legend */}
+        <div className="flex flex-wrap gap-4 mb-4 text-sm">
+          {Object.keys(statusColors).map((status) => (
+            <div key={status} className="flex items-center gap-2">
+              <div className={`w-3 h-3 rounded-full ${statusColors[status]}`} />
+              <span className="text-muted-foreground capitalize">
+                {status.toLowerCase()}
+              </span>
+            </div>
+          ))}
         </div>
-        <Modal
-          isOpen={isOpen}
-          onClose={closeModal}
-          className="max-w-[700px] p-6 lg:p-10"
-        >
-          <div className="flex flex-col px-2 overflow-y-auto custom-scrollbar">
+
+        {/* Calendar */}
+        <FullCalendar
+          ref={calendarRef}
+          plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+          initialView="dayGridMonth"
+          headerToolbar={{
+            left: "prev,next today",
+            center: "title",
+            right: "dayGridMonth,timeGridWeek,timeGridDay",
+          }}
+          events={events}
+          selectable={true}
+          select={handleDateSelect}
+          eventClick={handleEventClick}
+          eventContent={renderEventContent}
+          height="auto"
+          eventDisplay="block"
+        />
+      </div>
+
+      {/* Appointment Modal */}
+      <Modal isOpen={isOpen} onClose={closeModal} className="max-w-3xl p-10 ">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 ">
+          <div>
+            <h2 className="text-xl font-semibold text-foreground">
+              {selectedAppointment ? "Edit Appointment" : "New Appointment"}
+            </h2>
+            <p className="text-sm text-muted-foreground mt-1">
+              {selectedAppointment
+                ? `Case: ${selectedAppointment.task.title}`
+                : "Schedule a new appointment"}
+            </p>
+          </div>
+
+          {/* Client Info (if editing) */}
+          {selectedAppointment ? (
+            <div className="p-4 rounded-lg bg-muted space-y-2">
+              <div className="flex items-center gap-2 text-sm">
+                <User className="h-4 w-4 text-muted-foreground" />
+                <span className="font-medium text-foreground">
+                  {selectedAppointment.task.lawyer.fullName}
+                </span>
+              </div>
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Briefcase className="h-4 w-4" />
+                <span>
+                  {selectedAppointment.task.legalCase.court.courtName}
+                </span>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              <Label htmlFor="caseId">Task</Label>
+              <Controller
+                name="taskId"
+                control={control}
+                rules={{ required: "Please select your task" }}
+                render={({ field }) => (
+                  <Select
+                    value={field.value.toString()}
+                    onValueChange={field.onChange}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select a task" />
+                    </SelectTrigger>
+                    <SelectContent sideOffset={4}>
+                      <SelectGroup>
+                        <SelectLabel>Available Tasks</SelectLabel>
+                        {casesList?.map(
+                          ({ caseId, client, startDate, court }) => (
+                            <SelectItem key={caseId} value={caseId.toString()}>
+                              {caseId}. {client.clientName},{" "}
+                              {dateFormatter(startDate)} - {court.courtName}
+                            </SelectItem>
+                          )
+                        )}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+              {errors.taskId && (
+                <p className="text-sm text-destructive">
+                  {errors.taskId.message}
+                </p>
+              )}
+            </div>
+          )}
+
+          {/* Form Fields */}
+          <div className="space-y-4">
             <div>
-              <h5 className="mb-2 font-semibold text-gray-800 modal-title text-theme-xl dark:text-white/90 lg:text-2xl">
-                {selectedEvent ? "Edit Event" : "Add Event"}
-              </h5>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
-                Plan your next big moment: schedule or edit an event to stay on
-                track
-              </p>
+              <label className="block text-sm font-medium text-foreground mb-1.5">
+                Purpose
+              </label>
+              <input
+                type="text"
+                {...register("purpose", { required: "Purpose is required" })}
+                className="w-full h-10 px-3 rounded-lg border border-input bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                placeholder="e.g., Initial Consultation"
+              />
+              {errors.purpose && (
+                <p className="text-sm text-destructive mt-1">
+                  {errors.purpose.message}
+                </p>
+              )}
             </div>
-            <div className="mt-8">
+
+            <div className="grid grid-cols-2 gap-4">
               <div>
-                <div>
-                  <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                    Event Title
-                  </label>
-                  <input
-                    id="event-title"
-                    type="text"
-                    value={eventTitle}
-                    onChange={(e) => setEventTitle(e.target.value)}
-                    className="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
-                  />
-                </div>
-              </div>
-              <div className="mt-6">
-                <label className="block mb-4 text-sm font-medium text-gray-700 dark:text-gray-400">
-                  Event Color
+                <label className="block text-sm font-medium text-foreground mb-1.5">
+                  <CalendarDays className="h-4 w-4 inline mr-1" />
+                  Date
                 </label>
-                <div className="flex flex-wrap items-center gap-4 sm:gap-5">
-                  {Object.entries(calendarsEvents).map(([key, value]) => (
-                    <div key={key} className="n-chk">
-                      <div
-                        className={`form-check form-check-${value} form-check-inline`}
-                      >
-                        <label
-                          className="flex items-center text-sm text-gray-700 form-check-label dark:text-gray-400"
-                          htmlFor={`modal${key}`}
-                        >
-                          <span className="relative">
-                            <input
-                              className="sr-only form-check-input"
-                              type="radio"
-                              name="event-level"
-                              value={key}
-                              id={`modal${key}`}
-                              checked={eventLevel === key}
-                              onChange={() => setEventLevel(key)}
-                            />
-                            <span className="flex items-center justify-center w-5 h-5 mr-2 border border-gray-300 rounded-full box dark:border-gray-700">
-                              <span
-                                className={`h-2 w-2 rounded-full bg-white ${
-                                  eventLevel === key ? "block" : "hidden"
-                                }`}
-                              ></span>
-                            </span>
-                          </span>
-                          {key}
-                        </label>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                <input
+                  type="date"
+                  {...register("appointmentDate", {
+                    required: "Date is required",
+                  })}
+                  className="w-full h-10 px-3 rounded-lg border border-input bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                />
+                {errors.appointmentDate && (
+                  <p className="text-sm text-destructive mt-1">
+                    {errors.appointmentDate.message}
+                  </p>
+                )}
               </div>
-
-              <div className="mt-6">
-                <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                  Enter Start Date
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-1.5">
+                  <Clock className="h-4 w-4 inline mr-1" />
+                  Time
                 </label>
-                <div className="relative">
-                  <input
-                    id="event-start-date"
-                    type="date"
-                    value={eventStartDate}
-                    onChange={(e) => setEventStartDate(e.target.value)}
-                    className="dark:bg-dark-900 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 pl-4 pr-11 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
-                  />
-                </div>
-              </div>
-
-              <div className="mt-6">
-                <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                  Enter End Date
-                </label>
-                <div className="relative">
-                  <input
-                    id="event-end-date"
-                    type="date"
-                    value={eventEndDate}
-                    onChange={(e) => setEventEndDate(e.target.value)}
-                    className="dark:bg-dark-900 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 pl-4 pr-11 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
-                  />
-                </div>
+                <input
+                  type="time"
+                  {...register("appointmentTime", {
+                    required: "Time is required",
+                  })}
+                  className="w-full h-10 px-3 rounded-lg border border-input bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                />
+                {errors.appointmentTime && (
+                  <p className="text-sm text-destructive mt-1">
+                    {errors.appointmentTime.message}
+                  </p>
+                )}
               </div>
             </div>
-            <div className="flex items-center gap-3 mt-6 modal-footer sm:justify-end">
+
+            <div>
+              <label className="block text-sm font-medium text-foreground mb-1.5">
+                <MapPin className="h-4 w-4 inline mr-1" />
+                Location
+              </label>
+              <input
+                type="text"
+                {...register("location", { required: "Location is required" })}
+                className="w-full h-10 px-3 rounded-lg border border-input bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                placeholder="e.g., Conference Room A"
+              />
+              {errors.location && (
+                <p className="text-sm text-destructive mt-1">
+                  {errors.location.message}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-foreground mb-3">
+                Meeting Type
+              </label>
+              <Controller
+                name="meetingType"
+                control={control}
+                render={({ field }) => (
+                  <div className="flex flex-wrap gap-3">
+                    {(["IN_PERSON", "ONLINE"] as const).map((type) => (
+                      <label
+                        key={type}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-lg border cursor-pointer transition-colors ${
+                          field.value === type
+                            ? "border-primary bg-primary/10 text-foreground"
+                            : "border-input hover:bg-muted text-foreground"
+                        }`}
+                      >
+                        <input
+                          type="radio"
+                          value={type}
+                          checked={field.value === type}
+                          onChange={() => field.onChange(type)}
+                          className="sr-only"
+                        />
+                        <span className="text-sm">
+                          {type.replace("_", " ")}
+                        </span>
+                      </label>
+                    ))}
+                  </div>
+                )}
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-foreground mb-3">
+                Status
+              </label>
+              <Controller
+                name="status"
+                control={control}
+                render={({ field }) => (
+                  <div className="flex flex-wrap gap-3">
+                    {(
+                      [
+                        "PENDING",
+                        "CONFIRMED",
+                        "CANCELLED",
+                        "COMPLETED",
+                      ] as const
+                    ).map((statusOption) => (
+                      <label
+                        key={statusOption}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-lg border cursor-pointer transition-colors ${
+                          field.value === statusOption
+                            ? "border-primary bg-primary/10 text-foreground"
+                            : "border-input hover:bg-muted text-foreground"
+                        }`}
+                      >
+                        <input
+                          type="radio"
+                          value={statusOption}
+                          checked={field.value === statusOption}
+                          onChange={() => field.onChange(statusOption)}
+                          className="sr-only"
+                        />
+                        <div
+                          className={`w-2 h-2 rounded-full ${statusColors[statusOption]}`}
+                        />
+                        <span className="text-sm capitalize">
+                          {statusOption.toLowerCase()}
+                        </span>
+                      </label>
+                    ))}
+                  </div>
+                )}
+              />
+            </div>
+          </div>
+
+          {/* Actions */}
+          <div className="flex items-center justify-between pt-4 border-t border-border">
+            {selectedAppointment ? (
               <button
-                onClick={closeModal}
                 type="button"
-                className="flex w-full justify-center rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] sm:w-auto"
+                onClick={handleDelete}
+                className="px-4 py-2 text-sm font-medium text-destructive hover:bg-destructive/10 rounded-lg transition-colors"
               >
-                Close
+                Delete
+              </button>
+            ) : (
+              <div />
+            )}
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={closeModal}
+                className="px-4 py-2 text-sm font-medium text-muted-foreground hover:bg-muted rounded-lg transition-colors"
+              >
+                Cancel
               </button>
               <button
-                onClick={handleAddOrUpdateEvent}
-                type="button"
-                className="btn btn-success btn-update-event flex w-full justify-center rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-600 sm:w-auto"
+                type="submit"
+                className="px-4 py-2 text-sm font-medium text-primary-foreground bg-primary hover:bg-primary/90 rounded-lg transition-colors"
               >
-                {selectedEvent ? "Update Changes" : "Add Event"}
+                {selectedAppointment ? "Update" : "Create"}
               </button>
             </div>
           </div>
-        </Modal>
-      </div>
-    </>
-  );
-};
-
-const renderEventContent = (eventInfo: any) => {
-  const colorClass = `fc-bg-${eventInfo.event.extendedProps.calendar.toLowerCase()}`;
-  return (
-    <div
-      className={`event-fc-color flex fc-event-main ${colorClass} p-1 rounded-sm`}
-    >
-      <div className="fc-daygrid-event-dot"></div>
-      <div className="fc-event-time">{eventInfo.timeText}</div>
-      <div className="fc-event-title">{eventInfo.event.title}</div>
+        </form>
+      </Modal>
     </div>
   );
 };
 
-export default Calendar;
+function getStatusColor(status: string) {
+  const colors: Record<string, string> = {
+    PENDING: "#f59e0b",
+    CONFIRMED: "#10b981",
+    CANCELLED: "#ef4444",
+    COMPLETED: "#3b82f6",
+  };
+  return colors[status];
+}
+
+export default AppointmentCalendar;

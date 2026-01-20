@@ -14,7 +14,7 @@ import toast from "react-hot-toast";
 
 import Button from "../../../utils/button/Button";
 import { BoxIcon } from "../../../icons";
-import { BsArrowLeft, BsArrowRight } from "react-icons/bs";
+import { BsArrowLeft, BsArrowRight, BsExclamation } from "react-icons/bs";
 import { BiSearch } from "react-icons/bi";
 import { AiOutlinePlus } from "react-icons/ai";
 
@@ -26,113 +26,29 @@ import {
   DialogHeader,
   DialogTrigger,
 } from "@/components/ui/dialog.tsx";
-
-import { Edit, Trash } from "lucide-react";
 import { useEffect } from "react";
+import { Edit, Trash } from "iconsax-reactjs";
+import { GetClientRequest } from "@/Service/ClientRequestService.tsx";
 const ListClient = () => {
   const navigate = useNavigate();
-  const { clientList, page, totalPage, setPage, refetch } = GetClient();
+  // const { clientList, page, totalPage, setPage, refetch } = GetClient();
+  const { clientRequestList, page, setPage, totalPage, refetch } =
+    GetClientRequest();
 
-  // Ensure list is an array
-  const routeForUpdate = (id: number) => {
-    navigate(`/edit-client/${id}`);
-  };
-
-  function dateFormatter(iso: string) {
-    return new Date(iso).toLocaleString("en-GB", {
-      year: "numeric",
-      month: "short",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  }
-  useEffect(() => {
-    refetch;
-  }, []);
-  async function handleDeleteService(id: number) {
-    toast(
-      (t) => (
-        <div className="flex flex-col font-extrabold text-black text-lg  gap-2">
-          <p>Are you sure you want to delete Client id {id}?</p>
-
-          <div className="flex justify-end gap-2">
-            <button
-              className="px-3 py-1 text-[16px] text-black bg-gray-300 rounded"
-              onClick={() => toast.dismiss(t.id)}
-            >
-              Cancel
-            </button>
-
-            <button
-              className="px-3 py-1 text-[16px] bg-red-600 text-white rounded"
-              onClick={async () => {
-                toast.dismiss(t.id);
-
-                const loadingId = toast.loading("Deleting service...");
-
-                try {
-                  const res = await request(
-                    `services/${id}`,
-                    "DELETE",
-                    undefined,
-                    undefined
-                  );
-
-                  toast.dismiss(loadingId);
-
-                  if (res?.status === "ACCEPTED") {
-                    toast.success(`Service ID ${id} deleted successfully`);
-                  } else {
-                    toast.error(res?.detail || "Delete failed");
-                  }
-                } catch (error) {
-                  toast.dismiss(loadingId);
-                  toast.error("Server error. Please try again.");
-                }
-              }}
-            >
-              Confirm
-            </button>
-          </div>
-        </div>
-      ),
-      {
-        // kit jea millisecond
-        duration: Infinity, // stays until user clicks
-      }
-    );
+  function routeForDetail(email: string) {
+    navigate(`/client-request-info?email=${email}`);
   }
 
   return (
     <div>
       <div className="space-y-6">
         <ComponentCard
-          title="List Services"
-          desc="A list of all services available in the system."
-          headerActions={
-            <>
-              <Button
-                size="md"
-                variant="outline"
-                startIcon={<BoxIcon className="size-5" />}
-              >
-                Export
-              </Button>
-              <Button
-                size="md"
-                variant="primary"
-                startIcon={<AiOutlinePlus className="size-5" />}
-                onClick={() => navigate("/service")}
-              >
-                Create Service
-              </Button>
-            </>
-          }
+          title="List Clients"
+          desc="A list of all clients available in the system."
           searchInput={
             <Input
               type="text"
-              placeholder="Search service..."
+              placeholder="Search client by name..."
               icon={<BiSearch className="w-5 h-5" />}
               // className="px-6 py-5 flex items-center justify-between border-t border-gray-100 dark:border-gray-800"
               id="input"
@@ -143,7 +59,7 @@ const ListClient = () => {
               <span>
                 Showing page {page} of {totalPage}
               </span>
-              <span>Total row : {clientList?.length}</span>
+              <span>Total Clients : {clientRequestList?.length} </span>
               <div className="flex gap-2">
                 <Button disabled={page === 1} onClick={() => setPage(page - 1)}>
                   <BsArrowLeft className=" font-bold" />
@@ -171,74 +87,39 @@ const ListClient = () => {
           }
         >
           <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
-            <div className="max-w-[1100px] overflow-x-auto ">
+            <div className="max-w-[1130px] overflow-x-auto ">
               <Table>
                 {/* Table Header */}
-                <TableHeader className="border-b   bg-black   border-gray-100 dark:border-white/[0.05]">
+                <TableHeader className="border-b  text-center  bg-black   border-gray-100 dark:border-white/[0.05]">
                   <TableRow>
                     <TableCell
                       isHeader
-                      className="px-5 py-3 font-medium text-gray-500 text-center dark:text-gray-400"
+                      className="px-5 py-3 font-medium text-xl text-gray-500 text-center dark:text-gray-400"
                     >
-                      Id
+                      Client ID
                     </TableCell>
                     <TableCell
                       isHeader
-                      className="px-5 py-3 font-medium text-gray-500 text-center dark:text-gray-400"
+                      className="px-5 py-3 font-medium text-xl text-gray-500 text-center dark:text-gray-400"
                     >
                       Name
                     </TableCell>
                     <TableCell
                       isHeader
-                      className="px-5 py-3 font-medium text-gray-500 text-center dark:text-gray-400"
+                      className="px-5 py-3 font-medium text-gray-500 text-xl text-center dark:text-gray-400"
                     >
                       Email
                     </TableCell>
                     <TableCell
                       isHeader
-                      className="px-5 py-3 font-medium text-gray-500 text-center dark:text-gray-400"
+                      className="px-5 py-3 font-medium text-gray-500 text-xl text-center dark:text-gray-400"
                     >
-                      Status
+                      Total Request
                     </TableCell>
+
                     <TableCell
                       isHeader
-                      className="px-5 py-3 m-3 whitespace-nowrap min-w-40 font-medium text-gray-500 text-center dark:text-gray-400"
-                    >
-                      <span>Phone Number</span>
-                    </TableCell>
-                    <TableCell
-                      isHeader
-                      className="px-5 py-3 font-medium text-gray-500 text-center dark:text-gray-400"
-                    >
-                      Address
-                    </TableCell>
-                    <TableCell
-                      isHeader
-                      className="px-5 py-3 font-medium text-gray-500 text-center dark:text-gray-400"
-                    >
-                      message
-                    </TableCell>
-                    <TableCell
-                      isHeader
-                      className="px-5 py-3 font-medium text-gray-500 text-center dark:text-gray-400"
-                    >
-                      Image
-                    </TableCell>
-                    <TableCell
-                      isHeader
-                      className="px-5 py-3 font-medium text-gray-500 text-center dark:text-gray-400"
-                    >
-                      Created At
-                    </TableCell>
-                    <TableCell
-                      isHeader
-                      className="px-5 py-3 font-medium text-gray-500 text-center dark:text-gray-400"
-                    >
-                      Updated At
-                    </TableCell>
-                    <TableCell
-                      isHeader
-                      className="px-5 py-3 bg-black font-medium text-gray-500 text-center dark:text-gray-400"
+                      className="px-5 py-3 bg-black font-medium text-xl text-gray-500 text-center dark:text-gray-400"
                     >
                       Actions
                     </TableCell>
@@ -247,131 +128,31 @@ const ListClient = () => {
 
                 {/* Table Body */}
                 <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
-                  {clientList.map((item) => (
-                    <TableRow className="h-20" key={item.clientId}>
-                      <TableCell className="px-5 py-4 sm:px-6 text-center">
-                        <div className="flex items-center gap-3">
-                          <div>
-                            <span className="block font-medium text-gray-800   text-theme-sm dark:text-white/90">
-                              {item.clientId ?? "N/A"}
-                            </span>
-                          </div>
-                        </div>
+                  {clientRequestList.map((item, idx) => (
+                    <TableRow className="h-20" key={item.email}>
+                      <TableCell className="px-4  py-3 text-gray-500 text-center   dark:text-white/90">
+                        {idx + 1 }
                       </TableCell>
-                      <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm  dark:text-white/90">
+                      <TableCell className="px-4  py-3 text-gray-500 text-center   dark:text-white/90">
                         {item.clientName ?? "N/A"}
                       </TableCell>
                       <TableCell className="px-5 py-4 sm:px-6 text-center">
-                        <div className="flex items-center gap-3">
-                          <div>
-                            <span className="block font-medium text-gray-800 text-theme-sm dark:text-white/90">
-                              {item.email ?? "N/A"}
-                            </span>
-                          </div>
-                        </div>
+                        <span className="block font-medium text-gray-800 text-center  dark:text-white/90">
+                          {item.email ?? "N/A"}
+                        </span>
                       </TableCell>
-                      <TableCell className="px-5 py-4 sm:px-6 text-start">
-                        <div className="flex items-center gap-3">
-                          <div>
-                            <span className="block font-medium text-gray-800 text-theme-sm dark:text-white/90">
-                              {item.status ?? "N/A"}
-                            </span>
-                          </div>
-                        </div>
+                      <TableCell className="px-5 py-4 sm:px-6 text-center">
+                        <span className="block font-medium text-gray-800 text-center  dark:text-white/90">
+                          {item.requestCount ?? "N/A"}
+                        </span>
                       </TableCell>
-                      <TableCell className="px-5 py-4 sm:px-6 text-start">
-                        <div className="flex items-center gap-3">
-                          <div>
-                            <span className="block font-medium text-gray-800 text-theme-sm dark:text-white/90">
-                              {item.phoneNumber ?? "N/A"}
-                            </span>
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell className="px-5 py-4 sm:px-6 text-start">
-                        <div className="flex items-center gap-3">
-                          <div>
-                            <span className="block font-medium text-gray-800 text-theme-sm dark:text-white/90">
-                              {item.address ?? "N/A"}
-                            </span>
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell className="px-5 py-4 sm:px-6 text-start">
-                        <div className="flex items-center gap-3">
-                          <div>
-                            <span className="block font-medium text-gray-800 text-theme-sm dark:text-white/90">
-                              {item.complaint ?? "N/A"}
-                            </span>
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell className="px-5 py-4 sm:px-6 text-start">
-                        <div className="flex items-center gap-3">
-                          <div>
-                            <Dialog>
-                              <DialogTrigger asChild>
-                                <img
-                                  className="h-20 w-28"
-                                  src={`http://localhost:8080/api/v1/files/preview-file/${item.clientImage}`}
-                                  alt={item.clientImage}
-                                  title={item.clientImage}
-                                />
-                              </DialogTrigger>
-                              <DialogContent className="w-full z-999999  content-center justify-center max-w-[95vw] md:max-w-[90vw] lg:max-w-[80vw]">
-                                <DialogHeader>
-                                  {/* <DialogTitle>{title}</DialogTitle> */}
-                                  <p className="text-center text-3xl underline  font-battambang tracking-wide">
-                                    {item.clientImage}
-                                  </p>
-                                  {/* <PdfViewer /> */}
-                                </DialogHeader>
-                                <img
-                                  className="h-[80vh] object-cover border-2 border-black "
-                                  src={`http://localhost:8080/api/v1/files/preview-file/${item.clientImage}`}
-                                  alt={item.clientImage}
-                                />
-                                {/* Hello */}
-                              </DialogContent>
-                            </Dialog>
-                          </div>
-                        </div>
-                      </TableCell>
-
-                      <TableCell className="px-5 py-4 whitespace-nowrap sm:px-6 text-start">
-                        <div className="flex items-center gap-3">
-                          <div>
-                            <span className="block font-medium text-gray-800 text-theme-sm dark:text-white/90">
-                              {dateFormatter(item.createdAt) ?? "N/A"}
-                            </span>
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell className="px-5 py-4 whitespace-nowrap sm:px-6 text-start">
-                        <div className="flex items-center gap-3">
-                          <div>
-                            <span className="block font-medium text-gray-800 text-theme-sm dark:text-white/90">
-                              {dateFormatter(item.updatedAt) ?? "N/A"}
-                            </span>
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell className="px-5 py-4 sm:px-6 text-start">
-                        <div className="flex items-center gap-3">
-                          {/* Update Button */}
+                      <TableCell className="px-5 py-4 sm:px-6 ">
+                        <div className="flex  justify-center items-center gap-3">
                           <button
-                            onClick={() => routeForUpdate(item.clientId)}
-                            className="p-2 text-sm rounded-md bg-blue-500 text-white hover:bg-blue-600"
+                            onClick={() => routeForDetail(item?.email)}
+                            className="p-2 text-sm rounded-3xl bg-green-500 text-white hover:bg-green-600"
                           >
-                            <Edit size="24" color="#ffffff" />
-                          </button>
-
-                          {/* Delete Button */}
-                          <button
-                            onClick={() => handleDeleteService(item?.clientId)}
-                            className="p-2 text-sm rounded-md bg-red-500 text-white hover:bg-red-600"
-                          >
-                            <Trash size="24" color="#ffffff" />
+                            <BsExclamation size="24" color="#ffffff" />
                           </button>
                         </div>
                       </TableCell>

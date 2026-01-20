@@ -11,7 +11,9 @@ import { GetLawyers } from "@/Service/UserService";
 
 export default function EcommerceMetrics() {
   const { clientList } = GetClient();
-  const { totalElements } = GetLawyers();
+  const { list } = GetLawyers();
+
+  console.log("Law ", list);
   // const {}
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-6">
@@ -35,7 +37,7 @@ export default function EcommerceMetrics() {
           </div>
           <Badge color="success">
             <ArrowUpIcon />
-            11.01%
+            {/* 11.01% */}
           </Badge>
         </div>
       </div>
@@ -52,13 +54,13 @@ export default function EcommerceMetrics() {
               Our Lawyers
             </span>
             <h4 className="mt-2 animate-caret-blink  font-bold text-gray-800 text-title-sm dark:text-white/90">
-              {totalElements}
+              {list.length}
             </h4>
           </div>
 
           <Badge color="success">
             <ArrowUpIcon />
-            11.01%
+            {/* 11.01% */}
           </Badge>
         </div>
       </div>

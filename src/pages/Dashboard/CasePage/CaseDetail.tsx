@@ -33,7 +33,7 @@ const CaseDetail = () => {
   return (
     <>
       <button
-        className="border-2 border-white text-lg flex items-center gap-2 rounded-2xl
+        className="border-2 border-white text-lg flex items-center gap-2 rounded-full
              px-4 py-2 w-auto
              text-white
              hover:bg-white hover:text-black 
@@ -41,7 +41,7 @@ const CaseDetail = () => {
         onClick={() => goto("/list-case")}
       >
         <ArrowLeft2 size="24" color="currentColor" />
-        Back to list case
+       
       </button>
 
       <DetailComponent
