@@ -49,11 +49,7 @@ export const request = (
     params: params,
     headers: headers,
   })
-    .then((response) => {
-      console.log("res api " , response)
-     return response.data;
-    
-    })
+    .then((response) => response.data)
     .catch((error) => {
       throw error; // so caller can catch it
     });

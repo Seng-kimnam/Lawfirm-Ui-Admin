@@ -1,451 +1,286 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "react-router";
 
-// Assume these icons are imported from an icon library
-import {
-  // BoxCubeIcon,
-  // CalenderIcon,
-  ChevronDownIcon,
-  // ListIcon,
-  // PageIcon,
-  // PieChartIcon,
-  // PlugInIcon,
-  // TableIcon,
-  // UserCircleIcon,
-} from "../icons";
-import { IoHome, IoDocumentTextSharp, IoSettings } from "react-icons/io5";
-import { useSidebar } from "../context/SidebarContext";
+// Icons
+import { ChevronDownIcon } from "../icons";
+import { IoHome, IoDocumentTextSharp } from "react-icons/io5";
 import { MdMiscellaneousServices } from "react-icons/md";
-import { BiSolidReport } from "react-icons/bi";
 import { HiUsers } from "react-icons/hi2";
-import { MdEditDocument } from "react-icons/md";
 import { BsCalendarDateFill } from "react-icons/bs";
 import { Courthouse, UserOctagon } from "iconsax-reactjs";
-// import SidebarWidget from "./SidebarWidget";
+
+import { useSidebar } from "../context/SidebarContext";
+
+/* ---------------- TYPES ---------------- */
+
+type Role = "ROLE_ADMIN" | "ROLE_LAWYER";
+
+type SubItem = {
+  name: string;
+  path: string;
+  roles?: Role[];
+};
 
 type NavItem = {
   name: string;
   icon: React.ReactNode;
   path?: string;
-  subItems?: { name: string; path: string; pro?: boolean; new?: boolean }[];
+  roles?: Role[];
+  subItems?: SubItem[];
 };
 
+/* ---------------- NAV CONFIG ---------------- */
+
 const navItems: NavItem[] = [
-  // {
-  //   icon: <IoHomeOutline />,
-  //   name: "Dashboard",
-  //   subItems: [{ name: "Ecommerce", path: "/", pro: false }],
-  // },
   {
     icon: <IoHome />,
     name: "Dashboard",
     path: "/",
-  },
-  {
-    icon: <MdMiscellaneousServices />,
-    name: "Services",
-    subItems: [
-      // { name: "Services", path: "/", pro: false },
-      // { name: "Add Service", path: "/service", pro: false },
-      { name: "List Service", path: "/list-service", pro: false },
-      { name: "Service Type", path: "/servicetype", pro: false },
-    ],
-  },
-  {
-    icon: <IoDocumentTextSharp />,
-    name: "Case ",
-    subItems: [
-      // { name: "Services", path: "/", pro: false },
-      { name: "Add Case", path: "/add-case", pro: false },
-      { name: "List Case", path: "/list-case", pro: false },
-      // { name: "Case Detail Information", path: "/case-detail-info", pro: false },
-    ],
-  },
-  {
-    icon: <IoDocumentTextSharp />,
-    name: "File Documents",
-    subItems: [
-      // { name: "Services", path: "/", pro: false },
-      { name: "File List", path: "/list-file-doc", pro: false },
-      { name: "Category Of Document", path: "/doc-category", pro: false },
-      { name: "Add File", path: "/add-file-doc", pro: false },
-    ],
-  },
-  {
-    icon: <IoDocumentTextSharp />,
-    name: "Task",
-    subItems: [
-      // { name: "Services", path: "/", pro: false },
-      { name: "Add Task", path: "/addtask", pro: false },
-      { name: "List Task", path: "/listtask", pro: false },
-    ],
+    roles: ["ROLE_ADMIN", "ROLE_LAWYER"],
   },
   {
     icon: <BsCalendarDateFill />,
     name: "Appointments",
-
+    roles: ["ROLE_ADMIN", "ROLE_LAWYER"],
     subItems: [
-      // { name: "Services", path: "/", pro: false },
-      { name: "List Appointment", path: "/list-appointment", pro: false },
-      { name: "Add Appointment", path: "/add-appointment", pro: false },
-      { name: "Calender", path: "/appointment-calender", pro: false },
+      { name: "List Appointment", path: "/list-appointment" },
+      { name: "Add Appointment", path: "/add-appointment" },
+      { name: "Calendar", path: "/appointment-calender" },
+    ],
+  },
+  {
+    icon: <BsCalendarDateFill />,
+    name: "Tasks",
+    roles: ["ROLE_ADMIN", "ROLE_LAWYER"],
+    subItems: [
+      { name: "List Task", path: "/list-task" },
+      { name: "Add Task", path: "/add-task" },
+      // { name: "Calendar", path: "/appointment-calender" },
+    ],
+  },
+
+  /* ---------- ADMIN ONLY ---------- */
+
+  {
+    icon: <MdMiscellaneousServices />,
+    name: "Services",
+    roles: ["ROLE_ADMIN"],
+    subItems: [
+      { name: "List Service", path: "/list-service" },
+      { name: "Service Type", path: "/servicetype" },
+    ],
+  },
+  {
+    icon: <IoDocumentTextSharp />,
+    name: "Case",
+    roles: ["ROLE_ADMIN"],
+    subItems: [
+      { name: "Add Case", path: "/add-case" },
+      { name: "List Case", path: "/list-case" },
     ],
   },
   {
     icon: <HiUsers />,
     name: "Client Control",
+    roles: ["ROLE_ADMIN"],
     subItems: [
-      // { name: "Add Customer", path: "/addcustomer", pro: false },
-      { name: "Client List", path: "/list-client", pro: false },
-      { name: "Poster ", path: "/poster", pro: false },
+      { name: "Client List", path: "/list-client" },
+      { name: "Poster", path: "/poster" },
     ],
   },
   {
-    icon: <UserOctagon size="32" color="#d9e3f0" />,
+    icon: <UserOctagon size="26" />,
     name: "Our Lawyer",
-    subItems: [
-      // { name: "Add Customer", path: "/addcustomer", pro: false },
-      { name: "Lawyer List", path: "/list-lawyer", pro: false },
-    ],
+    roles: ["ROLE_ADMIN"],
+    subItems: [{ name: "Lawyer List", path: "/list-lawyer" }],
   },
   {
-    icon: <Courthouse size="32" color="#d9e3f0" />,
+    icon: <Courthouse size="26" />,
     name: "Court",
-    subItems: [
-      // { name: "Add Customer", path: "/addcustomer", pro: false },
-      { name: "Court List", path: "/list-court", pro: false },
-    ],
+    roles: ["ROLE_ADMIN"],
+    subItems: [{ name: "Court List", path: "/list-court" }],
   },
-
-  // {
-  //   name: "Forms",
-  //   icon: <ListIcon />,
-  //   subItems: [{ name: "Form Elements", path: "/form-elements", pro: false }],
-  // },
-  // {
-  //   name: "Tables",
-  //   icon: <TableIcon />,
-  //   subItems: [{ name: "Basic Tables", path: "/basic-tables", pro: false }],
-  // },
-  // {
-  //   name: "Pages",
-  //   icon: <PageIcon />,
-  //   subItems: [
-  //     { name: "Blank Page", path: "/blank", pro: false },
-  //     { name: "404 Error", path: "/error-404", pro: false },
-  //   ],
-  // },
 ];
 
-const othersItems: NavItem[] = [
-  // {
-  //   icon: <PieChartIcon />,
-  //   name: "Charts",
-  //   subItems: [
-  //     { name: "Line Chart", path: "/line-chart", pro: false },
-  //     { name: "Bar Chart", path: "/bar-chart", pro: false },
-  //   ],
-  // },
-  // {
-  //   icon: <BoxCubeIcon />,
-  //   name: "UI Elements",
-  //   subItems: [
-  //     { name: "Alerts", path: "/alerts", pro: false },
-  //     { name: "Avatar", path: "/avatars", pro: false },
-  //     { name: "Badge", path: "/badge", pro: false },
-  //     { name: "Buttons", path: "/buttons", pro: false },
-  //     { name: "Images", path: "/images", pro: false },
-  //     { name: "Videos", path: "/videos", pro: false },
-  //   ],
-  // },
-  // {
-  //   icon: <PlugInIcon />,
-  //   name: "Authentication",
-  //   subItems: [
-  //     { name: "Sign In", path: "/signin", pro: false },
-  //     { name: "Sign Up", path: "/signup", pro: false },
-  //   ],
-  // },
-];
+/* ---------------- COMPONENT ---------------- */
 
 const AppSidebar: React.FC = () => {
   const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();
   const location = useLocation();
 
-  const [openSubmenu, setOpenSubmenu] = useState<{
-    type: "main" | "others";
-    index: number;
-  } | null>(null);
-  const [subMenuHeight, setSubMenuHeight] = useState<Record<string, number>>(
+  const role = localStorage.getItem("role") as Role | null;
+
+  const [openSubmenu, setOpenSubmenu] = useState<{ index: number } | null>(
+    null,
+  );
+  const subMenuRefs = useRef<Record<number, HTMLDivElement | null>>({});
+  const [subMenuHeight, setSubMenuHeight] = useState<Record<number, number>>(
     {},
   );
-  const subMenuRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
-  // const isActive = (path: string) => location.pathname === path;
   const isActive = useCallback(
     (path: string) => location.pathname === path,
     [location.pathname],
   );
 
+  /* -------- ROLE FILTER -------- */
+
+  const filteredNavItems = navItems
+    .filter((item) => !item.roles || item.roles.includes(role!))
+    .map((item) => {
+      if (!item.subItems) return item;
+      const subs = item.subItems.filter(
+        (s) => !s.roles || s.roles.includes(role!),
+      );
+      return subs.length ? { ...item, subItems: subs } : null;
+    })
+    .filter(Boolean) as NavItem[];
+
+  /* -------- AUTO OPEN ACTIVE SUBMENU -------- */
+
   useEffect(() => {
-    let submenuMatched = false;
-    ["main", "others"].forEach((menuType) => {
-      const items = menuType === "main" ? navItems : othersItems;
-      items.forEach((nav, index) => {
-        if (nav.subItems) {
-          nav.subItems.forEach((subItem) => {
-            if (isActive(subItem.path)) {
-              setOpenSubmenu({
-                type: menuType as "main" | "others",
-                index,
-              });
-              submenuMatched = true;
-            }
-          });
-        }
+    filteredNavItems.forEach((nav, index) => {
+      nav.subItems?.forEach((sub) => {
+        if (isActive(sub.path)) setOpenSubmenu({ index });
       });
     });
-
-    if (!submenuMatched) {
-      setOpenSubmenu(null);
-    }
-  }, [location, isActive]);
+  }, []);
 
   useEffect(() => {
-    if (openSubmenu !== null) {
-      const key = `${openSubmenu.type}-${openSubmenu.index}`;
-      if (subMenuRefs.current[key]) {
-        setSubMenuHeight((prevHeights) => ({
-          ...prevHeights,
-          [key]: subMenuRefs.current[key]?.scrollHeight || 0,
+    if (openSubmenu) {
+      const el = subMenuRefs.current[openSubmenu.index];
+      if (el) {
+        setSubMenuHeight((prev) => ({
+          ...prev,
+          [openSubmenu.index]: el.scrollHeight,
         }));
       }
     }
-  }, [openSubmenu]);
+  }, []);
 
-  const handleSubmenuToggle = (index: number, menuType: "main" | "others") => {
-    setOpenSubmenu((prevOpenSubmenu) => {
-      if (
-        prevOpenSubmenu &&
-        prevOpenSubmenu.type === menuType &&
-        prevOpenSubmenu.index === index
-      ) {
-        return null;
-      }
-      return { type: menuType, index };
-    });
-  };
-
-  const renderMenuItems = (items: NavItem[], menuType: "main" | "others") => (
-    <ul className="flex flex-col gap-4">
-      {items.map((nav, index) => (
-        <li key={nav.name}>
-          {nav.subItems ? (
-            <button
-              onClick={() => handleSubmenuToggle(index, menuType)}
-              className={`menu-item group ${
-                openSubmenu?.type === menuType && openSubmenu?.index === index
-                  ? "menu-item-active"
-                  : "menu-item-inactive"
-              } cursor-pointer ${
-                !isExpanded && !isHovered
-                  ? "lg:justify-center"
-                  : "lg:justify-start"
-              }`}
-            >
-              <span
-                className={`menu-item-icon-size  ${
-                  openSubmenu?.type === menuType && openSubmenu?.index === index
-                    ? "menu-item-icon-active"
-                    : "menu-item-icon-inactive"
-                }`}
-              >
-                {nav.icon}
-              </span>
-              {(isExpanded || isHovered || isMobileOpen) && (
-                <span className="menu-item-text">{nav.name}</span>
-              )}
-              {(isExpanded || isHovered || isMobileOpen) && (
-                <ChevronDownIcon
-                  className={`ml-auto w-5 h-5 transition-transform duration-200 ${
-                    openSubmenu?.type === menuType &&
-                    openSubmenu?.index === index
-                      ? "rotate-180 text-brand-500"
-                      : ""
-                  }`}
-                />
-              )}
-            </button>
-          ) : (
-            nav.path && (
-              <Link
-                to={nav.path}
-                className={`menu-item group ${
-                  isActive(nav.path) ? "menu-item-active" : "menu-item-inactive"
-                }`}
-              >
-                <span
-                  className={`menu-item-icon-size ${
-                    isActive(nav.path)
-                      ? "menu-item-icon-active"
-                      : "menu-item-icon-inactive"
-                  }`}
-                >
-                  {nav.icon}
-                </span>
-                {(isExpanded || isHovered || isMobileOpen) && (
-                  <span className="menu-item-text">{nav.name}</span>
-                )}
-              </Link>
-            )
-          )}
-          {nav.subItems && (isExpanded || isHovered || isMobileOpen) && (
-            <div
-              ref={(el) => {
-                subMenuRefs.current[`${menuType}-${index}`] = el;
-              }}
-              className="overflow-hidden transition-all duration-300"
-              style={{
-                height:
-                  openSubmenu?.type === menuType && openSubmenu?.index === index
-                    ? `${subMenuHeight[`${menuType}-${index}`]}px`
-                    : "0px",
-              }}
-            >
-              <ul className="mt-2 space-y-1 ml-9">
-                {nav.subItems.map((subItem) => (
-                  <li key={subItem.name}>
-                    <Link
-                      to={subItem.path}
-                      className={`menu-dropdown-item ${
-                        isActive(subItem.path)
-                          ? "menu-dropdown-item-active"
-                          : "menu-dropdown-item-inactive"
-                      }`}
-                    >
-                      {subItem.name}
-                      <span className="flex items-center gap-1 ml-auto">
-                        {subItem.new && (
-                          <span
-                            className={`ml-auto ${
-                              isActive(subItem.path)
-                                ? "menu-dropdown-badge-active"
-                                : "menu-dropdown-badge-inactive"
-                            } menu-dropdown-badge`}
-                          >
-                            new
-                          </span>
-                        )}
-                        {subItem.pro && (
-                          <span
-                            className={`ml-auto ${
-                              isActive(subItem.path)
-                                ? "menu-dropdown-badge-active"
-                                : "menu-dropdown-badge-inactive"
-                            } menu-dropdown-badge`}
-                          >
-                            pro
-                          </span>
-                        )}
-                      </span>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-        </li>
-      ))}
-    </ul>
-  );
+  /* ---------------- RENDER ---------------- */
 
   return (
     <aside
-      className={`fixed mt-16 flex flex-col lg:mt-0 top-0 px-5 left-0 bg-white dark:bg-gray-900 dark:border-gray-800 text-gray-900 h-screen transition-all duration-300 ease-in-out z-50 border-r border-gray-200 
-        ${
-          isExpanded || isMobileOpen
-            ? "w-[290px]"
-            : isHovered
-              ? "w-[290px]"
-              : "w-[90px]"
-        }
-        ${isMobileOpen ? "translate-x-0" : "-translate-x-full"}
-        lg:translate-x-0`}
+      className={`fixed top-0 left-0 h-screen z-50 transition-all
+      bg-white dark:bg-slate-900
+      border-r border-slate-200 dark:border-grey-900
+      ${isExpanded || isHovered || isMobileOpen ? "w-[290px]" : "w-[90px]"}
+      ${isMobileOpen ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0`}
       onMouseEnter={() => !isExpanded && setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
+      {/* LOGO */}
       <div
-        className={`py-8 flex ${
-          !isExpanded && !isHovered ? "lg:justify-center" : "justify-start"
-        }`}
+        className={`py-6 flex items-center border-b border-gray-200 dark:border-gray-800
+    ${!isExpanded && !isHovered ? "lg:justify-center" : "justify-center"}`}
       >
-        <Link to="/">
-          {isExpanded || isHovered || isMobileOpen ? (
-            <>
-              <img
-                className="dark:hidden"
-                src="https://res.cloudinary.com/diqseuweg/image/upload/v1762068621/Group_1_wziare.png"
-                alt="Logo"
-                width={150}
-                height={40}
-              />
-              <img
-                className="hidden dark:block"
-                src="https://res.cloudinary.com/diqseuweg/image/upload/v1762068621/Group_1_wziare.png"
-                alt="Logo"
-                width={150}
-                height={40}
-              />
-            </>
-          ) : (
+        <Link to="/" className="flex items-center gap-3">
+          {/* Collapsed logo */}
+          {!isExpanded && !isHovered ? (
             <img
               src="https://res.cloudinary.com/diqseuweg/image/upload/v1764937325/GroupGCL_kfldsx.png"
               alt="Logo"
-              width={64}
-              height={64}
+              className="w-12 h-12"
             />
+          ) : (
+            <>
+              {/* Light mode */}
+              <img
+                src="https://res.cloudinary.com/diqseuweg/image/upload/v1762068621/Group_1_wziare.png"
+                alt="Logo"
+                className="block dark:hidden w-36"
+              />
+
+              {/* Dark mode */}
+              <img
+                src="https://res.cloudinary.com/diqseuweg/image/upload/v1762068621/Group_1_wziare.png"
+                alt="Logo"
+                className="hidden dark:block w-36"
+              />
+            </>
           )}
         </Link>
       </div>
-      <div className="flex flex-col overflow-y-auto duration-300 ease-linear no-scrollbar">
-        <nav className="mb-6">
-          <div className="flex flex-col gap-4">
-            <div>
-              <h2
-                className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${
-                  !isExpanded && !isHovered
-                    ? "lg:justify-center"
-                    : "justify-start"
-                }`}
-              >
-                {/* {isExpanded || isHovered || isMobileOpen ? (
-                  "Menu"
-                ) : (
-                  <HorizontaLDots className="size-6" />
-                )} */}
-              </h2>
-              {renderMenuItems(navItems, "main")}
-            </div>
-            <div className="">
-              <h2
-                className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${
-                  !isExpanded && !isHovered
-                    ? "lg:justify-center"
-                    : "justify-start"
-                }`}
-              >
-                {/* {isExpanded || isHovered || isMobileOpen ? (
-                  "Others"
-                ) : (
-                  <HorizontaLDots />
-                )} */}
-              </h2>
-              {renderMenuItems(othersItems, "others")}
-            </div>
-          </div>
-        </nav>
-        {/* {isExpanded || isHovered || isMobileOpen ? <SidebarWidget /> : null} */}
-      </div>
+
+      <nav className="mt-10 px-4">
+        <ul className="flex flex-col gap-2">
+          {filteredNavItems.map((nav, index) => (
+            <li key={nav.name}>
+              {nav.subItems ? (
+                <>
+                  <button
+                    onClick={() =>
+                      setOpenSubmenu(
+                        openSubmenu?.index === index ? null : { index },
+                      )
+                    }
+                    className="flex items-center gap-3 w-full px-3 py-2 rounded-lg
+                    text-slate-700 dark:text-slate-200
+                    hover:bg-slate-100 dark:hover:bg-slate-800"
+                  >
+                    {nav.icon}
+                    {(isExpanded || isHovered || isMobileOpen) && (
+                      <>
+                        <span>{nav.name}</span>
+                        <ChevronDownIcon
+                          className={`ml-auto transition-transform ${
+                            openSubmenu?.index === index ? "rotate-180" : ""
+                          }`}
+                        />
+                      </>
+                    )}
+                  </button>
+
+                  <div
+                    ref={(el) => {
+                      subMenuRefs.current[index] = el;
+                    }}
+                    style={{
+                      height:
+                        openSubmenu?.index === index ? subMenuHeight[index] : 0,
+                    }}
+                    className="overflow-hidden transition-all"
+                  >
+                    <ul className="ml-8 mt-2 space-y-1">
+                      {nav.subItems.map((sub) => (
+                        <li key={sub.name}>
+                          <Link
+                            to={sub.path}
+                            className={`block px-3 py-1.5 rounded-md text-sm
+                            ${
+                              isActive(sub.path)
+                                ? "bg-blue-500 text-white"
+                                : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+                            }`}
+                          >
+                            {sub.name}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </>
+              ) : (
+                <Link
+                  to={nav.path!}
+                  className={`flex items-center gap-3 px-3 py-2 rounded-lg
+                  ${
+                    isActive(nav.path!)
+                      ? "bg-blue-500 text-white"
+                      : "text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800"
+                  }`}
+                >
+                  {nav.icon}
+                  {(isExpanded || isHovered || isMobileOpen) && (
+                    <span>{nav.name}</span>
+                  )}
+                </Link>
+              )}
+            </li>
+          ))}
+        </ul>
+      </nav>
     </aside>
   );
 };

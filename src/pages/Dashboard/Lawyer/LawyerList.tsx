@@ -2,6 +2,7 @@
 
 import { Lawyer } from "@/model/Lawyer";
 import { GetLawyers } from "@/Service/UserService";
+import { AddSquare } from "iconsax-reactjs";
 import {
   MapPin,
   Mail,
@@ -47,6 +48,12 @@ export default function LawyerList() {
               {filteredLawyers.length} Professional
               {filteredLawyers.length !== 1 ? "s" : ""}
             </div>
+            <button
+              onClick={() => goto(`/add-new-lawyer/`)}
+              className="p-2   rounded-3xl   text-white transition-colors duration-200 hover:bg-green-600"
+            >
+              <AddSquare size="30" color="#ffffff" />
+            </button>
           </div>
         </div>
       </header>
@@ -95,14 +102,25 @@ export default function LawyerList() {
               >
                 <div className="h-full flex flex-col bg-white dark:bg-slate-800 rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 border border-slate-200 dark:border-slate-700 overflow-hidden hover:border-blue-500 dark:hover:border-blue-400">
                   {/* Profile Header */}
-                  <div className="relative h-32 bg-gradient-to-r from-blue-500 to-blue-600 dark:from-blue-600 dark:to-blue-700">
+                  <div
+                    className="relative h-32 bg-cover bg-center"
+                    style={{
+                      backgroundImage:
+                        "url('https://png.pngtree.com/thumb_back/fh260/background/20230704/pngtree-stack-of-law-books-with-courtroom-scales-image_3721829.jpg')",
+                    }}
+                  >
+                    {/* Optional dark overlay for readability */}
+                    <div className="absolute inset-0 bg-black/40"></div>
+
+                    {/* Your existing radial highlight (optional) */}
                     <div
-                      className="absolute inset-0 opacity-20 mix-blend-multiply"
+                      className="absolute inset-0 opacity-30 mix-blend-overlay"
                       style={{
                         backgroundImage:
-                          "radial-gradient(circle at 20% 50%, rgba(255,255,255,0.1), transparent 50%)",
+                          "radial-gradient(circle at 20% 50%, rgba(255,255,255,0.25), transparent 50%)",
                       }}
                     ></div>
+
                     <button
                       onClick={() => goto(`/edit-lawyer/${lawyer.appUserId}`)}
                       className="p-2 absolute  right-2 top-2 text-sm rounded-md  text-white hover:bg-blue-600"

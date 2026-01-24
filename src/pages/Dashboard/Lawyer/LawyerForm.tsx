@@ -23,47 +23,14 @@ import { Badge } from "@/components/ui/badge";
 import { X } from "lucide-react";
 import { useState } from "react";
 import Label from "@/components/form/Label";
+import { LawyerProfileRequest } from "@/model/Lawyer";
+import { GetExpertiseList, GetServiceType } from "@/Service/ServiceTypeService";
+import { useNavigate, useParams } from "react-router";
+import toast from "react-hot-toast";
+import { registerLawyerService } from "@/Service/UserService";
+import { request } from "@/constants/api";
 
-interface LawyerFormData {
-  fullName: string;
-  gender: "MALE" | "FEMALE";
-  lawyerStatus: "ACTIVE" | "INACTIVE";
-  email: string;
-  phoneNumber: string;
-  password: string;
-  title: string;
-  description: string;
-  expertises: string[];
-  facebookLink?: string;
-  tiktokLink?: string;
-  telegramLink?: string;
-}
-
-const EXPERTISE_OPTIONS = [
-  "Banking & Finance",
-  "Litigation & Dispute Resolution",
-  "Consumer Goods & Retail",
-  "Labour & Employment",
-  "Corporate Law",
-  "Real Estate & Construction",
-  "Foreign Investment",
-  "Aviation & Airline",
-  "Security & Capital Market",
-  "Insolvency & Dissolution",
-  "Public Relations & Regulatory Advocacy",
-];
-
-interface LawyerFormProps {
-  initialData?: Partial<LawyerFormData>;
-  onSubmit: (data: LawyerFormData) => void;
-  isLoading?: boolean;
-}
-
-const LawyerForm = ({
-  initialData,
-  onSubmit,
-  isLoading = false,
-}: LawyerFormProps) => {
+const LawyerForm = () => {
   const {
     control,
     register,
@@ -72,30 +39,44 @@ const LawyerForm = ({
     formState: { errors },
     watch,
     reset,
-  } = useForm<LawyerFormData>({
+  } = useForm<LawyerProfileRequest>({
     defaultValues: {
-      fullName: initialData?.fullName || "",
-      gender: initialData?.gender || "MALE",
-      lawyerStatus: initialData?.lawyerStatus || "ACTIVE",
-      email: initialData?.email || "",
-      phoneNumber: initialData?.phoneNumber || "",
-      password: initialData?.password || "",
-      title: initialData?.title || "",
-      description: initialData?.description || "",
-      expertises: initialData?.expertises || [],
-      facebookLink: initialData?.facebookLink || "",
-      tiktokLink: initialData?.tiktokLink || "",
-      telegramLink: initialData?.telegramLink || "",
+      fullName: "",
+      gender: "MALE",
+      lawyerStatus: "ACTIVE",
+      email: "",
+      phoneNumber: "",
+      password: "",
+      roleId: 2,
+      title: "",
+      description: "",
+      image: "",
+      expertiseIdList: [],
+      facebookLink: "",
+      tiktokLink: "",
+      telegramLink: "",
     },
   });
+  const { id } = useParams<{ id: string }>();
 
-  const expertises = watch("expertises");
+  const { list } = GetExpertiseList();
+  const EXPERTISE_OPTIONS = list;
+  const expertises = watch("expertiseIdList");
   const [inputExpertise, setInputExpertise] = useState("");
+  const [uploadedImagePath, setUploadedImagePath] = useState(Object);
 
-  const handleAddExpertise = (expertise: string) => {
-    if (expertise && !expertises.includes(expertise)) {
-      const newExpertises = [...expertises, expertise];
-      setValue("expertises", newExpertises, {
+  async function handleUploadImage(e: any) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Simulated upload - replace with your actual API call
+
+    setUploadedImagePath(file); // uploadedImagePath = file
+  }
+  const handleAddExpertise = (expertiseId: number) => {
+    if (!expertises.includes(expertiseId)) {
+      const newExpertises = [...expertises, expertiseId];
+      setValue("expertiseIdList", newExpertises, {
         shouldDirty: true,
         shouldValidate: true,
       });
@@ -103,24 +84,54 @@ const LawyerForm = ({
     }
   };
 
-  const handleRemoveExpertise = (expertise: string) => {
+  const handleRemoveExpertise = (expertise: number) => {
     const newExpertises = expertises.filter((e) => e !== expertise);
     reset({
       ...watch(),
-      expertises: newExpertises,
+      expertiseIdList: newExpertises,
     });
   };
+  const getExpertiseName = (id: number) =>
+    list.find((e) => e.expertiseId === id)?.expertName ?? "Unknown";
+  const [isLoading, setIsLoading] = useState(false);
 
+  const hanleSaveData = async (data: LawyerProfileRequest) => {
+    console.log("insert ", data);
+    try {
+      setIsLoading(true);
+      const fd = new FormData();
+      fd.append("file", uploadedImagePath);
+      const { payload } = await request(
+        `files/upload-file`,
+        "POST",
+        fd,
+        undefined,
+        "multipart/form-data",
+      );
+      const finishedData: LawyerProfileRequest = {
+        ...data,
+        image: payload?.fileName,
+      };
+      console.log("Finished ", finishedData);
+      const res = await registerLawyerService(finishedData);
+      console.log("New register ", res);
+      toast.success(`Lawyer profile for ${data.fullName} has been saved!`);
+    } catch (error: any) {
+      toast.error(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
   return (
-    <Card className="w-full max-w-4xl mx-auto">
+    <Card className="w-full max-w-6xl mx-auto">
       <CardHeader>
         <CardTitle>Lawyer Profile</CardTitle>
         <CardDescription>
-          Manage lawyer information and expertise
+          {Number(id) ? "Edit" : "Create new"} lawyer information and expertise
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+        <form onSubmit={handleSubmit(hanleSaveData)} className="space-y-8">
           {/* Personal Information Section */}
           <div className="space-y-6">
             <h3 className="text-lg font-semibold">Personal Information</h3>
@@ -280,32 +291,32 @@ const LawyerForm = ({
                     <SelectValue placeholder="Select expertise area" />
                   </SelectTrigger>
                   <SelectContent>
-                    {EXPERTISE_OPTIONS.map((option) => (
-                      <SelectItem key={option} value={option}>
-                        {option}
+                    {EXPERTISE_OPTIONS.map((e) => (
+                      <SelectItem
+                        key={e.expertiseId}
+                        value={String(e.expertiseId)}
+                      >
+                        {e.expertName}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
+
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={() => handleAddExpertise(inputExpertise)}
+                  onClick={() => handleAddExpertise(Number(inputExpertise))}
                 >
                   Add
                 </Button>
               </div>
               <div className="flex flex-wrap gap-2">
-                {expertises.map((expertise) => (
-                  <Badge
-                    key={expertise}
-                    variant="secondary"
-                    className="px-3 py-1"
-                  >
-                    {expertise}
+                {expertises.map((id) => (
+                  <Badge key={id} variant="secondary" className="px-3 py-1">
+                    {getExpertiseName(id)}
                     <button
                       type="button"
-                      onClick={() => handleRemoveExpertise(expertise)}
+                      onClick={() => handleRemoveExpertise(id)}
                       className="ml-2 hover:text-destructive"
                     >
                       <X className="w-3 h-3" />
@@ -317,6 +328,7 @@ const LawyerForm = ({
           </div>
 
           {/* Credentials Section */}
+          {/* {Num ?? ( */}
           <div className="space-y-6">
             <h3 className="text-lg font-semibold">Credentials & Security</h3>
 
@@ -342,6 +354,7 @@ const LawyerForm = ({
               )}
             </div>
           </div>
+          {/* )} */}
 
           {/* Social Media Section */}
           <div className="space-y-6">
@@ -378,15 +391,57 @@ const LawyerForm = ({
                 />
               </div>
             </div>
+            {/* Upload Image */}
+            <div>
+              <label className="block text-sm font-medium mb-3 text-white/80">
+                Upload Image
+              </label>
+              <input
+                type="file"
+                id="clientImage"
+                onChange={handleUploadImage}
+                className="w-full bg-white/10 backdrop-blur-xl border-2 border-white/20 rounded-2xl px-4 py-3 cursor-pointer text-white file:mr-4 file:py-2 file:px-6 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-gradient-to-r file:from-blue-500 file:to-purple-500 file:text-white hover:file:from-blue-600 hover:file:to-purple-600 file:transition-all file:duration-300"
+                accept="image/*"
+              />
+              {uploadedImagePath && (
+                <p className="text-sm text-green-400 mt-2 flex items-center">
+                  {uploadedImagePath?.name && (
+                    <svg
+                      className="w-4 h-4 mr-2"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                  )}
+                  {uploadedImagePath?.name}
+                </p>
+              )}
+            </div>
           </div>
 
           {/* Submit Button */}
-          <div className="flex gap-3 pt-6">
-            <Button type="submit" disabled={isLoading}>
-              {isLoading ? "Saving..." : "Save Lawyer Profile"}
-            </Button>
+          <div className="flex gap-3 items-end justify-end pt-6">
             <Button type="button" variant="outline" onClick={() => reset()}>
               Reset Form
+            </Button>
+            <Button
+              className={`${
+                Number(id)
+                  ? "bg-orange-600   hover:bg-orange-800"
+                  : "bg-green-600   hover:bg-green-800"
+              } text-white " type="submit`}
+              disabled={isLoading}
+            >
+              {isLoading
+                ? "Saving..."
+                : Number(id)
+                  ? "Update lawyer"
+                  : "Save new lawyer"}
             </Button>
           </div>
         </form>

@@ -59,10 +59,6 @@ const AppointmentDetail = () => {
     fetchAppointmentById();
   }, [id]);
 
-  /* =======================
-     Render States
-  ======================= */
-
   if (loading) {
     return <div>Loading appointment...</div>;
   }
@@ -74,7 +70,7 @@ const AppointmentDetail = () => {
   if (!appointment) {
     return <div>Appointment not found</div>;
   }
-  // At this point appointment is GUARANTEED
+
   return <AppoinmentCardComponent appointment={appointment} />;
 };
 

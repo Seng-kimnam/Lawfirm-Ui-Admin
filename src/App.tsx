@@ -25,14 +25,14 @@ import ListCase from "./pages/Dashboard/CasePage/ListCase.tsx";
 import ProtectedRoute from "./constants/ProtectedRoute.tsx";
 import AddTask from "./pages/Dashboard/TaskPage/AddTask.tsx";
 import ListTask from "./pages/Dashboard/TaskPage/ListTask.tsx";
-import AddCustomer from "./pages/Dashboard/CustomerPage/AddClientForm.tsx";
+
 import Role from "./pages/Dashboard/UserPage/Role.tsx";
 import ListCustomer from "./pages/Dashboard/CustomerPage/ListClient.tsx";
 import ServiceType from "./pages/Dashboard/ServicePage/ServiceType.tsx";
 import AddFileDocument from "./pages/Dashboard/filePage/AddFileDocument.tsx";
 import ListFileDocument from "./pages/Dashboard/filePage/ListFileDocument.tsx";
 import DocumentCategoryList from "./pages/Dashboard/filePage/category/DocumentCategoryList.tsx";
-import AddClientForm from "./pages/Dashboard/CustomerPage/AddClientForm.tsx";
+
 import ListCourt from "./pages/Dashboard/CourtPages/ListCourt.tsx";
 import CourtForm from "./pages/Dashboard/CourtPages/CourtForm.tsx";
 import CaseDetail from "./pages/Dashboard/CasePage/CaseDetail.tsx";
@@ -43,7 +43,10 @@ import AddAppointment from "./pages/Dashboard/appointment/AddAppointment.tsx";
 import AppointmentDetail from "./pages/Dashboard/appointment/AppointmentDetail.tsx";
 import Poster from "./pages/Dashboard/CustomerPage/Poster.tsx";
 import LawyerList from "./pages/Dashboard/Lawyer/LawyerList.tsx";
-import LawyerForm from "./pages/Dashboard/Lawyer/LawyerForm.tsx";
+import FormComponent from "./pages/Dashboard/Lawyer/components/FormComponent.tsx";
+import ForgetPasswordPage from "./pages/AuthPages/ForgetPassword.tsx";
+import OtpPage from "./pages/AuthPages/OtpPage.tsx";
+import ResetPassword from "./pages/AuthPages/ResetPassword.tsx";
 
 export default function App() {
   return (
@@ -51,27 +54,43 @@ export default function App() {
       <Router>
         <ScrollToTop />
         <Routes>
-          {/* Dashboard Layout */}
-          <Route element={<ProtectedRoute />}>
+          {/* Shared routes: Admin + Lawyer */}
+          <Route
+            element={
+              <ProtectedRoute allowedRoles={["ROLE_ADMIN", "ROLE_LAWYER"]} />
+            }
+          >
             <Route element={<AppLayout />}>
               <Route path="/" element={<Home />} />
-              {/* Others Page */}
               <Route path="/profile" element={<UserProfiles />} />
-
               <Route path="/list-appointment" element={<AppointmentList />} />
               <Route path="/add-appointment" element={<AddAppointment />} />
               <Route
                 path="/edit-appointment/:id"
                 element={<AddAppointment />}
               />
+              <Route path="/add-task" element={<AddTask />} />
+              <Route path="/list-task" element={<ListTask />} />
+              <Route path="/task-detail-info/:id" element={<TaskDetail />} />
               <Route path="/appointment-calender" element={<Calendar />} />
-
               <Route
                 path="/appointment-detail/:id"
                 element={<AppointmentDetail />}
               />
-
               <Route path="/blank" element={<Blank />} />
+              {/* Add any other shared pages here */}
+            </Route>
+          </Route>
+
+          {/* Admin-only routes */}
+          <Route element={<ProtectedRoute allowedRoles={["ROLE_ADMIN"]} />}>
+            <Route element={<AppLayout />}>
+              <Route path="/list-lawyer" element={<LawyerList />} />
+              <Route path="/add-new-lawyer" element={<FormComponent />} />
+              <Route path="/edit-lawyer/:id" element={<FormComponent />} />
+              <Route path="/list-client" element={<ListCustomer />} />
+              <Route path="/poster" element={<Poster />} />
+              <Route path="/list-service" element={<ListService />} />
               <Route path="/service" element={<Service />} />
               <Route path="/service/:id" element={<Service />} />
               <Route path="/list-case" element={<ListCase />} />
@@ -82,57 +101,51 @@ export default function App() {
                 path="/client-request-info"
                 element={<ClientRequestDetail />}
               />
-              <Route path="/poster" element={<Poster />} />
               {/* file doc  */}
               <Route path="/add-file-doc" element={<AddFileDocument />} />
               <Route path="/edit-file-doc/:id" element={<AddFileDocument />} />
               <Route path="/doc-category" element={<DocumentCategoryList />} />
               <Route path="/list-file-doc" element={<ListFileDocument />} />
-              {/* task  */}
+              <Route path="/add-file-doc" element={<AddFileDocument />} />
+              <Route path="/edit-file-doc/:id" element={<AddFileDocument />} />
+              <Route path="/doc-category" element={<DocumentCategoryList />} />
+              <Route path="/list-file-doc" element={<ListFileDocument />} />
+
+              {/* ---------------------------------- */}
               <Route path="/addtask" element={<AddTask />} />
               <Route path="/listtask" element={<ListTask />} />
-              <Route path="/case-detail-info/:id" element={<CaseDetail />} />
               <Route path="/task-detail-info/:id" element={<TaskDetail />} />
               <Route path="/edit-task/:id" element={<AddTask />} />
-
-              <Route path="/list-service" element={<ListService />} />
-              {/* client */}
-              <Route path="/list-client" element={<ListCustomer />} />
-              <Route path="/edit-client/:id" element={<AddClientForm />} />
-              {/* court  */}
               <Route path="/list-court" element={<ListCourt />} />
               <Route path="/servicetype" element={<ServiceType />} />
               <Route path="/add-court" element={<CourtForm />} />
               <Route path="/edit-court/:id" element={<CourtForm />} />
-
               <Route path="/role" element={<Role />} />
-              {/* Forms */}
               <Route path="/form-elements" element={<FormElements />} />
-              {/* Tables */}
               <Route path="/basic-tables" element={<BasicTables />} />
-              {/* Ui Elements */}
               <Route path="/alerts" element={<Alerts />} />
               <Route path="/avatars" element={<Avatars />} />
               <Route path="/badge" element={<Badges />} />
               <Route path="/buttons" element={<Buttons />} />
               <Route path="/images" element={<Images />} />
               <Route path="/videos" element={<Videos />} />
-              {/* Charts */}
               <Route path="/line-chart" element={<LineChart />} />
               <Route path="/bar-chart" element={<BarChart />} />
-              {/* lawyer */}
-              <Route path="/list-lawyer" element={<LawyerList />} />
-              <Route path="/edit-lawyer/:id" element={<LawyerForm />} />
             </Route>
           </Route>
 
-          {/* Auth Layout */}
+          {/* Auth Routes */}
           <Route path="/signin" element={<SignIn />} />
           <Route path="/signup" element={<SignUp />} />
+          <Route path="/forget-password" element={<ForgetPasswordPage />} />
+          <Route path="/otp-form" element={<OtpPage />} />
+          <Route path="/reset-password-form" element={<ResetPassword />} />
 
-          {/* Fallback Route */}
+          {/* Fallback */}
           <Route path="*" element={<NotFound />} />
         </Routes>
+
+        {/* <Route path="/unauthorized" element={<div>403 - Unauthorized</div>} /> */}
       </Router>
     </>
   );

@@ -55,4 +55,19 @@ export interface multiOptionsEx {
   selected: boolean;
 }
 
-export interface LawyerProfile {}
+export interface LawyerProfileRequest {
+  fullName: string;
+  gender: string;
+  lawyerStatus: string | "ACTIVE" | "INACTIVE";
+  email: string;
+  phoneNumber: string;
+  password: string;
+  roleId: number | "ROLE_LAWYER";
+  expertiseIdList: number[];
+  image: string;
+  description: string;
+  title: string;
+  facebookLink: string;
+  tiktokLink: string;
+  telegramLink: string;
+}

@@ -20,22 +20,22 @@ export default function StatisticsChart() {
   };
 
   const [period, setPeriod] = useState<"monthly" | "quarterly" | "annually">(
-    "monthly"
+    "monthly",
   );
   const [year, setYear] = useState(new Date().getFullYear());
   const [chart, setChart] = useState<ChartPayload | null>(null);
-  function getStatisticByMonth(list: any[]) {
-    const monthCounts: number[] = Array(12).fill(0); // this mean 12 element & start from 0 to 11
-    list.forEach((l) => {
-      if (!l.createdAt) return;
-      const month = new Date(l.createdAt).getMonth(); // return as index
-      console.log("month:", month);
-      monthCounts[month]++;
-    });
-    return monthCounts;
-  }
-  const monthlyDataOfClient = getStatisticByMonth(clientList);
-  const lawyerMonthly = getStatisticByMonth(list);
+  // function getStatisticByMonth(list: any[]) {
+  //   const monthCounts: number[] = Array(12).fill(0); // this mean 12 element & start from 0 to 11
+  //   list.forEach((l) => {
+  //     if (!l.createdAt) return;
+  //     const month = new Date(l.createdAt).getMonth(); // return as index
+  //     console.log("month:", month);
+  //     monthCounts[month]++;
+  //   });
+  //   return monthCounts;
+  // }
+  // const monthlyDataOfClient = getStatisticByMonth(clientList);
+  // const lawyerMonthly = getStatisticByMonth(list);
   useEffect(() => {
     const fetchStats = async () => {
       const params = new URLSearchParams({
@@ -48,7 +48,7 @@ export default function StatisticsChart() {
         "GET",
         undefined,
         undefined,
-        undefined
+        undefined,
       );
 
       setChart(res?.payload);

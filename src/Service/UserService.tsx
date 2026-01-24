@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 
 import { registerUrl } from "../constants/constants_url";
 import { request } from "../constants/api";
-import { Lawyer, Lawyers } from "@/model/Lawyer";
+import { Lawyer, LawyerProfileRequest, Lawyers } from "@/model/Lawyer";
 
 export const GetLawyers = () => {
   const [list, setList] = useState<Lawyer[]>([]);
@@ -40,7 +40,7 @@ export const GetLawyers = () => {
 const token = localStorage.getItem("token");
 export const postLawyer = async (data: Lawyer) => {
   try {
-    const response = await request(registerUrl, "POST", data, {
+    const response = await request("auths/register", "POST", data, {
       Authorization: `Bearer ${token}`,
     });
     if (response.status === 200) {
@@ -51,36 +51,13 @@ export const postLawyer = async (data: Lawyer) => {
   }
 };
 
-export const registerLawyerService = async (data: Lawyers) => {
-  const formData = new FormData();
-  formData.append("fullName", data.fullName);
-  formData.append("title", data.title);
-  formData.append("roleId", String(data.roleId));
-  formData.append("gender", data.gender);
-  formData.append("email", data.email);
-  formData.append("phoneNumber", data.phoneNumber);
-  formData.append("password", data.password);
-  formData.append("description", data.description);
-  formData.append("lawyerStatus", data.lawyerStatus);
-
-  data.expertiseIdList.forEach((id: number) =>
-    formData.append("expertiseIdList", String(id)),
-  );
-
-  formData.append("facebookLink", data.facebookLink ?? "");
-  formData.append("tiktokLink", data.tiktokLink ?? "");
-  formData.append("telegramLink", data.telegramLink ?? "");
-
-  if (data.image) {
-    formData.append("image", data.image);
-  }
-
+export const registerLawyerService = async (data: LawyerProfileRequest) => {
   const response = await request(
     "auths/register",
     "POST",
-    formData,
+    data,
     undefined,
-    "multipart/form-data",
+    "application/json",
   );
 
   return response.data;

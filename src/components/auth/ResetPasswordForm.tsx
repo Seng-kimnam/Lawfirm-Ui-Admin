@@ -10,7 +10,7 @@ import { loginUrl } from "../../constants/constants_url";
 import toast from "react-hot-toast";
 // import { login } from "../../Service/UserService.tsx";
 
-export default function SignInForm() {
+export default function ResetPasswordForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
   const navigate = useNavigate();
@@ -81,10 +81,10 @@ export default function SignInForm() {
         <div>
           <div className="mb-5 sm:mb-8">
             <h1 className="mb-2 font-semibold text-gray-800 text-title-sm dark:text-white/90 sm:text-title-md">
-              Sign In
+              Reset your password
             </h1>
             <p className="text-sm text-gray-500 dark:text-gray-400">
-              Enter your email and password to sign in!
+              Enter your new password below and check the hint while setting it.
             </p>
           </div>
           <div>
@@ -96,19 +96,19 @@ export default function SignInForm() {
             >
               <div className="space-y-6">
                 <div>
-                  <Label>Email</Label>
+                  <Label>Set new password</Label>
                   <Input
-                    placeholder="info@gmail.com"
+                    placeholder="Enter new password"
                     type={email}
                     onChange={(e) => setEmail(e.target.value)}
                   />
                 </div>
                 <div>
-                  <Label>Password</Label>
+                  <Label>Confirm password</Label>
                   <div className="relative">
                     <Input
                       type={showPassword ? "text" : "password"}
-                      placeholder="Enter your password"
+                      placeholder="Enter your confirm password"
                       onChange={(e) => setPassword(e.target.value)}
                     />
                     <span
@@ -123,23 +123,10 @@ export default function SignInForm() {
                     </span>
                   </div>
                 </div>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <Checkbox checked={isChecked} onChange={setIsChecked} />
-                    <span className="block font-normal text-gray-700 text-theme-sm dark:text-gray-400">
-                      Keep me logged in
-                    </span>
-                  </div>
-                  <Link
-                    to="/forget-password"
-                    className="text-sm text-brand-500 hover:text-brand-600 dark:text-brand-400"
-                  >
-                    Forgot password?
-                  </Link>
-                </div>
+
                 <div>
                   <Button className="w-full" size="sm" type="submit">
-                    Sign in
+                    Confirm Password
                   </Button>
                 </div>
               </div>

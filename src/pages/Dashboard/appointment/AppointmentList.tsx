@@ -1,13 +1,7 @@
 import ComponentCard from "../../../components/common/ComponentCard";
 import Input from "../../../utils/input/InputField.tsx";
 import { useNavigate } from "react-router-dom";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHeader,
-  TableRow,
-} from "../../../components/ui/table";
+
 import Button from "../../../utils/button/Button";
 
 import { BsArrowLeft, BsArrowRight, BsExclamation } from "react-icons/bs";
@@ -18,6 +12,9 @@ import toast from "react-hot-toast";
 import { request } from "@/constants/api.tsx";
 import { GetDefaultAppointmentList } from "@/Service/AppointmentService.tsx";
 import PageMeta from "@/components/common/PageMeta.tsx";
+import { Table, TableBody, TableRow } from "@/components/ui/table.tsx";
+import { TableCell, TableHeader } from "@/components/ui/table/index.tsx";
+import AppointmentReport from "./report/AppointmentReport.tsx";
 const AppointmentList = () => {
   const navigate = useNavigate();
   const {
@@ -94,7 +91,7 @@ const AppointmentList = () => {
                     `appointments/${id}`,
                     "DELETE",
                     undefined,
-                    undefined
+                    undefined,
                   );
 
                   toast.dismiss(loadingId);
@@ -118,7 +115,7 @@ const AppointmentList = () => {
       {
         // kit jea millisecond
         duration: Infinity, // stays until user clicks
-      }
+      },
     );
   }
   // Ensure list is an array
@@ -187,6 +184,11 @@ const AppointmentList = () => {
           <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
             <div className="max-w-[1130px] overflow-x-auto">
               <Table>
+                <AppointmentReport
+                  appointmentList={appointmentList}
+                  parseDate={parseDate}
+                  parseTime={parseTime}
+                />
                 {/* Table Header */}
                 {appointmentList.length > 0 && (
                   <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
@@ -269,7 +271,7 @@ const AppointmentList = () => {
                         <TableCell className="px-5 py-4 sm:px-6 ">
                           {item.appointmentId ?? "N/A"}
                         </TableCell>
-                        <TableCell className="px-4 py-3 text-gray-500    dark:text-white/90">
+                        <TableCell className="px-4 py-3 text-gray-500   whitespace-nowrap  dark:text-white/90">
                           {parseDate(item.appointmentDate) ?? "N/A"}
                         </TableCell>
                         <TableCell className="px-4 py-3 text-gray-500    dark:text-white/90">
@@ -288,7 +290,7 @@ const AppointmentList = () => {
                               <span className="block font-medium  text-gray-800  dark:text-white/90">
                                 {changeStatusToNormalText(
                                   item.meetingType,
-                                  "MeetingType"
+                                  "MeetingType",
                                 ) ?? "N/A"}
                               </span>
                             </div>
@@ -323,7 +325,7 @@ const AppointmentList = () => {
                               <span className="block font-medium text-gray-800 w-20  dark:text-white/90">
                                 {changeStatusToNormalText(
                                   item.status,
-                                  "AppointmentStatus"
+                                  "AppointmentStatus",
                                 ) ?? "N/A"}
                               </span>
                             </div>
@@ -335,7 +337,7 @@ const AppointmentList = () => {
                             <div>
                               <span className="block font-medium text-gray-800  dark:text-white/90">
                                 {new Date(
-                                  item.createdAt ?? ""
+                                  item.createdAt ?? "",
                                 ).toLocaleDateString("en-US", {
                                   year: "numeric",
                                   month: "long",
@@ -350,7 +352,7 @@ const AppointmentList = () => {
                             <div>
                               <span className="block font-medium whitespace-nowrap w-40 text-gray-800  dark:text-white/90">
                                 {new Date(
-                                  item.updatedAt ?? ""
+                                  item.updatedAt ?? "",
                                 ).toLocaleDateString("en-US", {
                                   year: "numeric",
                                   month: "long",
@@ -384,7 +386,7 @@ const AppointmentList = () => {
                             <button
                               onClick={() =>
                                 goto(
-                                  `/appointment-detail/${item.appointmentId}`
+                                  `/appointment-detail/${item.appointmentId}`,
                                 )
                               }
                               className="p-2 text-sm rounded-md bg-green-700 text-white hover:bg-green-500"

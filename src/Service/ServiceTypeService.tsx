@@ -18,7 +18,7 @@ export const GetServiceType = () => {
         getServiceTypeUrl(page),
         "GET",
         undefined,
-        undefined
+        undefined,
       );
 
       if (!res || !res.payload) throw new Error("No data received");
@@ -63,14 +63,14 @@ export const putServiceType = async (req: ServiceType) => {
       req,
       {
         Authorization: `Bearer ${localStorage.getItem("token")}`,
-      }
+      },
     );
     if (response.success) {
       return response;
     }
   } catch (error: any) {
     alert(
-      error.response?.data?.message || error.message || "Something went wrong"
+      error.response?.data?.message || error.message || "Something went wrong",
     );
   }
 };
@@ -87,7 +87,7 @@ export const deleteServiceTypes = async (expertiseId: Number) => {
       undefined,
       {
         Authorization: `Bearer ${localStorage.getItem("token")}`,
-      }
+      },
     );
 
     if (response.success) {
@@ -96,7 +96,34 @@ export const deleteServiceTypes = async (expertiseId: Number) => {
     }
   } catch (error: any) {
     alert(
-      error.response?.data?.message || error.message || "Something went wrong"
+      error.response?.data?.message || error.message || "Something went wrong",
     );
   }
+};
+
+export const GetExpertiseList = () => {
+  const [list, setList] = useState<ServiceType[]>([]);
+
+  const fetchData = async () => {
+    try {
+      const res = await request(
+        "expertises/without-pagination",
+        "GET",
+        undefined,
+        undefined,
+      );
+
+      if (!res || !res.payload) throw new Error("No data received");
+      // map data from API
+      setList(res.payload || []);
+    } catch (error) {
+      console.error("Error fetching service types:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  return { list, refetch: fetchData };
 };
