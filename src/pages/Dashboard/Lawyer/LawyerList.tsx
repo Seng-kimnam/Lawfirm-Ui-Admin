@@ -2,16 +2,14 @@
 
 import { Lawyer } from "@/model/Lawyer";
 import { GetLawyers } from "@/Service/UserService";
-import { AddSquare } from "iconsax-reactjs";
+import { AddSquare, Edit } from "iconsax-reactjs";
 import {
-  MapPin,
   Mail,
   Phone,
   Award,
   MessageSquare,
   Send,
   Facebook,
-  Edit,
 } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router";
@@ -123,7 +121,7 @@ export default function LawyerList() {
 
                     <button
                       onClick={() => goto(`/edit-lawyer/${lawyer.appUserId}`)}
-                      className="p-2 absolute  right-2 top-2 text-sm rounded-md  text-white hover:bg-blue-600"
+                      className="p-2 absolute  right-2 top-2 text-sm rounded-md  text-white hover:bg-blue-800"
                     >
                       <Edit size="24" color="#ffffff" />
                     </button>
@@ -136,7 +134,7 @@ export default function LawyerList() {
                       <div className="relative">
                         <div className="w-24 h-24 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full overflow-hidden flex items-center justify-center ring-4 ring-white dark:ring-slate-800">
                           <img
-                            src={`http://localhost:8080/api/v1/files/preview-file/${lawyer.image}`}
+                            src={`http://localhost:8080/api/v1/files/preview-file?fileName${lawyer.image}`}
                             alt={lawyer.fullName}
                             className="w-full h-full object-cover"
                           />
@@ -253,7 +251,7 @@ export default function LawyerList() {
                 <div className="flex flex-col sm:flex-row gap-6 mb-8 pb-8 border-b border-slate-200 dark:border-slate-700">
                   <div className="w-24 h-24 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full overflow-hidden flex items-center justify-center ring-4 ring-white dark:ring-slate-800">
                     <img
-                      src={`http://localhost:8080/api/v1/files/preview-file/${selectedLawyer.image}`}
+                      src={`http://localhost:8080/api/v1/files/preview-file?fileName=${selectedLawyer.image}`}
                       alt={selectedLawyer.fullName}
                       className="w-full h-full object-cover"
                     />

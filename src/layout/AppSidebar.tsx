@@ -7,7 +7,7 @@ import { IoHome, IoDocumentTextSharp } from "react-icons/io5";
 import { MdMiscellaneousServices } from "react-icons/md";
 import { HiUsers } from "react-icons/hi2";
 import { BsCalendarDateFill } from "react-icons/bs";
-import { Courthouse, UserOctagon } from "iconsax-reactjs";
+import { Courthouse, TableDocument, Task, UserOctagon } from "iconsax-reactjs";
 
 import { useSidebar } from "../context/SidebarContext";
 
@@ -48,8 +48,9 @@ const navItems: NavItem[] = [
       { name: "Calendar", path: "/appointment-calender" },
     ],
   },
+
   {
-    icon: <BsCalendarDateFill />,
+    icon: <Task size="26" color="#d9e3f0" />,
     name: "Tasks",
     roles: ["ROLE_ADMIN", "ROLE_LAWYER"],
     subItems: [
@@ -99,6 +100,21 @@ const navItems: NavItem[] = [
     name: "Court",
     roles: ["ROLE_ADMIN"],
     subItems: [{ name: "Court List", path: "/list-court" }],
+  },
+  //  {/* file doc  */}
+  //             <Route path="/add-file-doc" element={<AddFileDocument />} />
+  //             <Route path="/edit-file-doc/:id" element={<AddFileDocument />} />
+  //             <Route path="/doc-category" element={<DocumentCategoryList />} />
+  //             <Route path="/list-file-doc" element={<ListFileDocument />} />
+  {
+    icon: <TableDocument size="26" color="#d9e3f0" />,
+    name: "File Document",
+    roles: ["ROLE_ADMIN"],
+    subItems: [
+      { name: "Document List", path: "/list-file-doc" },
+      { name: "Document Category", path: "/doc-category" },
+      { name: "Add New Document", path: "/add-file-doc" },
+    ],
   },
 ];
 

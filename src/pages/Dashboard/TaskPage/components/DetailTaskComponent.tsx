@@ -168,7 +168,7 @@ const DetailTaskComponent = ({
             <div className="flex items-start gap-6 mb-8">
               {image ? (
                 <img
-                  src={`http://localhost:8080/api/v1/files/preview-file/${image}`}
+                  src={`http://localhost:8080/api/v1/files/preview-file?fileName${image}`}
                   alt={image}
                   className="w-24 h-24 rounded-xl object-cover border-2 border-blue-100 dark:border-blue-900 shadow-md"
                 />

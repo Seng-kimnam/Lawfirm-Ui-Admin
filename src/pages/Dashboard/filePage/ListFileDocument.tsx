@@ -13,7 +13,7 @@ import {
 import toast from "react-hot-toast";
 
 import Button from "../../../utils/button/Button";
-import { BoxIcon } from "../../../icons";
+
 import { BsArrowLeft, BsArrowRight } from "react-icons/bs";
 import { BiSearch } from "react-icons/bi";
 import { AiOutlinePlus } from "react-icons/ai";
@@ -28,7 +28,8 @@ import {
   DialogHeader,
   DialogTrigger,
 } from "@/components/ui/dialog.tsx";
-import { Edit, Trash } from "lucide-react";
+import { Edit, Trash } from "iconsax-reactjs";
+
 const ListFileDocument = () => {
   const navigate = useNavigate();
   const { documentList, page, totalPage, setPage } = DocumentOperation();
@@ -158,56 +159,56 @@ const ListFileDocument = () => {
             </div>
           }
         >
-          <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/5 dark:bg-white/3">
+          <div className="overflow-hidden max-w-[1120px] rounded-xl border border-gray-200 bg-white dark:border-white/5 dark:bg-white/3">
             <div className="max-w-full overflow-x-auto">
               <Table>
                 {/* Table Header */}
                 <TableHeader className="border-b dark:text-center  border-gray-100  dark:border-white/50">
                   <TableRow className="dark:text-center">
                     <TableCell
-                      isHeader
+                      // isHeader
                       className="px-5 py-3 w-28 font-medium text-gray-500 text-start text-theme-xs dark:text-white"
                     >
                       Document Id
                     </TableCell>
                     <TableCell
-                      isHeader
+                      // isHeader
                       className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-white"
                     >
                       Title
                     </TableCell>
                     <TableCell
-                      isHeader
+                      // isHeader
                       className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-white"
                     >
                       File Cover
                     </TableCell>
                     <TableCell
-                      isHeader
+                      // isHeader
                       className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-white"
                     >
                       Document PDF
                     </TableCell>
                     <TableCell
-                      isHeader
+                      // isHeader
                       className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-white"
                     >
                       Category Name
                     </TableCell>
                     <TableCell
-                      isHeader
+                      // isHeader
                       className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-white"
                     >
                       Created At
                     </TableCell>
                     <TableCell
-                      isHeader
+                      // isHeader
                       className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-white"
                     >
                       Updated At
                     </TableCell>
                     <TableCell
-                      isHeader
+                      // isHeader
                       className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-white"
                     >
                       Actions
@@ -245,7 +246,7 @@ const ListFileDocument = () => {
                               <DialogTrigger asChild>
                                 <img
                                   className="h-20 w-28"
-                                  src={`http://localhost:8080/api/v1/files/preview-file/${item.fileCover}`}
+                                  src={`http://localhost:8080/api/v1/files/preview-file?fileName=${item.fileCover}`}
                                   alt={item.fileCover}
                                 />
                               </DialogTrigger>
@@ -259,7 +260,7 @@ const ListFileDocument = () => {
                                 </DialogHeader>
                                 <img
                                   className="h-[80vh] object-cover border-2 border-black "
-                                  src={`http://localhost:8080/api/v1/files/preview-file/${item.fileCover}`}
+                                  src={`http://localhost:8080/api/v1/files/preview-file?fileName=${item.fileCover}`}
                                   alt={item.fileCover}
                                 />
                                 {/* Hello */}
@@ -275,7 +276,7 @@ const ListFileDocument = () => {
                               <DialogTrigger asChild>
                                 <img
                                   className="h-20 w-28"
-                                  src={`http://localhost:8080/api/v1/files/preview-file/${item.fileCover}`}
+                                  src={`http://localhost:8080/api/v1/files/preview-file?fileName${item.fileCover}`}
                                   alt={item.fileCover}
                                 />
                               </DialogTrigger>

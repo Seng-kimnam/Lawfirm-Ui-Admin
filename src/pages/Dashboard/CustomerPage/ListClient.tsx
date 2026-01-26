@@ -93,32 +93,32 @@ const ListClient = () => {
                 <TableHeader className="border-b  text-center  bg-black   border-gray-100 dark:border-white/[0.05]">
                   <TableRow>
                     <TableCell
-                      isHeader
+                      // isHeader
                       className="px-5 py-3 font-medium text-xl text-gray-500 text-center dark:text-gray-400"
                     >
                       Client ID
                     </TableCell>
                     <TableCell
-                      isHeader
+                      // isHeader
                       className="px-5 py-3 font-medium text-xl text-gray-500 text-center dark:text-gray-400"
                     >
                       Name
                     </TableCell>
                     <TableCell
-                      isHeader
+                      // isHeader
                       className="px-5 py-3 font-medium text-gray-500 text-xl text-center dark:text-gray-400"
                     >
                       Email
                     </TableCell>
                     <TableCell
-                      isHeader
+                      // isHeader
                       className="px-5 py-3 font-medium text-gray-500 text-xl text-center dark:text-gray-400"
                     >
                       Total Request
                     </TableCell>
 
                     <TableCell
-                      isHeader
+                      // isHeader
                       className="px-5 py-3 bg-black font-medium text-xl text-gray-500 text-center dark:text-gray-400"
                     >
                       Actions
@@ -131,7 +131,7 @@ const ListClient = () => {
                   {clientRequestList.map((item, idx) => (
                     <TableRow className="h-20" key={item.email}>
                       <TableCell className="px-4  py-3 text-gray-500 text-center   dark:text-white/90">
-                        {idx + 1 }
+                        {idx + 1}
                       </TableCell>
                       <TableCell className="px-4  py-3 text-gray-500 text-center   dark:text-white/90">
                         {item.clientName ?? "N/A"}
@@ -152,7 +152,7 @@ const ListClient = () => {
                             onClick={() => routeForDetail(item?.email)}
                             className="p-2 text-sm rounded-3xl bg-green-500 text-white hover:bg-green-600"
                           >
-                            <BsExclamation size="24" color="#ffffff" />
+                            <BsExclamation size="24"  color="#000000" />
                           </button>
                         </div>
                       </TableCell>

@@ -75,7 +75,7 @@ const DetailClientRequestComponent = ({
             <div className="w-20 h-20 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center border-4 border-white/30 overflow-hidden">
               {clientImage && clientImage !== "string" ? (
                 <img
-                  src={`http://localhost:8080/api/v1/files/preview-file/${clientImage}`}
+                  src={`http://localhost:8080/api/v1/files/preview-file?fileName=${clientImage}`}
                   alt={clientName}
                   className="w-full h-full object-cover"
                 />

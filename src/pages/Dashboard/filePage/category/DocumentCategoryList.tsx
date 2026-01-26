@@ -18,19 +18,21 @@ import {
 import { CategoryOperation } from "./CategoryOperation.tsx";
 
 import PopUpAddCategory from "./PopUpAddCategory.tsx";
-import { BoxIcon, Trash } from "lucide-react";
+import { BoxIcon } from "lucide-react";
+import { Trash } from "iconsax-reactjs";
+
 const DocumentCategoryList = () => {
   const { categories, page, totalPage, setPage, refetch } = CategoryOperation();
 
-    function dateFormatter(iso: string) {
-      return new Date(iso).toLocaleString("en-GB", {
-        year: "numeric",
-        month: "short",
-        day: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit",
-      });
-    }
+  function dateFormatter(iso: string) {
+    return new Date(iso).toLocaleString("en-GB", {
+      year: "numeric",
+      month: "short",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  }
   async function handleDeleteDocument(id: number) {
     toast(
       (t) => (
@@ -57,7 +59,7 @@ const DocumentCategoryList = () => {
                     `categories/${id}`,
                     "DELETE",
                     undefined,
-                    undefined
+                    undefined,
                   );
 
                   toast.dismiss(loadingId);
@@ -82,7 +84,7 @@ const DocumentCategoryList = () => {
       {
         // kit jea millisecond
         duration: Infinity, // stays until user clicks
-      }
+      },
     );
   }
 

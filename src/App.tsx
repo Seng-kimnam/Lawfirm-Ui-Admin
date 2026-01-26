@@ -102,10 +102,7 @@ export default function App() {
                 element={<ClientRequestDetail />}
               />
               {/* file doc  */}
-              <Route path="/add-file-doc" element={<AddFileDocument />} />
-              <Route path="/edit-file-doc/:id" element={<AddFileDocument />} />
-              <Route path="/doc-category" element={<DocumentCategoryList />} />
-              <Route path="/list-file-doc" element={<ListFileDocument />} />
+
               <Route path="/add-file-doc" element={<AddFileDocument />} />
               <Route path="/edit-file-doc/:id" element={<AddFileDocument />} />
               <Route path="/doc-category" element={<DocumentCategoryList />} />

@@ -13,9 +13,10 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Edit } from "lucide-react";
+
 import Button from "@/components/ui/button/Button";
 import { AiOutlinePlus } from "react-icons/ai";
+import { Edit } from "iconsax-reactjs";
 
 type CategoryProp = {
   categoryId?: number;
@@ -54,7 +55,7 @@ const PopUpAddCategory = ({ categoryId, isEditing, refetch }: CategoryProp) => {
           `categories/${categoryId}`,
           "GET",
           undefined,
-          undefined
+          undefined,
         );
         // const
         setSpecificCategory(res?.payload);
@@ -137,7 +138,7 @@ const PopUpAddCategory = ({ categoryId, isEditing, refetch }: CategoryProp) => {
         <DialogHeader>
           <form
             onSubmit={handleSubmit(
-              isEditing ? handleUpdateCate : handleCreateCate
+              isEditing ? handleUpdateCate : handleCreateCate,
             )}
           >
             <div className="mt-4 w-150 ">

@@ -346,7 +346,7 @@ const AddFileDocument = () => {
                   <DialogTrigger asChild>
                     <img
                       className="w-40 h-60 cursor-pointer"
-                      src={`http://localhost:8080/api/v1/files/preview-file/${DocForUpdate?.fileCover}`}
+                      src={`http://localhost:8080/api/v1/files/preview-file?fileName=${DocForUpdate?.fileCover}`}
                       alt={DocForUpdate?.fileCover?.toString()}
                     />
                   </DialogTrigger>
@@ -360,7 +360,7 @@ const AddFileDocument = () => {
                     </DialogHeader>
                     <img
                       className="h-[80vh] object-cover border-2 border-black "
-                      src={`http://localhost:8080/api/v1/files/preview-file/${DocForUpdate?.fileCover}`}
+                      src={`http://localhost:8080/api/v1/files/preview-file?fileName=${DocForUpdate?.fileCover}`}
                       alt={DocForUpdate?.fileCover?.toString()}
                     />
                     {/* Hello */}
@@ -527,7 +527,7 @@ const AddFileDocument = () => {
                 <DialogTrigger asChild>
                   <img
                     className="h-60 w-40  cursor-pointer"
-                    src={`http://localhost:8080/api/v1/files/preview-file/${DocForUpdate?.fileCover}`}
+                    src={`http://localhost:8080/api/v1/files/preview-file?fileName=${DocForUpdate?.fileCover}`}
                     alt={DocForUpdate?.fileCover?.toString()}
                   />
                 </DialogTrigger>

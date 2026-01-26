@@ -158,11 +158,10 @@ const DetailComponent = ({
                 Client Information
               </h3>
             </div>
-
             <div className="flex items-start gap-6 mb-8">
               {clientImage ? (
                 <img
-                  src={`http://localhost/api/v1/files/preview-file/${clientImage}`}
+                  src={`http://localhost/api/v1/files/preview-file?fileName=${clientImage}`}
                   alt={clientImage}
                   className="w-24 h-24 rounded-xl object-cover border-2 border-blue-100 dark:border-blue-900 shadow-md"
                 />

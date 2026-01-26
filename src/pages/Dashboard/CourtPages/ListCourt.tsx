@@ -18,17 +18,11 @@ import { BiSearch } from "react-icons/bi";
 import { AiOutlinePlus } from "react-icons/ai";
 
 import { request } from "@/constants/api.tsx";
-import { GetClient } from "@/Service/ClientService.tsx";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTrigger,
-} from "@/components/ui/dialog.tsx";
 
-import { Edit, Trash } from "lucide-react";
+
 import { useEffect } from "react";
 import { GetCourt } from "@/Service/CourtService.tsx";
+import { Edit, Trash } from "iconsax-reactjs";
 const ListCourt = () => {
   const navigate = useNavigate();
   const { courtList, page, totalPage, setPage, refetch } = GetCourt();
@@ -170,50 +164,50 @@ const ListCourt = () => {
                 <TableHeader className="border-b   bg-black   border-gray-100 dark:border-white/[0.05]">
                   <TableRow>
                     <TableCell
-                      isHeader
+                      // isHeader
                       className="px-5 py-3 font-medium whitespace-nowrap w-20 text-gray-500 text-center dark:text-gray-400"
                     >
                       Court Id
                     </TableCell>
                     <TableCell
-                      isHeader
+                      // isHeader
                       className="px-5 py-3 font-medium whitespace-nowrap w-40 text-gray-500 text-center dark:text-gray-400"
                     >
                       Court Name
                     </TableCell>
                     <TableCell
-                      isHeader
+                      // isHeader
                       className="px-5 py-3 font-medium text-gray-500 text-center dark:text-gray-400"
                     >
                       Type
                     </TableCell>
                     <TableCell
-                      isHeader
+                      // isHeader
                       className="px-5 py-3 font-medium text-gray-500 text-center dark:text-gray-400"
                     >
                       Location
                     </TableCell>
                     <TableCell
-                      isHeader
+                      // isHeader
                       className="px-5 py-3 m-3 whitespace-nowrap min-w-40 font-medium text-gray-500 text-center dark:text-gray-400"
                     >
                       <span>Contact Number</span>
                     </TableCell>
 
                     <TableCell
-                      isHeader
+                      // isHeader
                       className="px-5 py-3 font-medium text-gray-500 text-center dark:text-gray-400"
                     >
                       Created At
                     </TableCell>
                     <TableCell
-                      isHeader
+                      // isHeader
                       className="px-5 py-3 font-medium text-gray-500 text-center dark:text-gray-400"
                     >
                       Updated At
                     </TableCell>
                     <TableCell
-                      isHeader
+                      // isHeader
                       className="px-5 py-3 bg-black font-medium text-gray-500 text-center dark:text-gray-400"
                     >
                       Actions
