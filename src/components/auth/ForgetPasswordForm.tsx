@@ -1,47 +1,55 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router";
-import { EyeCloseIcon, EyeIcon } from "../../icons";
+
 import Label from "../form/Label";
-import Input from "../form/input/InputField";
-import Checkbox from "../form/input/Checkbox";
+
 import Button from "../ui/button/Button";
-import { request } from "../../constants/api";
-import { loginUrl } from "../../constants/constants_url";
+
 import toast from "react-hot-toast";
+import { resendOTPService } from "@/Service/VerifyService";
+import { SubmitHandler, useForm } from "react-hook-form";
+import { useNavigate } from "react-router";
+import { Input } from "../ui/input";
 // import { login } from "../../Service/UserService.tsx";
 
 export default function ForgetPasswordForm() {
-  const [showPassword, setShowPassword] = useState(false);
-  const [isChecked, setIsChecked] = useState(false);
   const navigate = useNavigate();
-  const [email, setEmail] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
+  const [isSending, setIsSending] = useState(false);
+  const {
+    register,
+    formState: { errors },
+    handleSubmit,
+  } = useForm<FormValues>();
+  type FormValues = {
+    email: string;
+  };
 
-  const btnSign = async () => {
-    const data = { email, password };
+  const handleSendOTP: SubmitHandler<FormValues> = async (data) => {
+    const { email } = data;
 
-    if (!email || !password) {
-      toast.error("Please enter email and password!");
+    console.log("EE", email);
+    if (!email) {
+      toast.error("Please enter your email!");
       return;
     }
+    if (isSending) return;
 
     try {
-      const res = await request(loginUrl, "POST", data);
-      console.log("res ", res);
-      if (res?.success) {
-        const { payload } = res;
-        const { roleName } = payload.currentUser.role;
-        // console.log("rol ", roleName);
-        localStorage.setItem("token", payload.token);
-        localStorage.setItem("role", roleName);
-        const role = localStorage.getItem("role");
+      setIsSending(true);
+      const res = await resendOTPService(email);
 
-        console.log("r", role);
-        navigate("/");
-        toast.success("Login successfully! Welcome to GClaw firm system.");
+      if (res.success) {
+        toast.success(res.message);
+        navigate("/otp-form");
+        setTimeout(() => {
+          setIsSending(false);
+        }, 3000);
+      } else {
+        setIsSending(false);
       }
     } catch (error: any) {
-      toast.error("Login fail.", error);
+      setIsSending(false);
+
+      toast.error("Login failed.");
     }
   };
 
@@ -58,30 +66,30 @@ export default function ForgetPasswordForm() {
             </p>
           </div>
           <div>
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                btnSign();
-              }}
-            >
+            <form onSubmit={handleSubmit(handleSendOTP)}>
               <div className="space-y-6">
                 <div>
                   <Label className="text-xl">Email</Label>
                   <Input
+                    className="py-6"
                     placeholder="info@gmail.com"
-                    type={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    {...register("email", {
+                      required: "Email is required",
+                      pattern: {
+                        value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                        message: "Please enter a valid email address",
+                      },
+                    })}
                   />
                 </div>
 
                 <div>
                   <Button
-                    onClick={() => navigate("/otp-form")}
                     className="w-full text-[16px]"
                     size="sm"
                     type="submit"
                   >
-                    Send code
+                    {isSending ? "Sending OTP..." : "Send code"}
                   </Button>
                 </div>
               </div>

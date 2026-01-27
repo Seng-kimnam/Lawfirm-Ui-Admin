@@ -17,7 +17,7 @@ export const GetLawyers = () => {
         undefined,
         undefined,
       );
-      console.log("service ", res);
+    
       if (!res || !res.payload) throw new Error("No data received");
       // map data from API
       setList(res.payload || []);
