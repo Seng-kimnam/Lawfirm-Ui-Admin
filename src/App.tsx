@@ -136,7 +136,7 @@ export default function App() {
           <Route path="/signup" element={<SignUp />} />
           <Route path="/forget-password" element={<ForgetPasswordPage />} />
           <Route path="/otp-form" element={<OtpPage />} />
-          <Route path="/reset-password-form" element={<ResetPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
 
           {/* Fallback */}
           <Route path="*" element={<NotFound />} />

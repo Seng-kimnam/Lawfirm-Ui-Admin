@@ -57,16 +57,14 @@ export default function ResetPasswordForm() {
 
     try {
       const res = await request(loginUrl, "POST", data);
-      console.log("res ", res);
+
       if (res?.success) {
         const { payload } = res;
         const { roleName } = payload.currentUser.role;
         // console.log("rol ", roleName);
         localStorage.setItem("token", payload.token);
         localStorage.setItem("role", roleName);
-        const role = localStorage.getItem("role");
 
-        console.log("r", role);
         navigate("/");
         toast.success("Login successfully! Welcome to GClaw firm system.");
       }
