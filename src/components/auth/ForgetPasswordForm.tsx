@@ -25,12 +25,12 @@ export default function ForgetPasswordForm() {
     email: string;
   };
 
-  function handleNavToForgetPassword() {
+  function handleNavToSignin() {
     setIsLoading(true);
     setTimeout(() => {
       setIsLoading(false);
-      navigate("/");
-    }, 3000);
+      navigate("/signin");
+    }, 2000);
   }
   const handleSendOTP: SubmitHandler<FormValues> = async (data) => {
     const { email } = data;
@@ -57,7 +57,7 @@ export default function ForgetPasswordForm() {
     } catch (error: any) {
       setIsSending(false);
 
-      toast.error("Login failed.");
+      toast.error("Failed to sending otp.");
     }
   };
 
@@ -66,7 +66,7 @@ export default function ForgetPasswordForm() {
       {!isLoading ? (
         <div className="flex flex-col justify-center flex-1 w-full max-w-md mx-auto">
           <button
-            onClick={handleNavToForgetPassword}
+            onClick={handleNavToSignin}
             className="text-lg text-brand-50 my-6   flex items-center text-left hover:text-brand-600 dark:text-gray-400"
           >
             <ArrowLeft size="24" color="#d9e3f0" /> Back

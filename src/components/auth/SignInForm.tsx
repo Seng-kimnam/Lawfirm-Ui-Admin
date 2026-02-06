@@ -8,7 +8,7 @@ import Button from "../ui/button/Button";
 import { request } from "../../constants/api";
 import { loginUrl } from "../../constants/constants_url";
 import toast from "react-hot-toast";
-// import { login } from "../../Service/UserService.tsx";
+// import toast from "react-hot-toast";
 
 export default function SignInForm() {
   const [showPassword, setShowPassword] = useState<boolean>(false);
@@ -28,6 +28,7 @@ export default function SignInForm() {
 
     try {
       const res = await request(loginUrl, "POST", data);
+      console.log(res);
       if (res?.success) {
         const { payload } = res;
         const { roleName } = payload.currentUser.role;
@@ -38,7 +39,12 @@ export default function SignInForm() {
         toast.success("Login successfully! Welcome to GClaw firm system.");
       }
     } catch (error: any) {
-      toast.error("Login fail.", error);
+      const res = await request(loginUrl, "POST", data);
+      if (res?.status === 400) {
+
+        toast.error(res?.detail)
+        console.error("Login fail.", res?.detail);
+      }
     }
   };
 
@@ -47,7 +53,7 @@ export default function SignInForm() {
     setTimeout(() => {
       setIsLoading(false);
       navigate("/forget-password");
-    }, 3000);
+    }, 2000);
   }
 
   return (

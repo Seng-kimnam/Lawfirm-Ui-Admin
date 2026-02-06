@@ -2,74 +2,64 @@ import { useState } from "react";
 import { useNavigate } from "react-router";
 import { EyeCloseIcon, EyeIcon } from "../../icons";
 import Label from "../form/Label";
-import Input from "../form/input/InputField";
 
 import Button from "../ui/button/Button";
-import { request } from "../../constants/api";
-import { loginUrl } from "../../constants/constants_url";
+
+import { SubmitHandler, useForm } from "react-hook-form";
+import { Input } from "../ui/input";
 import toast from "react-hot-toast";
+import { resetPasswordService } from "@/Service/VerifyService";
 // import { login } from "../../Service/UserService.tsx";
 
 export default function ResetPasswordForm() {
-  const [showPassword, setShowPassword] = useState(false);
-  const [isChecked, setIsChecked] = useState(false);
-  const navigate = useNavigate();
-  const [email, setEmail] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
-  // const value = { email, password };
-  // const btnSign = async (email: string, password: string) => {
-  //   const data = {
-  //         email: email,
-  //         password: password,
-  //     }
-  //     if (!email || !password) {
-  //         alert("Please enter email and password!");
-  //         return;
-  //     }
-  //     try {
-  //         const res = await request("auth/login","post" ,data);
-  //         if (res){
-  //             localStorage.setItem('token', res.access_token);
-  //             if (res.user){
-  //                 localStorage.setItem('id',res.user.id);
-  //                 localStorage.setItem('user_name',res.user.user_name);
-  //                 localStorage.setItem('email',res.user.email);
-  //                 if (res.user.staff){
-  //                     localStorage.setItem('image',res.user.staff.image);
-  //                     localStorage.setItem('phone',res.user.staff.phone);
-  //                 }
-  //             }
-  //             navigate("/");
-  //         }
-  //         console.log(res);
-  //     } catch (error) {
-  //         console.error("Login error:", error);
-  //         alert("Something went wrong, please try again later.");
-  //     }
-  // };
-  const btnSign = async () => {
-    const data = { email, password };
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [showConfirmPassword, setShowConfirmPassword] =
+    useState<boolean>(false);
 
-    if (!email || !password) {
-      toast.error("Please enter email and password!");
+  const [isSending, setIsSending] = useState<boolean>(false);
+  const navigate = useNavigate(); 
+  type FormValues = {
+    email: string;
+    newPassword: string;
+    confirmPassword: string;
+  };
+
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = useForm<FormValues>();
+
+  const newPassword = watch("newPassword");
+
+  const handleResetPassword: SubmitHandler<FormValues> = async (data) => {
+    const email = localStorage.getItem("email") || "";
+    const finalData: FormValues = { ...data, email };
+    console.log("password ", finalData);
+    if (!email || !data) {
+      toast.error("Please enter your email!");
       return;
     }
+    if (isSending) return;
 
     try {
-      const res = await request(loginUrl, "POST", data);
-
-      if (res?.success) {
-        const { payload } = res;
-        const { roleName } = payload.currentUser.role;
-        // console.log("rol ", roleName);
-        localStorage.setItem("token", payload.token);
-        localStorage.setItem("role", roleName);
-
-        navigate("/");
-        toast.success("Login successfully! Welcome to GClaw firm system.");
+      setIsSending(true);
+      const res = await resetPasswordService(finalData);
+      console.log("reset ", res);
+      if (res.success) {
+        toast.success(res.message);
+        navigate("/signin");
+        setTimeout(() => {
+          setIsSending(false);
+        }, 3000);
+      } else {
+        setIsSending(false);
       }
     } catch (error: any) {
-      toast.error("Login fail.", error);
+      setIsSending(false);
+
+      toast.error("Login failed.");
     }
   };
 
@@ -86,34 +76,75 @@ export default function ResetPasswordForm() {
             </p>
           </div>
           <div>
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                btnSign();
-              }}
-            >
+            <form onSubmit={handleSubmit(handleResetPassword)}>
               <div className="space-y-6">
                 <div>
                   <Label>Set new password</Label>
-                  <Input
-                    placeholder="Enter new password"
-                    type={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                  />
-                </div>
-                <div>
-                  <Label>Confirm password</Label>
                   <div className="relative">
                     <Input
+                      className="py-6"
                       type={showPassword ? "text" : "password"}
-                      placeholder="Enter your confirm password"
-                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="Enter new password"
+                      {...register("newPassword", {
+                        required: "Password is required",
+                        minLength: {
+                          value: 6,
+                          message: "Password must be at least 6 characters",
+                        },
+                      })}
                     />
+
+                    {errors.newPassword && (
+                      <p className="text-sm text-red-500 mt-1">
+                        {errors.newPassword.message}
+                      </p>
+                    )}
+
                     <span
                       onClick={() => setShowPassword(!showPassword)}
                       className="absolute z-30 -translate-y-1/2 cursor-pointer right-4 top-1/2"
                     >
                       {showPassword ? (
+                        <EyeIcon className="fill-gray-500 dark:fill-gray-400 size-5" />
+                      ) : (
+                        <EyeCloseIcon className="fill-gray-500 dark:fill-gray-400 size-5" />
+                      )}
+                    </span>
+                  </div>
+                </div>
+                <div>
+                  <Label>Confirm password</Label>
+                  <div className="relative">
+                    <Input
+                      className="py-6"
+                      type={showConfirmPassword ? "text" : "password"}
+                      placeholder="Confirm your password"
+                      {...register("confirmPassword", {
+                        required: "Please confirm your password",
+                        validate: (value) =>
+                          value === newPassword || "Passwords do not match",
+                      })}
+                    />
+
+                    {errors.confirmPassword && (
+                      <p className="text-sm text-red-500 mt-1">
+                        {errors.confirmPassword.message}
+                      </p>
+                    )}
+
+                    {errors.newPassword && (
+                      <p className="text-sm text-red-500 mt-1">
+                        {errors.newPassword.message}
+                      </p>
+                    )}
+
+                    <span
+                      onClick={() =>
+                        setShowConfirmPassword(!showConfirmPassword)
+                      }
+                      className="absolute z-30 -translate-y-1/2 cursor-pointer right-4 top-1/2"
+                    >
+                      {showConfirmPassword ? (
                         <EyeIcon className="fill-gray-500 dark:fill-gray-400 size-5" />
                       ) : (
                         <EyeCloseIcon className="fill-gray-500 dark:fill-gray-400 size-5" />

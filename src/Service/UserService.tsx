@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { registerUrl } from "../constants/constants_url";
 import { request } from "../constants/api";
 import { Lawyer, LawyerProfileRequest, Lawyers } from "@/model/Lawyer";
+import { tr } from "date-fns/locale";
 
 export const GetLawyers = () => {
   const [list, setList] = useState<Lawyer[]>([]);
@@ -17,7 +18,7 @@ export const GetLawyers = () => {
         undefined,
         undefined,
       );
-    
+
       if (!res || !res.payload) throw new Error("No data received");
       // map data from API
       setList(res.payload || []);
@@ -77,6 +78,35 @@ export const fetchLawyerById = async (
     return res.payload;
   } catch (err) {
     console.error("Error fetching lawyer by ID:", err);
+    return null;
+  }
+};
+
+export const fetchCurrentUser = async () => {
+  try {
+    const res = await request(`admins/admin-profile`, "GET", undefined, {
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
+    });
+
+    if (!res || !res.payload) return null;
+
+    return res;
+  } catch (err) {
+    console.error("Error fetching lawyer by ID:", err);
+    return null;
+  }
+};
+
+export const updateProfileService = async (data: LawyerProfileRequest) => {
+  console.log("Updating profile with data:", data);
+  try {
+    const res = await request(`admins/update-profile`, "PUT", data, {
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
+    });
+    if (!res || !res.payload) return null;
+    return res;
+  } catch (err) {
+    console.error("Error updating lawyer profile:", err);
     return null;
   }
 };

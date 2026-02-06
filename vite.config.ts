@@ -1,31 +1,28 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import svgr from "vite-plugin-svgr";
-import path from "path";
+import { fileURLToPath, URL } from "node:url";
 
-// https://vite.dev/config/
 export default defineConfig({
   plugins: [
     react(),
     svgr({
       svgrOptions: {
         icon: true,
-        // This will transform your SVG to a React component
         exportType: "named",
         namedExport: "ReactComponent",
       },
     }),
   ],
+
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "./src"),
+      "@": fileURLToPath(new URL("./src", import.meta.url)),
     },
   },
-  // server: {
-  //   host: true,
-  //   port: 5173,
-  //   allowedHosts: [
-  //     "inanely-pseudoanatomical-holley.ngrok-free.dev" // allow your ngrok hostname
-  //   ]
-  // }
+
+  server: {
+    host: true, // equivalent to 0.0.0.0 (recommended by Vite)
+    port: 5173,
+  },
 });

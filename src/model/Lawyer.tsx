@@ -62,7 +62,7 @@ export interface LawyerProfileRequest {
   email: string;
   phoneNumber: string;
   password: string;
-  roleId: number | "ROLE_LAWYER";
+  roleId: number | 0 | 1 ;
   expertiseIdList: number[];
   image: string;
   description: string;
