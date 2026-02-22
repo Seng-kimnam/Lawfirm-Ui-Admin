@@ -32,7 +32,12 @@ export interface ClientStatus {
 
 export interface ClientRequestInterface {
 
-  email : string;
-  clientName : string;
-  requestCount : number;
+  email: string;
+  clientName: string;
+  requestCount: number;
+}
+
+export interface clientStatistic {
+  categories: string[];
+  data: number[];
 }

@@ -1,19 +1,22 @@
-"use client";
 
 import { useState, useMemo } from "react";
 import { BiSearch } from "react-icons/bi";
-import { BsPrinter } from "react-icons/bs";
+import { BsExclamation, BsPrinter } from "react-icons/bs";
 
 import Button from "@/utils/button/Button";
 import Input from "@/utils/input/InputField";
 import { Table, TableBody, TableRow } from "@/components/ui/table";
 import { TableCell, TableHeader } from "@/components/ui/table/index";
 import { AppointmentInterface } from "@/model/Appointment";
+import { Edit, Trash } from "iconsax-reactjs";
+import toast from "react-hot-toast";
+import { request } from "@/constants/api";
+import { useNavigate } from "react-router";
 
 interface AppointmentReportProps {
   appointmentList: Array<AppointmentInterface>;
-  parseDate: (date: string ) => string | null;
-  parseTime: (time: string) => string |null;
+  parseDate: (date: string) => string | null;
+  parseTime: (time: string) => string | null;
 }
 
 type FilterField =
@@ -63,6 +66,79 @@ const AppointmentReport = ({
         return { start: new Date(2000, 0, 1), end: today };
     }
   };
+
+  const goto = useNavigate();
+
+
+  function changeStatusColor(status: string) {
+    switch (status.toLowerCase()) {
+      case "pending":
+        return "bg-orange-500 dark:bg-orange-600";
+      case "finished":
+        return "bg-green-500 dark:bg-green-600";
+      case "confirmed":
+        return "bg-blue-500 dark:bg-blue-600";
+      case "cancelled":
+        return "bg-red-500 dark:bg-red-600";
+      default:
+        return "bg-gray-700 dark:bg-gray-600";
+    }
+  }
+
+
+  async function handleDeleteCase(id: number) {
+    toast(
+      (t) => (
+        <div className="flex flex-col font-extrabold text-gray-900 dark:text-white text-lg gap-2 bg-white dark:bg-gray-900 p-4 rounded-lg">
+          <p>Are you sure you want to delete Task id {id}?</p>
+
+          <div className="flex justify-end gap-2">
+            <button
+              className="px-3 py-1 text-[16px] text-gray-900 dark:text-white bg-gray-300 dark:bg-gray-700 hover:bg-gray-400 dark:hover:bg-gray-600 rounded"
+              onClick={() => toast.dismiss(t.id)}
+            >
+              Cancel
+            </button>
+
+            <button
+              className="px-3 py-1 text-[16px] bg-red-600 dark:bg-red-700 text-white hover:bg-red-700 dark:hover:bg-red-800 rounded"
+              onClick={async () => {
+                toast.dismiss(t.id);
+
+                const loadingId = toast.loading("Deleting task...");
+
+                try {
+                  const res = await request(
+                    `appointments/${id}`,
+                    "DELETE",
+                    undefined,
+                    undefined,
+                  );
+
+                  toast.dismiss(loadingId);
+
+                  if (res?.status === "ACCEPTED") {
+                    toast.success(`Task ID ${id} deleted successfully`);
+                  } else {
+                    toast.error(res?.detail || "Delete failed");
+                  }
+                } catch (error) {
+                  toast.dismiss(loadingId);
+                  toast.error("Server error. Please try again.");
+                }
+              }}
+            >
+              Confirm
+            </button>
+          </div>
+        </div>
+      ),
+      {
+        // kit jea millisecond
+        duration: Infinity, // stays until user clicks
+      },
+    );
+  }
 
   const filteredData = useMemo(() => {
     return appointmentList.filter((item) => {
@@ -167,10 +243,10 @@ const AppointmentReport = ({
           <div class="header">
             <h1>Appointment Report</h1>
             <p>Generated on ${new Date().toLocaleDateString("en-US", {
-              year: "numeric",
-              month: "long",
-              day: "numeric",
-            })} at ${new Date().toLocaleTimeString("en-US")}</p>
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    })} at ${new Date().toLocaleTimeString("en-US")}</p>
           </div>
 
           <div class="summary">
@@ -190,11 +266,14 @@ const AppointmentReport = ({
               <strong>${filteredData.filter((a) => a.status === "FINISHED").length}</strong>
               <span>Finished</span>
             </div>
+            <div class="summary-item">
+              <strong>${filteredData.filter((a) => a.status === "CANCELLED").length}</strong>
+              <span>Cancelled</span>
+            </div>
           </div>
 
-          ${
-            Object.values(filters).some((v) => v && v !== "all")
-              ? `<div class="filters-info">
+          ${Object.values(filters).some((v) => v && v !== "all")
+        ? `<div class="filters-info">
               <strong>Applied Filters:</strong>
               ${filters.status ? `Status: ${changeStatusToNormalText(filters.status, "AppointmentStatus")}<br>` : ""}
               ${filters.meetingType ? `Meeting Type: ${changeStatusToNormalText(filters.meetingType, "MeetingType")}<br>` : ""}
@@ -202,8 +281,8 @@ const AppointmentReport = ({
               ${filters.clientName ? `Client Name: ${filters.clientName}<br>` : ""}
               ${filters.dateRange !== "all" ? `Date Range: ${filters.dateRange}<br>` : ""}
             </div>`
-              : ""
-          }
+        : ""
+      }
 
           <table>
             <thead>
@@ -221,8 +300,8 @@ const AppointmentReport = ({
             </thead>
             <tbody>
               ${filteredData
-                .map(
-                  (item) => `
+        .map(
+          (item) => `
                 <tr>
                   <td>${item.appointmentId ?? "N/A"}</td>
                   <td>${parseDate(item.appointmentDate) ?? "N/A"}</td>
@@ -235,8 +314,8 @@ const AppointmentReport = ({
                   <td>${new Date(item.createdAt ?? "").toLocaleDateString("en-US")}</td>
                 </tr>
               `,
-                )
-                .join("")}
+        )
+        .join("")}
             </tbody>
           </table>
 
@@ -315,13 +394,13 @@ const AppointmentReport = ({
             <select
               value={filters.status}
               onChange={(e) => handleFilterChange("status", e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-white/[0.1] rounded-lg bg-white dark:bg-white/[0.05] text-gray-900 dark:text-white"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-white/[0.1] rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
             >
-              <option value="">All Status</option>
-              <option value="PENDING">Pending</option>
-              <option value="CONFIRMED">Confirmed</option>
-              <option value="FINISHED">Finished</option>
-              <option value="CANCELLED">Cancelled</option>
+              <option value="" className="dark:bg-gray-800 dark:text-white">All Status</option>
+              <option value="PENDING" className="dark:bg-gray-800 dark:text-white">Pending</option>
+              <option value="CONFIRMED" className="dark:bg-gray-800 dark:text-white">Confirmed</option>
+              <option value="FINISHED" className="dark:bg-gray-800 dark:text-white">Finished</option>
+              <option value="CANCELLED" className="dark:bg-gray-800 dark:text-white">Cancelled</option>
             </select>
           </div>
 
@@ -334,15 +413,14 @@ const AppointmentReport = ({
               onChange={(e) =>
                 handleFilterChange("meetingType", e.target.value)
               }
-              className="w-full px-3 py-2 border border-gray-300 dark:border-white/[0.1] rounded-lg bg-white dark:bg-white/[0.05] text-gray-900 dark:text-white"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-white/[0.1] rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
             >
-              <option value="">All Types</option>
-              <option value="IN_PERSON">In Person</option>
-              <option value="ONLINE">Online</option>
-              <option value="HYBRID">Hybrid</option>
+              <option value="" className="dark:bg-gray-800 dark:text-white">All Types</option>
+              <option value="IN_PERSON" className="dark:bg-gray-800 dark:text-white">In Person</option>
+              <option value="ONLINE" className="dark:bg-gray-800 dark:text-white">Online</option>
+              <option value="HYBRID" className="dark:bg-gray-800 dark:text-white">Hybrid</option>
             </select>
           </div>
-
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Date Range
@@ -350,12 +428,12 @@ const AppointmentReport = ({
             <select
               value={filters.dateRange}
               onChange={(e) => handleFilterChange("dateRange", e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-white/[0.1] rounded-lg bg-white dark:bg-white/[0.05] text-gray-900 dark:text-white"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-white/[0.1] rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
             >
-              <option value="all">All Time</option>
-              <option value="today">Today</option>
-              <option value="week">Last 7 Days</option>
-              <option value="month">Last 30 Days</option>
+              <option value="all" className="dark:bg-gray-800 dark:text-white">All Time</option>
+              <option value="today" className="dark:bg-gray-800 dark:text-white">Today</option>
+              <option value="week" className="dark:bg-gray-800 dark:text-white">Last 7 Days</option>
+              <option value="month" className="dark:bg-gray-800 dark:text-white">Last 30 Days</option>
             </select>
           </div>
 
@@ -368,7 +446,7 @@ const AppointmentReport = ({
               placeholder="Filter location"
               value={filters.location}
               onChange={(e) => handleFilterChange("location", e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-white/[0.1] rounded-lg bg-white dark:bg-white/[0.05] text-gray-900 dark:text-white"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-white/[0.1] rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
             />
           </div>
 
@@ -381,7 +459,7 @@ const AppointmentReport = ({
               placeholder="Filter client"
               value={filters.clientName}
               onChange={(e) => handleFilterChange("clientName", e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-white/[0.1] rounded-lg bg-white dark:bg-white/[0.05] text-gray-900 dark:text-white"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-white/[0.1] rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
             />
           </div>
         </div>
@@ -418,7 +496,7 @@ const AppointmentReport = ({
                     </TableCell>
                     <TableCell
                       isHeader
-                      className="px-5 py-3 font-medium text-gray-500 whitespace-nowrap dark:text-gray-400"
+                      className="px-5 py-3 font-medium  text-gray-500 whitespace-nowrap dark:text-gray-400"
                     >
                       Date
                     </TableCell>
@@ -464,6 +542,12 @@ const AppointmentReport = ({
                     >
                       Created At
                     </TableCell>
+                    <TableCell
+                      isHeader
+                      className="px-5 py-3 font-medium text-gray-500 whitespace-nowrap dark:text-gray-400"
+                    >
+                      Action
+                    </TableCell>
                   </TableRow>
                 </TableHeader>
               )}
@@ -474,13 +558,13 @@ const AppointmentReport = ({
                       <TableCell className="px-5 py-4">
                         {item.appointmentId ?? "N/A"}
                       </TableCell>
-                      <TableCell className="px-4 py-3 text-gray-500 dark:text-white/90">
+                      <TableCell className="px-4 py-3 whitespace-nowrap  text-gray-500 dark:text-white/90">
                         {parseDate(item.appointmentDate) ?? "N/A"}
                       </TableCell>
-                      <TableCell className="px-4 py-3 text-gray-500 dark:text-white/90">
+                      <TableCell className="px-4 py-3 min-w-20  text-gray-500 dark:text-white/90">
                         {parseTime(item.appointmentTime) ?? "N/A"}
                       </TableCell>
-                      <TableCell className="px-4 py-3 text-gray-500 dark:text-white/90">
+                      <TableCell className="px-4 py-3 whitespace-nowrap  text-gray-500 dark:text-white/90">
                         {item.location ?? "N/A"}
                       </TableCell>
                       <TableCell className="px-4 py-3 text-gray-500 dark:text-white/90">
@@ -496,7 +580,7 @@ const AppointmentReport = ({
                         {item.purpose ?? "N/A"}
                       </TableCell>
                       <TableCell className="px-5 py-4">
-                        <span className="px-3 py-1 rounded-full text-sm font-medium bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200">
+                        <span className={`px-3 py-1 rounded-full ${changeStatusColor(item.status)} text-sm font-medium  text-gray-800 dark:text-gray-200`}>
                           {changeStatusToNormalText(
                             item.status,
                             "AppointmentStatus",
@@ -512,6 +596,39 @@ const AppointmentReport = ({
                             day: "numeric",
                           },
                         )}
+                      </TableCell>
+                      <TableCell className="px-5 py-4 sm:px-6 ">
+                        <div className="flex items-center gap-3">
+                          {/* Update Button */}
+                          <button
+                            onClick={() =>
+                              goto(`/edit-appointment/${item.appointmentId}`)
+                            }
+                            className="p-2 text-sm rounded-md bg-blue-500 text-white hover:bg-blue-600"
+                          >
+                            <Edit size="24" color="#ffffff" />
+                          </button>
+
+                          {/* Delete Button */}
+                          <button
+                            onClick={() =>
+                              handleDeleteCase(item?.appointmentId)
+                            }
+                            className="p-2 text-sm rounded-md bg-red-500 text-white hover:bg-red-600"
+                          >
+                            <Trash size="24" color="#ffffff" />
+                          </button>
+                          <button
+                            onClick={() =>
+                              goto(
+                                `/appointment-detail/${item.appointmentId}`,
+                              )
+                            }
+                            className="p-2 text-sm rounded-md bg-green-700 text-white hover:bg-green-500"
+                          >
+                            <BsExclamation size="24" color="#ffffff" />
+                          </button>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))
@@ -529,7 +646,7 @@ const AppointmentReport = ({
           </div>
         </div>
       </div>
-    </div>
+    </div >
   );
 };
 

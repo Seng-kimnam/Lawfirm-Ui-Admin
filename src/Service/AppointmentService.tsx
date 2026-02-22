@@ -151,10 +151,8 @@ export const GetDefaultAppointmentList = () => {
   };
 };
 
-export const PostAppointmentService = async (req: AppointmentFormData) => {
-  const response = await request("appointments", "POST", req, {
-    Authorization: `Bearer ${localStorage.getItem("token")}`,
-  });
+export const PostAppointmentService = async (req?: AppointmentFormData) => {
+  const response = await request("appointments", "POST", req);
 
   console.log("service appointment response:", response);
   return response; // Always return the response (even if success: false)

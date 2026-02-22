@@ -31,10 +31,11 @@ export const request = (
   contentType?: string,
 ) => {
   const token = localStorage.getItem("token");
-  // console.log("token", token);
+  console.log("token", token);
   const headers: any = {
     "Content-Type": contentType || "application/json",
     Accept: "application/json",
+    // Authorization: token ? `Bearer ${token}` : undefined,
   };
 
   // Automatically add Authorization header if token exists
@@ -49,7 +50,10 @@ export const request = (
     params: params,
     headers: headers,
   })
-    .then((response) => response.data)
+    .then((response) => {
+      // console.log("API response:", response);
+      return response.data;
+    })
     .catch((error) => {
       throw error; // so caller can catch it
     });

@@ -21,6 +21,7 @@ import toast from "react-hot-toast";
 import Label from "@/components/form/Label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { PostAppointmentService } from "@/Service/AppointmentService";
 
 // const meetingTypeEnum = ["IN_PERSON", "VIRTUAL", "HYBRID"] as const;
 const appointmentSchema = z.object({
@@ -30,7 +31,7 @@ const appointmentSchema = z.object({
     .nonnegative("Task ID must be a non-negative number"),
   appointmentDate: z.string().min(1, "Appointment date is required"),
   appointmentTime: z.string().min(1, "Appointment time is required"),
-  meetingType: z.string(),
+  meetingType: z.enum(["IN_PERSON", "ONLINE"]),
   location: z.string().min(1, "Location is required"),
   purpose: z
     .string()
@@ -65,18 +66,14 @@ export default function CreateAppointmentForm() {
 
   const onSubmit = async (data: AppointmentFormData) => {
     try {
-      console.log("[v0] Form submission data:", data);
+ 
+      const res = await PostAppointmentService(data);
+      if (res.success) {
+        toast.success("Appointment created successfully!");
 
-      // Here you would normally call your API to create the appointment
-      // const response = await fetch('/api/appointments', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(data),
-      // })
-      //
-      // if (!response.ok) throw new Error('Failed to create appointment')
+      }
 
-      toast.success("Appointment created successfully!");
+
       console.log("Appointment created:", data);
     } catch (error) {
       console.error("Form submission error:", error);
@@ -147,7 +144,9 @@ export default function CreateAppointmentForm() {
               <Label htmlFor="meetingType">Meeting Type</Label>
               <Select
                 value={meetingType}
-                onValueChange={(value) => setValue("meetingType", value as any)}
+                onValueChange={(value) =>
+                setValue("meetingType", value as "IN_PERSON" | "ONLINE")
+              }
               >
                 <SelectTrigger
                   id="meetingType"
@@ -157,8 +156,7 @@ export default function CreateAppointmentForm() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="IN_PERSON">In Person</SelectItem>
-                  <SelectItem value="VIRTUAL">Virtual</SelectItem>
-                  <SelectItem value="HYBRID">Hybrid</SelectItem>
+                  <SelectItem value="ONLINE">Online</SelectItem>
                 </SelectContent>
               </Select>
               {errors.meetingType && (

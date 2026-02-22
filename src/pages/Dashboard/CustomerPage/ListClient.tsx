@@ -1,6 +1,4 @@
 import ComponentCard from "../../../components/common/ComponentCard";
-// import Badge from "../../../components/ui/badge/Badge";
-import { GetService } from "../../../Service/ListServiceService";
 import Input from "../../../utils/input/InputField.tsx";
 import { useNavigate } from "react-router-dom";
 import {
@@ -10,34 +8,55 @@ import {
   TableHeader,
   TableRow,
 } from "../../../components/ui/table";
-import toast from "react-hot-toast";
 
 import Button from "../../../utils/button/Button";
-import { BoxIcon } from "../../../icons";
 import { BsArrowLeft, BsArrowRight, BsExclamation } from "react-icons/bs";
 import { BiSearch } from "react-icons/bi";
-import { AiOutlinePlus } from "react-icons/ai";
 
-import { request } from "@/constants/api.tsx";
-import { GetClient } from "@/Service/ClientService.tsx";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTrigger,
-} from "@/components/ui/dialog.tsx";
-import { useEffect } from "react";
-import { Edit, Trash } from "iconsax-reactjs";
 import { GetClientRequest } from "@/Service/ClientRequestService.tsx";
+import { useEffect, useState } from "react";
+import { searchClientByEmail } from "@/Service/ClientService.tsx";
+
 const ListClient = () => {
   const navigate = useNavigate();
-  // const { clientList, page, totalPage, setPage, refetch } = GetClient();
+
   const { clientRequestList, page, setPage, totalPage, refetch } =
     GetClientRequest();
+
+  const [keyword, setKeyword] = useState<string>("");
+  const [searchResult, setSearchResult] = useState<any[]>([]);
+  const [isSearching, setIsSearching] = useState<boolean>(false);
 
   function routeForDetail(email: string) {
     navigate(`/client-request-info?email=${email}`);
   }
+
+  // Debounced search
+  useEffect(() => {
+    const delay = setTimeout(async () => {
+      if (!keyword.trim()) {
+        setIsSearching(false);
+        setSearchResult([]);
+        refetch(); // Load full list again
+        return;
+      }
+
+      try {
+        setIsSearching(true);
+        const data = await searchClientByEmail(keyword.trim());
+        console
+        // If backend returns Page object
+        setSearchResult(data?.payload?.content ?? []);
+      } catch (err) {
+        console.error("Search error:", err);
+      }
+    }, 500); // debounce 500ms
+
+    return () => clearTimeout(delay);
+  }, [keyword]);
+
+
+  const dataToRender = isSearching ? searchResult : clientRequestList;
 
   return (
     <div>
@@ -48,116 +67,107 @@ const ListClient = () => {
           searchInput={
             <Input
               type="text"
-              placeholder="Search client by name..."
+              placeholder="Search client by email..."
               icon={<BiSearch className="w-5 h-5" />}
-              // className="px-6 py-5 flex items-center justify-between border-t border-gray-100 dark:border-gray-800"
-              id="input"
+              value={keyword}
+              onChange={(e: any) => setKeyword(e.target.value)}
             />
           }
           footer={
-            <div className="flex justify-between items-center">
-              <span>
-                Showing page {page} of {totalPage}
-              </span>
-              <span>Total Clients : {clientRequestList?.length} </span>
-              <div className="flex gap-2">
-                <Button disabled={page === 1} onClick={() => setPage(page - 1)}>
-                  <BsArrowLeft className=" font-bold" />
-                </Button>
-                <div className="flex items-center gap-1 flex-wrap">
-                  {Array.from({ length: totalPage }, (_, i) => (
-                    <Button
-                      key={i + 1}
-                      variant={i + 1 === page ? "primary" : "outline"}
-                      size="sm"
-                      onClick={() => setPage(i + 1)}
-                    >
-                      {i + 1}
-                    </Button>
-                  ))}
+            !isSearching && (
+              <div className="flex justify-between items-center">
+                <span>
+                  Showing page {page} of {totalPage}
+                </span>
+                <span>Total Clients : {clientRequestList?.length}</span>
+                <div className="flex gap-2">
+                  <Button
+                    disabled={page === 1}
+                    onClick={() => setPage(page - 1)}
+                  >
+                    <BsArrowLeft />
+                  </Button>
+
+                  <div className="flex items-center gap-1 flex-wrap">
+                    {Array.from({ length: totalPage }, (_, i) => (
+                      <Button
+                        key={i + 1}
+                        variant={i + 1 === page ? "primary" : "outline"}
+                        size="sm"
+                        onClick={() => setPage(i + 1)}
+                      >
+                        {i + 1}
+                      </Button>
+                    ))}
+                  </div>
+
+                  <Button
+                    disabled={page === totalPage}
+                    onClick={() => setPage(page + 1)}
+                  >
+                    <BsArrowRight />
+                  </Button>
                 </div>
-                <Button
-                  disabled={page === totalPage}
-                  onClick={() => setPage(page + 1)}
-                >
-                  <BsArrowRight className=" font-bold" />
-                </Button>
               </div>
-            </div>
+            )
           }
         >
           <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
-            <div className="max-w-[1130px] overflow-x-auto ">
+            <div className="max-w-[1130px] overflow-x-auto">
               <Table>
-                {/* Table Header */}
-                <TableHeader className="border-b  text-center  bg-black   border-gray-100 dark:border-white/[0.05]">
+                <TableHeader className="border-b text-center bg-black border-gray-100 dark:border-white/[0.05]">
                   <TableRow>
-                    <TableCell
-                      // isHeader
-                      className="px-5 py-3 font-medium text-xl text-gray-500 text-center dark:text-gray-400"
-                    >
+                    <TableCell className="px-5 py-3 text-xl text-center">
                       Client ID
                     </TableCell>
-                    <TableCell
-                      // isHeader
-                      className="px-5 py-3 font-medium text-xl text-gray-500 text-center dark:text-gray-400"
-                    >
+                    <TableCell className="px-5 py-3 text-xl text-center">
                       Name
                     </TableCell>
-                    <TableCell
-                      // isHeader
-                      className="px-5 py-3 font-medium text-gray-500 text-xl text-center dark:text-gray-400"
-                    >
+                    <TableCell className="px-5 py-3 text-xl text-center">
                       Email
                     </TableCell>
-                    <TableCell
-                      // isHeader
-                      className="px-5 py-3 font-medium text-gray-500 text-xl text-center dark:text-gray-400"
-                    >
+                    <TableCell className="px-5 py-3 text-xl text-center">
                       Total Request
                     </TableCell>
-
-                    <TableCell
-                      // isHeader
-                      className="px-5 py-3 bg-black font-medium text-xl text-gray-500 text-center dark:text-gray-400"
-                    >
+                    <TableCell className="px-5 py-3 text-xl text-center">
                       Actions
                     </TableCell>
                   </TableRow>
                 </TableHeader>
 
-                {/* Table Body */}
-                <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
-                  {clientRequestList.map((item, idx) => (
-                    <TableRow className="h-20" key={item.email}>
-                      <TableCell className="px-4  py-3 text-gray-500 text-center   dark:text-white/90">
-                        {idx + 1}
-                      </TableCell>
-                      <TableCell className="px-4  py-3 text-gray-500 text-center   dark:text-white/90">
-                        {item.clientName ?? "N/A"}
-                      </TableCell>
-                      <TableCell className="px-5 py-4 sm:px-6 text-center">
-                        <span className="block font-medium text-gray-800 text-center  dark:text-white/90">
-                          {item.email ?? "N/A"}
-                        </span>
-                      </TableCell>
-                      <TableCell className="px-5 py-4 sm:px-6 text-center">
-                        <span className="block font-medium text-gray-800 text-center  dark:text-white/90">
-                          {item.requestCount ?? "N/A"}
-                        </span>
-                      </TableCell>
-                      <TableCell className="px-5 py-4 sm:px-6 ">
-                        <div className="flex  justify-center items-center gap-3">
-                          <button
-                            onClick={() => routeForDetail(item?.email)}
-                            className="p-2 text-sm rounded-3xl bg-green-500 text-white hover:bg-green-600"
-                          >
-                            <BsExclamation size="24"  color="#000000" />
-                          </button>
-                        </div>
+                <TableBody>
+                  {dataToRender?.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={5} className="text-center py-6">
+                        No data found
                       </TableCell>
                     </TableRow>
-                  ))}
+                  ) : (
+                    dataToRender.map((item: any, idx: number) => (
+                      <TableRow className="h-20" key={item.email}>
+                        <TableCell className="text-center">{idx + 1}</TableCell>
+                        <TableCell className="text-center">
+                          {item.clientName ?? "N/A"}
+                        </TableCell>
+                        <TableCell className="text-center">
+                          {item.email ?? "N/A"}
+                        </TableCell>
+                        <TableCell className="text-center">
+                          {item.requestCount ?? "N/A"}
+                        </TableCell>
+                        <TableCell className="text-center">
+                          <div className="flex justify-center items-center gap-3">
+                            <button
+                              onClick={() => routeForDetail(item?.email)}
+                              className="p-2 rounded-3xl bg-green-500 text-white hover:bg-green-600"
+                            >
+                              <BsExclamation size={20} />
+                            </button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
                 </TableBody>
               </Table>
             </div>

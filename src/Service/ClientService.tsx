@@ -20,7 +20,7 @@ export const GetClient = () => {
         "clients/without-pagination",
         "GET",
         undefined,
-        undefined
+        undefined,
       );
 
       // console.log("res", res);
@@ -57,11 +57,31 @@ export const GetClient = () => {
 // };
 
 // Fetch Add Service
+
+export const searchClientByEmail = async (email: string) => {
+  try {
+    const res = await request(
+      `clients/search-client-req?email=${email}&page=1&size=5&sortBy=clientId&ascending=true`,
+      "GET",
+      undefined,
+      undefined,
+      "application/json",
+    );
+
+    if (res.status) {
+      console.log("Search API response:", res);
+      return res;
+    }
+  } catch (err) {
+    console.log("Error ", err);
+  }
+};
 export const postService = async (req: ClientRequest) => {
   try {
     const response = await request("clients", "POST", req, {
       Authorization: `Bearer ${localStorage.getItem("token")}`,
     });
+
     if (response.status === "CREATED") {
       return response.data;
     }
@@ -84,7 +104,7 @@ export const putService = async (req: ServiceItem) => {
     }
   } catch (error: any) {
     alert(
-      error.response?.data?.message || error.message || "Something went wrong"
+      error.response?.data?.message || error.message || "Something went wrong",
     );
   }
 };
