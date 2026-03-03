@@ -22,8 +22,8 @@
 
 import axios, { Method } from "axios";
 import { base_Url } from "./constants_url";
-
-export const request = (
+  
+export const request = async (
   url: string,
   method: Method,
   data?: object,
@@ -31,7 +31,6 @@ export const request = (
   contentType?: string,
 ) => {
   const token = localStorage.getItem("token");
-  console.log("token", token);
   const headers: any = {
     "Content-Type": contentType || "application/json",
     Accept: "application/json",
@@ -43,18 +42,16 @@ export const request = (
     headers["Authorization"] = `Bearer ${token}`;
   }
 
-  return axios({
-    url: base_Url + url,
-    method: method,
-    data: data,
-    params: params,
-    headers: headers,
-  })
-    .then((response) => {
-      // console.log("API response:", response);
-      return response.data;
-    })
-    .catch((error) => {
-      throw error; // so caller can catch it
+  try {
+    const response = await axios({
+      url: base_Url + url,
+      method: method,
+      data: data,
+      params: params,
+      headers: headers,
     });
+    return response.data;
+  } catch (error) {
+    throw error; // so caller can catch it
+  }
 };

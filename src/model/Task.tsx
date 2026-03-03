@@ -10,6 +10,7 @@ export interface TaskInterface {
   status: string;
   createdAt: string;
   updatedAt: string;
+  startedDate: string;
   dueDate: string;
   priority: string;
 }
@@ -44,3 +45,5 @@ export interface TaskPriority {
   value: string;
   label: string;
 }
+
+export type TaskStatusFilter = "UNDER_PROGRESS" | "DONE" | "ALL";

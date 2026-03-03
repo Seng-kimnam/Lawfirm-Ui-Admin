@@ -9,7 +9,7 @@ import {
 import { request } from "../constants/api";
 import { useEffect, useState } from "react";
 
-import { TaskInterface, TaskRequest } from "@/model/Task";
+import { TaskInterface, TaskRequest, TaskStatusFilter } from "@/model/Task";
 
 export const GetTask = () => {
   const [taskList, setTaskList] = useState<TaskInterface[]>([]);
@@ -53,6 +53,37 @@ export const GetTask = () => {
 //   }
 // };
 
+export const getTaskById = async (
+  id: number | string,
+): Promise<TaskInterface | null> => {
+  try {
+    const res = await request(`tasks/${id}`, "GET", undefined, {
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
+    });
+    if (!res || !res.payload) return null;
+    return res.payload;
+  } catch (err) {
+    console.error("Error fetching task by ID:", err);
+    return null;
+  }
+};
+
+export const filterTaskByStatus = async (status: TaskStatusFilter) => {
+  try {
+    const res = await request(
+      `tasks/filter?taskStatus=${status}`,
+      "GET",
+      undefined,
+      {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    );
+    return res;
+  } catch (error: any) {
+    throw error;
+  }
+};
+
 // Fetch Add Service
 export const postTask = async (req: TaskRequest) => {
   try {
@@ -68,7 +99,7 @@ export const postTask = async (req: TaskRequest) => {
 };
 
 // Update Service
-export const putTask = async (req: TaskRequest, id: number) => {
+export const  putTask = async (req: TaskRequest, id: number) => {
   try {
     if (!id) {
       throw new Error("Task ID is required for update");
@@ -81,7 +112,25 @@ export const putTask = async (req: TaskRequest, id: number) => {
     }
   } catch (error: any) {
     alert(
-      error.response?.data?.message || error.message || "Something went wrong"
+      error.response?.data?.message || error.message || "Something went wrong",
+    );
+  }
+};
+
+export const deleteTask = async (id: number) => {
+  try {
+    if (!id) {
+      throw new Error("Task ID is required for deletion");
+    }
+    const response = await request(`tasks/${id}`, "DELETE", undefined, {
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
+    });
+    if (response.success) {
+      return response;
+    }
+  } catch (error: any) {
+    alert(
+      error.response?.data?.message || error.message || "Something went wrong",
     );
   }
 };

@@ -31,8 +31,8 @@ export default function EcommerceMetrics() {
 
             <div className="flex items-end justify-between mt-5">
               <div>
-                <span className="text-lg dark:font-bold text-gray-500 dark:text-gray-400">
-                  Customers
+                <span className="text-lg dark:font-bold text-gray-800 dark:text-gray-400">
+                 Total Client Requests
                 </span>
                 <h4 className="mt-2  font-bold text-3xl text-gray-800  dark:text-white/90">
                   {clientList?.length}
@@ -55,7 +55,7 @@ export default function EcommerceMetrics() {
             </div>
             <div className="flex items-end justify-between mt-5">
               <div>
-                <span className="text-lg text-gray-500 dark:text-gray-400">
+                <span className="text-lg text-gray-800 dark:text-gray-400">
                   Our Lawyers
                 </span>
                 <h4 className="mt-2 text-3xl   font-bold text-gray-800 dark:text-white/90">

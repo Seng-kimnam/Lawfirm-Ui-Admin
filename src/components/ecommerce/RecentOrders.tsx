@@ -6,215 +6,152 @@ import {
   TableRow,
 } from "../ui/table";
 import Badge from "../ui/badge/Badge";
-
-// Define the TypeScript interface for the table rows
-interface Request {
-  id: number; // Unique identifier for each product
-  clientName: string; // Product name
-  email: string; // Number of variants (e.g., "1 Variant", "2 Variants")
-  title: string; // Title of the product
-  dateRequest: string; // Category of the product
-  confirmBy: string; // Price of the product (as a string with currency symbol)
-  // status: string; // Status of the product
-  image: string; // URL or path to the product image
-  status: "Approved" | "Pending" | "Rejected"; // Status of the product
-}
-
-// Define the table data using the interface
-const tableData: Request[] = [
-  {
-    id: 1,
-    clientName: "John Doe",
-    email: "john.doe@example.com",
-    title: "Contract Review",
-    dateRequest: "2024-04-01",
-    confirmBy: "Attorney Linda Park",
-    status: "Approved",
-    image: "https://res.cloudinary.com/diqseuweg/image/upload/v1759136354/mBybMNc95n6_ipFPaB8HW_dpteqn.png", // Replace with actual image URL
-  },
-  {
-    id: 2,
-    clientName: "Elon Musk",
-    email: "elon.musk@example.com",
-    title: "Corporate Legal Consultation",
-    dateRequest: "2024-04-02",
-    confirmBy: "Attorney Jane Smith",
-    status: "Pending",
-    image: "https://res.cloudinary.com/diqseuweg/image/upload/v1759136354/cVe9nddW-c8egg4fb3PJK_wa7ojw.png", // Replace with actual image URL
-  },
-  {
-    id: 3,
-    clientName: "Sophia Lee",
-    email: "sophia.lee@example.com",
-    title: "Property Dispute",
-    dateRequest: "2024-04-03",
-    confirmBy: "Attorney Michael Chen",
-    status: "Rejected",
-    image: "https://res.cloudinary.com/diqseuweg/image/upload/v1759136354/mBybMNc95n6_ipFPaB8HW_dpteqn.png", // Replace with actual image URL
-  },
-  {
-    id: 4,
-    clientName: "David Kim",
-    email: "david.kim@example.com",
-    title: "Divorce Settlement Consultation",
-    dateRequest: "2024-04-04",
-    confirmBy: "Attorney Sarah Wong",
-    status: "Approved",
-    image: "https://res.cloudinary.com/diqseuweg/image/upload/v1759136354/cVe9nddW-c8egg4fb3PJK_wa7ojw.png", // Replace with actual image URL
-  },
-  {
-    id: 5,
-    clientName: "Emma Watson",
-    email: "emma.watson@example.com",
-    title: "Trademark Registration",
-    dateRequest: "2024-04-05",
-    confirmBy: "Attorney Robert Carter",
-    status: "Pending",
-    image: "https://res.cloudinary.com/diqseuweg/image/upload/v1759136354/mBybMNc95n6_ipFPaB8HW_dpteqn.png", // Replace with actual image URL
-  },
-];
+import { filterTaskByStatus } from "@/Service/TaskService";
+import { request } from "@/constants/api";
+import { getTaskList } from "@/constants/constants_url";
+import { TaskInterface, TaskStatusFilter } from "@/model/Task";
+import { useEffect, useState } from "react";
 
 export default function RecentOrders() {
+  const page = 1;
+  const [status, setStatus] = useState<TaskStatusFilter>("ALL");
+  const [rows, setRows] = useState<TaskInterface[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const load = async () => {
+      setLoading(true);
+      try {
+        const res =
+          status === "ALL"
+            ? await request(getTaskList(page), "GET")
+            : await filterTaskByStatus(status);
+
+        setRows(res?.payload?.content || res?.payload || []);
+      } catch (error) {
+        console.error("Failed to load tasks:", error);
+        setRows([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    load();
+  }, [status, page]);
+
   return (
     <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white px-4 pb-3 pt-4 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6">
-      <div className="flex flex-col gap-2 mb-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
-            Recent Request
+            Recent Tasks
           </h3>
         </div>
 
         <div className="flex items-center gap-3">
-          <button className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-theme-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200">
-            <svg
-              className="stroke-current fill-white dark:fill-gray-800"
-              width="20"
-              height="20"
-              viewBox="0 0 20 20"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M2.29004 5.90393H17.7067"
-                stroke=""
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              <path
-                d="M17.7075 14.0961H2.29085"
-                stroke=""
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              <path
-                d="M12.0826 3.33331C13.5024 3.33331 14.6534 4.48431 14.6534 5.90414C14.6534 7.32398 13.5024 8.47498 12.0826 8.47498C10.6627 8.47498 9.51172 7.32398 9.51172 5.90415C9.51172 4.48432 10.6627 3.33331 12.0826 3.33331Z"
-                fill=""
-                stroke=""
-                strokeWidth="1.5"
-              />
-              <path
-                d="M7.91745 11.525C6.49762 11.525 5.34662 12.676 5.34662 14.0959C5.34661 15.5157 6.49762 16.6667 7.91745 16.6667C9.33728 16.6667 10.4883 15.5157 10.4883 14.0959C10.4883 12.676 9.33728 11.525 7.91745 11.525Z"
-                fill=""
-                stroke=""
-                strokeWidth="1.5"
-              />
-            </svg>
-            Filter
-          </button>
-          <button className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-theme-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200">
-            See all
-          </button>
+          <select
+            value={status}
+            onChange={(e) => setStatus(e.target.value as TaskStatusFilter)}
+            className="rounded-md border border-gray-300 px-3 py-2 text-sm"
+          >
+            <option value="ALL">All</option>
+            <option value="UNDER_PROGRESS">Under Progress</option>
+            <option value="DONE">Done</option>
+          </select>
         </div>
       </div>
+
       <div className="max-w-full overflow-x-auto">
         <Table>
-          {/* Table Header */}
-          <TableHeader className="border-gray-100 dark:border-gray-800 border-y">
+          <TableHeader className="border-y border-gray-100 dark:border-gray-800">
             <TableRow>
-              <TableCell
-                isHeader
-                className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-              >
+              <TableCell className="py-3 text-start text-xl dark:text-gray-400">
                 Client Name
               </TableCell>
-              <TableCell
-                isHeader
-                className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-              >
+              <TableCell className="py-3 text-start text-xl dark:text-gray-400">
                 Title request
               </TableCell>
-              <TableCell
-                isHeader
-                className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-              >
+              <TableCell className="py-3 text-start text-xl dark:text-gray-400">
                 Date Request
               </TableCell>
-              <TableCell
-                isHeader
-                className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-              >
+              <TableCell className="py-3 text-start text-xl dark:text-gray-400">
                 Confirm By
               </TableCell>
-              <TableCell
-                isHeader
-                className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-              >
+              <TableCell className="py-3 text-start text-xl dark:text-gray-400">
                 Status
               </TableCell>
             </TableRow>
           </TableHeader>
 
-          {/* Table Body */}
-
           <TableBody className="divide-y divide-gray-100 dark:divide-gray-800">
-            {tableData.map((product) => (
-              <TableRow key={product.id} className="">
-                <TableCell className="py-3">
-                  <div className="flex items-center gap-3">
-                    <div className="h-[50px] w-[50px] overflow-hidden rounded-md">
-                      <img
-                        src={product.image}
-                        className="h-[50px] w-[50px]"
-                        alt={product.clientName}
-                      />
-                    </div>
+            {loading ? (
+              <TableRow>
+                <TableCell className="py-4">Loading...</TableCell>
+                <TableCell />
+                <TableCell />
+                <TableCell />
+                <TableCell />
+              </TableRow>
+            ) : rows.length === 0 ? (
+              <TableRow>
+                <TableCell className="py-4">No tasks found.</TableCell>
+                <TableCell />
+                <TableCell />
+                <TableCell />
+                <TableCell />
+              </TableRow>
+            ) : (
+              rows.map((task) => (
+                <TableRow key={task.taskId}>
+                  <TableCell className="py-3">
                     <div>
-                      <p className="font-medium text-gray-800 text-theme-sm dark:text-white/90">
-                        {product.clientName}
+                      <p className="text-[18px] text-gray-800 dark:text-white/90">
+                        {task.legalCase.client.clientName}
                       </p>
-                      <span className="text-gray-500 text-theme-xs dark:text-gray-400">
-                        {product.email}
+                      <span className="text-[14px] text-gray-600 dark:text-gray-400">
+                        {task.legalCase.client.email}
                       </span>
                     </div>
-                  </div>
-                </TableCell>
-                <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                  {product.title}
-                </TableCell>
-                <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                  {product.dateRequest}
-                </TableCell>
-                <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                  {product.confirmBy}
-                </TableCell>
-                <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                  <Badge
-                    size="sm"
-                    color={
-                      product.status === "Approved"
-                        ? "success"
-                        : product.status === "Pending"
-                        ? "warning"
-                        : "error"
-                    }
-                  >
-                    {product.status}
-                  </Badge>
-                </TableCell>
-              </TableRow>
-            ))}
+                  </TableCell>
+
+                  <TableCell className="py-3 text-theme-sm dark:text-gray-400">
+                    {task.title}
+                  </TableCell>
+
+                  <TableCell className="py-3 text-theme-sm dark:text-gray-400">
+                    {new Date(
+                      task.legalCase.client.createdAt,
+                    ).toLocaleDateString("en-US", {
+                      year: "numeric",
+                      month: "short",
+                      day: "numeric",
+                    })}
+                  </TableCell>
+
+                  <TableCell className="py-3 text-theme-sm dark:text-gray-400">
+                    Attorney{" "}
+                    <span className="font-extrabold">
+                      {task.lawyer.fullName}
+                    </span>
+                  </TableCell>
+
+                  <TableCell className="py-3 text-theme-sm dark:text-gray-400">
+                    <Badge
+                      size="sm"
+                      color={
+                        task.status === "DONE"
+                          ? "success"
+                          : task.status === "UNDER_PROGRESS"
+                            ? "warning"
+                            : "error"
+                      }
+                    >
+                      {task.status}
+                    </Badge>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
           </TableBody>
         </Table>
       </div>

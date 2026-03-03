@@ -3,25 +3,27 @@ import { ApexOptions } from "apexcharts";
 import { useEffect, useState } from "react";
 import { request } from "@/constants/api";
 import { clientStatistic } from "@/model/Client";
-                                                                  
+
 export default function MonthlySalesChart() {
   const [monthList, setMonthList] = useState<clientStatistic>();
 
-
   useEffect(() => {
     async function getMonthList() {
-      const res = await request("admins/statistics/clients?period=only-month", "GET");
+      const res = await request(
+        "admins/statistics/clients?period=only-month",
+        "GET",
+      );
 
       const { categories } = res.payload;
       const { data } = res.payload;
       const finalData = {
         categories,
-        data
-      }
+        data,
+      };
 
-      setMonthList(finalData)
+      setMonthList(finalData);
     }
-    getMonthList()
+    getMonthList();
   }, []);
 
   const options: ApexOptions = {
@@ -51,8 +53,7 @@ export default function MonthlySalesChart() {
       colors: ["transparent"],
     },
     xaxis: {
-      categories:
-        monthList?.categories ?? [],
+      categories: monthList?.categories ?? [],
 
       axisBorder: {
         show: false,
@@ -92,10 +93,11 @@ export default function MonthlySalesChart() {
       },
     },
   };
+  const total = monthList?.data.reduce((sum, d) => sum + d, 0) ?? 0;
   const series = [
     {
-      name: "Clients",
-      data: monthList?.data ?? []
+      name: `${total > 1 ? "Requests" : "Request"}`,
+      data: monthList?.data ?? [],
       // monthList.data
     },
   ];
@@ -106,7 +108,6 @@ export default function MonthlySalesChart() {
         <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
           Monthly Request
         </h3>
-
       </div>
 
       <div className="max-w-full overflow-x-auto custom-scrollbar">
@@ -115,5 +116,5 @@ export default function MonthlySalesChart() {
         </div>
       </div>
     </div>
-  );
+  );  
 }

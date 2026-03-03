@@ -23,6 +23,6 @@ export default defineConfig({
 
   server: {
     host: true, // equivalent to 0.0.0.0 (recommended by Vite)
-    port: 5173,
+    port: 5174,
   },
 });

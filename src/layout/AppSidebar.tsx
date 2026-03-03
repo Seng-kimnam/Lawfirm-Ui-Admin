@@ -55,7 +55,7 @@ const navItems: NavItem[] = [
     roles: ["ROLE_ADMIN", "ROLE_LAWYER"],
     subItems: [
       { name: "List Task", path: "/list-task" },
-      { name: "Add Task", path: "/add-task" },
+      { name: "Task Form", path: "/add-task" },
       // { name: "Calendar", path: "/appointment-calender" },
     ],
   },
@@ -76,7 +76,7 @@ const navItems: NavItem[] = [
     name: "Case",
     roles: ["ROLE_ADMIN"],
     subItems: [
-      { name: "Add Case", path: "/add-case" },
+      { name: "Case Form", path: "/add-case" },
       { name: "List Case", path: "/list-case" },
     ],
   },

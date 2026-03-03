@@ -436,8 +436,8 @@ const LawyerForm = () => {
             <Button
               className={`${
                 Number(id)
-                  ? "bg-orange-600   hover:bg-orange-800"
-                  : "bg-green-600   hover:bg-green-800"
+                  ? "bg-green-600   hover:bg-green-800"
+                  : "bg-blue-600   hover:bg-blue-800"
               } text-white " type="submit`}
               disabled={isLoading}
             >

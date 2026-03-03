@@ -1,6 +1,5 @@
 import ComponentCard from "../../../components/common/ComponentCard";
-import Badge from "../../../components/ui/badge/Badge";
-import { GetService } from "../../../Service/ListServiceService";
+
 import Input from "../../../utils/input/InputField.tsx";
 import { useNavigate } from "react-router-dom";
 import {
@@ -11,7 +10,7 @@ import {
   TableRow,
 } from "../../../components/ui/table";
 import Button from "../../../utils/button/Button";
-import { BoxIcon } from "../../../icons";
+
 import { BsArrowLeft, BsArrowRight, BsExclamation } from "react-icons/bs";
 import { BiSearch } from "react-icons/bi";
 import { GetTask } from "@/Service/TaskService.tsx";
@@ -26,6 +25,43 @@ const ListService = () => {
   const goto = useNavigate();
   function handleViewDetails(id: number) {
     navigate(`/service-detail/${id}`);
+  }
+
+  function formatReadableStatus(status?: string) {
+    switch (status?.toLowerCase()) {
+      case "under_progress":
+        return {
+          status: "Under Progress",
+          color: "text-orange-600 dark:text-orange-700",
+        };
+      case "done":
+        return {
+          status: "Done",
+          color: "text-green-600 dark:text-green-700",
+        };
+
+      // default:
+      //   return "Unknown";
+    }
+  }
+  function formatReadablePriority(priority?: string) {
+    switch (priority?.toLowerCase()) {
+      case "low":
+        return {
+          priority: "Low",
+          color: "text-green-600 dark:text-green-700",
+        };
+      case "medium":
+        return {
+          priority: "Medium",
+          color: "text-yellow-600 dark:text-yellow-700",
+        };
+      case "high":
+        return {
+          priority: "High",
+          color: "text-red-600 dark:text-red-700",
+        };
+    }
   }
   async function handleDeleteCase(id: number) {
     toast(
@@ -142,76 +178,82 @@ const ListService = () => {
             <div className="max-w-[1130px] overflow-x-auto">
               <Table>
                 {/* Table Header */}
-                <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
+                <TableHeader className="border-b text-center border-gray-100 dark:border-white/[0.05]">
                   <TableRow>
                     <TableCell
-                      isHeader
+                      // isHeader
                       className="px-5 py-3 font-medium text-gray-500  whitespace-nowrap dark:text-gray-400"
                     >
-                      Task Id
+                      Task ID
                     </TableCell>
                     <TableCell
-                      isHeader
+                      // isHeader
                       className="px-5 py-3 font-medium text-gray-500  whitespace-nowrap dark:text-gray-400"
                     >
                       Lawyer Name
                     </TableCell>
                     <TableCell
-                      isHeader
+                      // isHeader
                       className="px-5 py-3 font-medium text-gray-500  whitespace-nowrap dark:text-gray-400"
                     >
                       Client Name
                     </TableCell>
                     <TableCell
-                      isHeader
+                      // isHeader
                       className="px-5 py-3 font-medium text-gray-500  whitespace-nowrap dark:text-gray-400"
                     >
                       Court Name
                     </TableCell>
                     <TableCell
-                      isHeader
+                      // isHeader
                       className="px-5 py-3 font-medium text-gray-500  whitespace-nowrap dark:text-gray-400"
                     >
                       Title
                     </TableCell>
                     <TableCell
-                      isHeader
+                      // isHeader
                       className="px-5 py-3 font-medium text-gray-500  whitespace-nowrap dark:text-gray-400"
                     >
                       Priority
                     </TableCell>
                     <TableCell
-                      isHeader
+                      // isHeader
                       className="px-5 py-3 font-medium text-gray-500  whitespace-nowrap dark:text-gray-400"
                     >
                       Status
                     </TableCell>
                     <TableCell
-                      isHeader
+                      // isHeader
+                      className="px-5 py-3 font-medium text-gray-500  whitespace-nowrap min-w-40 dark:text-gray-400"
+                    >
+                      Started Date
+                    </TableCell>
+                    <TableCell
+                      // isHeader
                       className="px-5 py-3 font-medium text-gray-500  whitespace-nowrap min-w-40 dark:text-gray-400"
                     >
                       Due Date
                     </TableCell>
                     {/* <TableCell
-                      isHeader
+                      // isHeader
                       className="px-5 py-3 font-medium text-gray-500  text-theme-xs dark:text-gray-400"
                     >
                       Created By
                     </TableCell> */}
                     <TableCell
-                      isHeader
+                      // isHeader
                       className="px-5 py-3 font-medium text-gray-500  whitespace-nowrap min-w-40  dark:text-gray-400"
                     >
                       Created At
                     </TableCell>
                     <TableCell
-                      isHeader
+                      // isHeader
                       className="px-5 py-3 font-medium text-gray-500  whitespace-nowrap min-w-40 dark:text-gray-400"
                     >
                       Updated At
                     </TableCell>
                     <TableCell
-                      isHeader
+                      // isHeader
                       className="px-5 py-3 font-medium text-gray-500  text-theme-xs dark:text-gray-400"
                     >
                       Action
@@ -220,7 +262,7 @@ const ListService = () => {
                 </TableHeader>
 
                 {/* Table Body */}
-                <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
+                <TableBody className="divide-y text-center divide-gray-100 dark:divide-white/[0.05]">
                   {taskList.map((item) => (
                     <TableRow key={item.taskId}>
                       <TableCell className="px-5 py-4 sm:px-6 ">
@@ -241,7 +283,6 @@ const ListService = () => {
                       <TableCell className="px-4 py-3 text-gray-500  text-theme-sm  dark:text-white/90">
                         {item.legalCase.court.courtName ?? "N/A"}
                       </TableCell>
-
                       <TableCell className="px-5 py-4 sm:px-6 ">
                         <div className="flex items-center gap-3">
                           <div>
@@ -268,8 +309,23 @@ const ListService = () => {
                       <TableCell className="px-5 py-4 sm:px-6 ">
                         <div className="flex items-center gap-3">
                           <div>
-                            <span className="block font-medium text-gray-800 text-theme-sm dark:text-white/90">
-                              {item.priority ?? "N/A"}
+                            <span
+                              className={`block font-medium text-theme-sm dark:text-white/90 ${formatReadablePriority(item.priority)?.color || "text-gray-800"}`}
+                            >
+                              {formatReadablePriority(item.priority)
+                                ?.priority || "N/A"}
+                            </span>
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell className="px-5 py-4 sm:px-6 ">
+                        <div className="flex items-center gap-3">
+                          <div>
+                            <span
+                              className={`block font-medium text-theme-sm dark:text-white/90 ${formatReadableStatus(item.status)?.color || "text-gray-800"}`}
+                            >
+                              {formatReadableStatus(item.status)?.status ||
+                                "N/A"}
                             </span>
                           </div>
                         </div>
@@ -278,11 +334,18 @@ const ListService = () => {
                         <div className="flex items-center gap-3">
                           <div>
                             <span className="block font-medium text-gray-800 text-theme-sm dark:text-white/90">
-                              {item.status ?? "N/A"}
+                              {new Date(
+                                item.startedDate ?? "",
+                              ).toLocaleDateString("en-US", {
+                                year: "numeric",
+                                month: "long",
+                                day: "numeric",
+                              })}
                             </span>
                           </div>
                         </div>
                       </TableCell>
+
                       <TableCell className="px-5 py-4 sm:px-6 ">
                         <div className="flex items-center gap-3">
                           <div>

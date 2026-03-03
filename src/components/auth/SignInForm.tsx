@@ -35,14 +35,14 @@ export default function SignInForm() {
         // console.log("rol ", roleName);
         localStorage.setItem("token", payload.token);
         localStorage.setItem("role", roleName);
+        localStorage.setItem("profileImage", payload?.currentUser.image);
         navigate("/");
         toast.success("Login successfully! Welcome to GClaw firm system.");
       }
     } catch (error: any) {
       const res = await request(loginUrl, "POST", data);
       if (res?.status === 400) {
-
-        toast.error(res?.detail)
+        toast.error(res?.detail);
         console.error("Login fail.", res?.detail);
       }
     }

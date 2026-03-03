@@ -61,7 +61,7 @@ export const GetAllAppointment = () => {
         getAppointmentList(page),
         "GET",
         undefined,
-        undefined
+        undefined,
       );
 
       if (!res || !res.payload) throw new Error("No data received");
@@ -119,7 +119,7 @@ export const GetDefaultAppointmentList = () => {
         getAppointmentList(page),
         "GET",
         undefined,
-        undefined
+        undefined,
       );
 
       if (!res || !res.payload) throw new Error("No data received");
@@ -128,6 +128,7 @@ export const GetDefaultAppointmentList = () => {
 
       setAppointmentList(rawAppointments);
       setTotalPage(res.payload.totalPages || 1);
+      console.log("Fetched appointments:", rawAppointments);
     } catch (error) {
       console.error("Error fetching appointments:", error);
     } finally {
@@ -156,4 +157,38 @@ export const PostAppointmentService = async (req?: AppointmentFormData) => {
 
   console.log("service appointment response:", response);
   return response; // Always return the response (even if success: false)
+};
+
+export const PutAppointmentService = async (req?: AppointmentFormData) => {
+  const response = await request("appointments", "PUT", req);
+
+  console.log("service appointment response:", response);
+  return response; // Always return the response (even if success: false)
+};
+
+export const filterAppointments = async (filters: {
+  status?: string;
+  meetingType?: string;
+  appointmentDate?: string;
+  location?: string;
+  clientName?: string;
+}) => {
+  const queryParams = new URLSearchParams();
+
+  if (filters.status) queryParams.append("status", filters.status);
+  if (filters.meetingType)
+    queryParams.append("meetingType", filters.meetingType);
+  if (filters.appointmentDate)
+    queryParams.append("appointmentDate", filters.appointmentDate);
+  if (filters.location) queryParams.append("location", filters.location);
+  if (filters.clientName) queryParams.append("clientName", filters.clientName);
+
+  const response = await request(
+    `appointments/filter-appointment?${queryParams.toString()}`,
+    "GET",
+    undefined,
+    undefined,
+  );
+  console.log("Filtered appointments response:", response);
+  return response;
 };

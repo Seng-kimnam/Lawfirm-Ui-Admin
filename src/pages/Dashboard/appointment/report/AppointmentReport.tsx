@@ -1,5 +1,4 @@
-
-import { useState, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { BiSearch } from "react-icons/bi";
 import { BsExclamation, BsPrinter } from "react-icons/bs";
 
@@ -12,6 +11,7 @@ import { Edit, Trash } from "iconsax-reactjs";
 import toast from "react-hot-toast";
 import { request } from "@/constants/api";
 import { useNavigate } from "react-router";
+import { filterAppointments } from "@/Service/AppointmentService.tsx";
 
 interface AppointmentReportProps {
   appointmentList: Array<AppointmentInterface>;
@@ -40,6 +40,9 @@ const AppointmentReport = ({
   parseTime,
 }: AppointmentReportProps) => {
   const [searchText, setSearchText] = useState("");
+  const [apiFilteredList, setApiFilteredList] =
+    useState<Array<AppointmentInterface>>(appointmentList);
+  const [isFiltering, setIsFiltering] = useState(false);
   const [filters, setFilters] = useState<FilterState>({
     status: "",
     meetingType: "",
@@ -47,6 +50,62 @@ const AppointmentReport = ({
     location: "",
     clientName: "",
   });
+  console.log("Initial appointment list in report:", appointmentList);
+  const hasServerFilters = useMemo(
+    () =>
+      Boolean(
+        filters.status ||
+          filters.meetingType ||
+          filters.location.trim() ||
+          filters.clientName.trim(),
+      ),
+    [filters.clientName, filters.location, filters.meetingType, filters.status],
+  );
+
+  useEffect(() => {
+    setApiFilteredList(appointmentList);
+  }, [appointmentList]);
+
+  useEffect(() => {
+    const timer = setTimeout(async () => {
+      if (!hasServerFilters) {
+        setApiFilteredList(appointmentList);
+        return;
+      }
+
+      setIsFiltering(true);
+      try {
+        const res = await filterAppointments({
+          status: filters.status || undefined,
+          meetingType: filters.meetingType || undefined,
+          location: filters.location || undefined,
+          clientName: filters.clientName || undefined,
+        });
+
+        const list = Array.isArray(res?.payload)
+          ? res.payload
+          : Array.isArray(res?.payload?.content)
+            ? res.payload.content
+            : [];
+
+        setApiFilteredList(list);
+      } catch (error) {
+        toast.error("Failed to filter appointments");
+        setApiFilteredList(appointmentList);
+      } finally {
+        setIsFiltering(false);
+      }
+    }, 350);
+
+    return () => clearTimeout(timer);
+  }, [
+    appointmentList,
+    filters.clientName,
+    filters.location,
+    filters.meetingType,
+    filters.status,
+    hasServerFilters,
+  ]);
 
   const getDateRange = (rangeType: string) => {
     const today = new Date();
@@ -69,7 +128,6 @@ const AppointmentReport = ({
 
   const goto = useNavigate();
 
-
   function changeStatusColor(status: string) {
     switch (status.toLowerCase()) {
       case "pending":
@@ -84,7 +142,6 @@ const AppointmentReport = ({
         return "bg-gray-700 dark:bg-gray-600";
     }
   }
-
 
   async function handleDeleteCase(id: number) {
     toast(
@@ -141,7 +198,7 @@ const AppointmentReport = ({
   }
 
   const filteredData = useMemo(() => {
-    return appointmentList.filter((item) => {
+    return apiFilteredList.filter((item) => {
       const searchLower = searchText.toLowerCase();
       const matchesSearch =
         item.appointmentId?.toString().includes(searchLower) ||
@@ -149,36 +206,14 @@ const AppointmentReport = ({
         item.purpose?.toLowerCase().includes(searchLower) ||
         item.task?.lawyer?.fullName?.toLowerCase().includes(searchLower);
 
-      const matchesStatus = !filters.status || item.status === filters.status;
-
-      const matchesMeetingType =
-        !filters.meetingType || item.meetingType === filters.meetingType;
-
-      const matchesLocation =
-        !filters.location ||
-        item.location?.toLowerCase().includes(filters.location.toLowerCase());
-
-      const matchesClientName =
-        !filters.clientName ||
-        item.task?.lawyer?.fullName
-          ?.toLowerCase()
-          .includes(filters.clientName.toLowerCase());
-
       const appointmentDate = new Date(item.appointmentDate);
       const { start, end } = getDateRange(filters.dateRange);
       const matchesDateRange =
         appointmentDate >= start && appointmentDate <= end;
 
-      return (
-        matchesSearch &&
-        matchesStatus &&
-        matchesMeetingType &&
-        matchesLocation &&
-        matchesClientName &&
-        matchesDateRange
-      );
+      return matchesSearch && matchesDateRange;
     });
-  }, [searchText, filters, appointmentList]);
+  }, [searchText, filters.dateRange, apiFilteredList]);
 
   const changeStatusToNormalText = (status: string, textType?: string) => {
     if (textType === "MeetingType") {
@@ -243,10 +278,10 @@ const AppointmentReport = ({
           <div class="header">
             <h1>Appointment Report</h1>
             <p>Generated on ${new Date().toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    })} at ${new Date().toLocaleTimeString("en-US")}</p>
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            })} at ${new Date().toLocaleTimeString("en-US")}</p>
           </div>
 
           <div class="summary">
@@ -272,17 +307,18 @@ const AppointmentReport = ({
             </div>
           </div>
 
-          ${Object.values(filters).some((v) => v && v !== "all")
-        ? `<div class="filters-info">
+          ${
+            Object.values(filters).some((v) => v && v !== "all")
+              ? `<div class="filters-info">
               <strong>Applied Filters:</strong>
               ${filters.status ? `Status: ${changeStatusToNormalText(filters.status, "AppointmentStatus")}<br>` : ""}
               ${filters.meetingType ? `Meeting Type: ${changeStatusToNormalText(filters.meetingType, "MeetingType")}<br>` : ""}
               ${filters.location ? `Location: ${filters.location}<br>` : ""}
               ${filters.clientName ? `Client Name: ${filters.clientName}<br>` : ""}
-              ${filters.dateRange !== "all" ? `Date Range: ${filters.dateRange}<br>` : ""}
+              
             </div>`
-        : ""
-      }
+              : ""
+          }
 
           <table>
             <thead>
@@ -300,8 +336,8 @@ const AppointmentReport = ({
             </thead>
             <tbody>
               ${filteredData
-        .map(
-          (item) => `
+                .map(
+                  (item) => `
                 <tr>
                   <td>${item.appointmentId ?? "N/A"}</td>
                   <td>${parseDate(item.appointmentDate) ?? "N/A"}</td>
@@ -314,8 +350,8 @@ const AppointmentReport = ({
                   <td>${new Date(item.createdAt ?? "").toLocaleDateString("en-US")}</td>
                 </tr>
               `,
-        )
-        .join("")}
+                )
+                .join("")}
             </tbody>
           </table>
 
@@ -354,6 +390,7 @@ const AppointmentReport = ({
       clientName: "",
     });
     setSearchText("");
+    setApiFilteredList(appointmentList);
   };
 
   return (
@@ -396,11 +433,33 @@ const AppointmentReport = ({
               onChange={(e) => handleFilterChange("status", e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 dark:border-white/[0.1] rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
             >
-              <option value="" className="dark:bg-gray-800 dark:text-white">All Status</option>
-              <option value="PENDING" className="dark:bg-gray-800 dark:text-white">Pending</option>
-              <option value="CONFIRMED" className="dark:bg-gray-800 dark:text-white">Confirmed</option>
-              <option value="FINISHED" className="dark:bg-gray-800 dark:text-white">Finished</option>
-              <option value="CANCELLED" className="dark:bg-gray-800 dark:text-white">Cancelled</option>
+              <option value="" className="dark:bg-gray-800 dark:text-white">
+                All Status
+              </option>
+              <option
+                value="PENDING"
+                className="dark:bg-gray-800 dark:text-white"
+              >
+                Pending
+              </option>
+              <option
+                value="CONFIRMED"
+                className="dark:bg-gray-800 dark:text-white"
+              >
+                Confirmed
+              </option>
+              <option
+                value="FINISHED"
+                className="dark:bg-gray-800 dark:text-white"
+              >
+                Finished
+              </option>
+              <option
+                value="CANCELLED"
+                className="dark:bg-gray-800 dark:text-white"
+              >
+                Cancelled
+              </option>
             </select>
           </div>
 
@@ -415,28 +474,29 @@ const AppointmentReport = ({
               }
               className="w-full px-3 py-2 border border-gray-300 dark:border-white/[0.1] rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
             >
-              <option value="" className="dark:bg-gray-800 dark:text-white">All Types</option>
-              <option value="IN_PERSON" className="dark:bg-gray-800 dark:text-white">In Person</option>
-              <option value="ONLINE" className="dark:bg-gray-800 dark:text-white">Online</option>
-              <option value="HYBRID" className="dark:bg-gray-800 dark:text-white">Hybrid</option>
+              <option value="" className="dark:bg-gray-800 dark:text-white">
+                All Types
+              </option>
+              <option
+                value="IN_PERSON"
+                className="dark:bg-gray-800 dark:text-white"
+              >
+                In Person
+              </option>
+              <option
+                value="ONLINE"
+                className="dark:bg-gray-800 dark:text-white"
+              >
+                Online
+              </option>
+              <option
+                value="HYBRID"
+                className="dark:bg-gray-800 dark:text-white"
+              >
+                Hybrid
+              </option>
             </select>
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Date Range
-            </label>
-            <select
-              value={filters.dateRange}
-              onChange={(e) => handleFilterChange("dateRange", e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-white/[0.1] rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
-            >
-              <option value="all" className="dark:bg-gray-800 dark:text-white">All Time</option>
-              <option value="today" className="dark:bg-gray-800 dark:text-white">Today</option>
-              <option value="week" className="dark:bg-gray-800 dark:text-white">Last 7 Days</option>
-              <option value="month" className="dark:bg-gray-800 dark:text-white">Last 30 Days</option>
-            </select>
-          </div>
-
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Location
@@ -446,7 +506,7 @@ const AppointmentReport = ({
               placeholder="Filter location"
               value={filters.location}
               onChange={(e) => handleFilterChange("location", e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-white/[0.1] rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
+              className="w-full px-3 py-3 border border-gray-300 dark:border-white/[0.1] rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
             />
           </div>
 
@@ -459,7 +519,7 @@ const AppointmentReport = ({
               placeholder="Filter client"
               value={filters.clientName}
               onChange={(e) => handleFilterChange("clientName", e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-white/[0.1] rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
+              className="w-full px-3 py-3 border border-gray-300 dark:border-white/[0.1] rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
             />
           </div>
         </div>
@@ -475,10 +535,16 @@ const AppointmentReport = ({
         <div className="mb-4 p-4 bg-blue-50 dark:bg-blue-950/20 rounded-lg border border-blue-200 dark:border-blue-900/30">
           <p className="text-sm text-gray-700 dark:text-gray-300">
             <strong>
-              Showing {filteredData.length} of {appointmentList.length}{" "}
+              Showing {filteredData.length} of{" "}
+              {hasServerFilters ? apiFilteredList.length : appointmentList.length}{" "}
               appointments
             </strong>
           </p>
+          {isFiltering && (
+            <p className="mt-1 text-xs text-blue-700 dark:text-blue-300">
+              Applying server-side filters...
+            </p>
+          )}
         </div>
 
         {/* Table */}
@@ -553,7 +619,7 @@ const AppointmentReport = ({
               )}
               <TableBody className="divide-y divide-gray-100 text-center dark:divide-white/[0.05]">
                 {filteredData.length > 0 ? (
-                  filteredData.map((item) => (
+                  apiFilteredList.map((item) => (
                     <TableRow key={item.appointmentId}>
                       <TableCell className="px-5 py-4">
                         {item.appointmentId ?? "N/A"}
@@ -580,7 +646,9 @@ const AppointmentReport = ({
                         {item.purpose ?? "N/A"}
                       </TableCell>
                       <TableCell className="px-5 py-4">
-                        <span className={`px-3 py-1 rounded-full ${changeStatusColor(item.status)} text-sm font-medium  text-gray-800 dark:text-gray-200`}>
+                        <span
+                          className={`px-3 py-1 rounded-full ${changeStatusColor(item.status)} text-sm font-medium  text-gray-800 dark:text-gray-200`}
+                        >
                           {changeStatusToNormalText(
                             item.status,
                             "AppointmentStatus",
@@ -620,9 +688,7 @@ const AppointmentReport = ({
                           </button>
                           <button
                             onClick={() =>
-                              goto(
-                                `/appointment-detail/${item.appointmentId}`,
-                              )
+                              goto(`/appointment-detail/${item.appointmentId}`)
                             }
                             className="p-2 text-sm rounded-md bg-green-700 text-white hover:bg-green-500"
                           >
@@ -646,7 +712,7 @@ const AppointmentReport = ({
           </div>
         </div>
       </div>
-    </div >
+    </div>
   );
 };
 

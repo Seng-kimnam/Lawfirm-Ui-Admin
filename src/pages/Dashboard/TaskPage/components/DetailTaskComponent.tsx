@@ -94,14 +94,12 @@ const DetailTaskComponent = ({
 
   const getStatusIcon = (status?: string) => {
     switch (status?.toLowerCase()) {
-      case "active":
-      case "open":
-        return <CheckCircle className="w-4 h-4" />;
-      case "pending":
-        return <AlertCircle className="w-4 h-4" />;
-      case "closed":
-      case "resolved":
-        return <XCircle className="w-4 h-4" />;
+      // case "active":
+      case "done":
+        return <CheckCircle className="w-4 h-4 text-green-700" />;
+      case "under_progress":
+        return <AlertCircle className="w-4 h-4 text-orange-700" />;
+
       default:
         return <FileText className="w-4 h-4" />;
     }
@@ -115,6 +113,24 @@ const DetailTaskComponent = ({
       day: "numeric",
     });
   };
+
+  function formatReadableStatus(status?: string) {
+    switch (status?.toLowerCase()) {
+      case "under_progress":
+        return {
+          status: "Under Progress",
+          color: "text-orange-600 dark:text-orange-700",
+        };
+      case "done":
+        return {
+          status: "Done",
+          color: "text-green-600 dark:text-green-700",
+        };
+
+      // default:
+      //   return "Unknown";
+    }
+  }
 
   return (
     <div className="min-h-screen mt-10 bg-gradient-to-br from-slate-50 via-blue-50 to-slate-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 py-8 px-4">
@@ -139,8 +155,10 @@ const DetailTaskComponent = ({
               )}`}
             >
               {getStatusIcon(status)}
-              <span className="font-semibold text-sm uppercase tracking-wide">
-                {status || "Unknown"}
+              <span
+                className={`font-semibold text-lg tracking-wide ${formatReadableStatus(status)?.color || "text-slate-500"}`}
+              >
+                {formatReadableStatus(status)?.status || "Unknown Status"}
               </span>
             </div>
           </div>
@@ -168,7 +186,7 @@ const DetailTaskComponent = ({
             <div className="flex items-start gap-6 mb-8">
               {image ? (
                 <img
-                  src={`http://localhost:8080/api/v1/files/preview-file?fileName${image}`}
+                  src={`http://localhost:8080/api/v1/files/preview-file?fileName=${image}`}
                   alt={image}
                   className="w-24 h-24 rounded-xl object-cover border-2 border-blue-100 dark:border-blue-900 shadow-md"
                 />

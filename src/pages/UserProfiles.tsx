@@ -7,38 +7,38 @@ import { fetchCurrentUser } from "@/Service/UserService";
 import { Facebook, Musicnote, Send2 } from "iconsax-reactjs";
 import { Link } from "react-router";
 
-import {
-  EditProfileModal,
-
-} from "@/components/EditProfileComponent";
+import { EditProfileModal } from "@/components/EditProfileComponent";
 
 const UserProfiles = () => {
   const [currentUser, setCurrentUser] = useState<CurrentUserProfile | null>(
     null,
   );
   const [loading, setLoading] = useState(true);
-
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  
-  useEffect(() => {
-    // Fetch current user data from your auth/API endpoint
-    const fetchUserData = async () => {
-      try {
-        // Replace with your actual API endpoint
-        const response = await fetchCurrentUser();
-        
-        setCurrentUser(response.payload);
-      } catch (error) {
-        console.error("Failed to fetch user data:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchUserData = async () => {
+    try {
+      const response = await fetchCurrentUser();
+      setCurrentUser(response.payload);
+    } catch (error) {
+      console.error("Failed to fetch user data:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchUserData();
-    // const console = 
   }, []);
+
+  useEffect(() => {
+    if (!currentUser) return;
+    const profileImage = currentUser.image || "default-avatar.jpg";
+    localStorage.setItem("profileImage", profileImage);
+    window.dispatchEvent(
+      new CustomEvent("profile-image-updated", { detail: profileImage }),
+    );
+  }, [currentUser?.image]);
 
   if (loading) {
     return <div className="text-center py-12">Loading profile...</div>;
@@ -55,13 +55,13 @@ const UserProfiles = () => {
         description="This is React.js Profile Dashboard page for TailAdmin - React.js Tailwind CSS Admin Dashboard Template"
       />
       <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">
-        <div className="flex items-center justify-between ">
-          <h3 className="mb-5 text-lg font-semibold text-gray-800 dark:text-white/90 lg:mb-7">
-            Profile
+        <div className="flex items-center   justify-between ">
+          <h3 className=" text-3xl font-bold  text-gray-800 dark:text-white/90 ">
+            My Profile
           </h3>
           <button
             onClick={() => setIsModalOpen(true)}
-            className="flex w-full items-center justify-center gap-2 rounded-full border border-gray-300 bg-white px-4 py-3  font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200 lg:inline-flex lg:w-auto"
+            className="flex w-full my-2 items-center justify-center gap-2 rounded-full border border-gray-300 bg-white px-4 py-3  font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200 lg:inline-flex lg:w-auto"
           >
             <svg
               className="fill-current"
@@ -349,6 +349,7 @@ const UserProfiles = () => {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         setIsOpen={setIsModalOpen}
+        onUpdateSuccess={fetchUserData}
         currentUser={currentUser}
       />
     </>

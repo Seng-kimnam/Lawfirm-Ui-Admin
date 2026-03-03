@@ -25,17 +25,19 @@ import { format } from "date-fns";
 import { Calendar } from "@/components/ui/calendar.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { CaseRequest, CaseStatus } from "@/model/Case.tsx";
-import { GetCase } from "@/Service/CaseService.tsx";
+import { GetCaseNoPagination } from "@/Service/CaseService.tsx";
 import toast from "react-hot-toast";
-import { useNavigate } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import { GetLawyers } from "@/Service/UserService.tsx";
 
-import { postTask } from "@/Service/TaskService.tsx";
-import { TaskRequest } from "@/model/Task.tsx";
+import { getTaskById, postTask, putTask } from "@/Service/TaskService.tsx";
+import { TaskInterface, TaskRequest } from "@/model/Task.tsx";
 
 const AddTask = () => {
+  const { id } = useParams<{ id: string }>();
+  console.log("Received task ID:", id);
   const { list } = GetLawyers();
-  const { casesList } = GetCase();
+  const { casesList } = GetCaseNoPagination();
   const goto = useNavigate();
   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
   const [endDate, setEndDate] = useState<Date | undefined>(undefined);
@@ -43,10 +45,10 @@ const AddTask = () => {
   const [openEnd, setOpenEnd] = useState<boolean>(false);
   const [monthStart, setMonthStart] = useState(new Date());
   const [monthEnd, setMonthEnd] = useState(new Date());
+  const [taskDetails, setTaskDetails] = useState<TaskInterface | null>(null);
 
   const {
     watch,
-    control,
     formState: { errors },
     reset,
     register,
@@ -65,12 +67,62 @@ const AddTask = () => {
     },
   });
 
+  useEffect(() => {
+    if (id) {
+      // If there's an ID, we are in edit mode, so fetch the task details
+      const fetchTaskDetails = async () => {
+        try {
+          const taskData = await getTaskById(id);
+          if (taskData) {
+            setTaskDetails(taskData);
+            const existingTask: TaskRequest = {
+              caseId: taskData.legalCase.caseId,
+              lawyerId: taskData.lawyer.appUserId,
+              title: taskData.title,
+              description: taskData.description,
+              status: taskData.status,
+              taskPriority: taskData.priority,
+              startedDate: taskData.createdAt,
+              dueDate: taskData.dueDate,
+            };
+
+            // Fill the form with existing task values in edit mode
+            reset(existingTask);
+
+            // Set date pickers to the existing dates
+            if (taskData.createdAt) {
+              const createdAtDate = new Date(taskData.createdAt);
+              setStartDate(createdAtDate);
+              setMonthStart(createdAtDate);
+            }
+            if (taskData.dueDate) {
+              const dueDate = new Date(taskData.dueDate);
+              setEndDate(dueDate);
+              setMonthEnd(dueDate);
+            }
+          } else {
+            toast.error("Task not found");
+            goto("/list-task");
+          }
+        } catch (error) {
+          console.error("Error fetching task details:", error);
+          toast.error("Failed to load task details");
+          goto("/list-task");
+        }
+      };
+      fetchTaskDetails();
+    } else {
+      setTaskDetails(null);
+      resetFormUI();
+    }
+  }, [id, goto, reset]);
+
   // Use watch with all fields at once to reduce re-renders
   const { caseId, lawyerId, status } = watch();
   const currentYear = new Date().getFullYear();
   const years = Array.from(
     { length: 2099 - currentYear + 1 },
-    (_, i) => currentYear + i
+    (_, i) => currentYear + i,
   );
   const months: string[] = [
     "January",
@@ -150,13 +202,17 @@ const AddTask = () => {
 
   async function handleOperation(data: TaskRequest) {
     try {
-      const response = await postTask(data);
+      const response = id
+        ? await putTask(data, Number(id))
+        : await postTask(data);
 
       // This block only runs for 2xx statuses
       if (response?.success) {
         // Success: show success message, reset form, etc.
 
-        toast.success("Task created successfully");
+        toast.success(`${id ? "Task updated" : "Task created"} successfully`);
+        resetFormUI();
+        goto("/list-task");
       }
 
       // handle other successful but non-ideal cases here if needed
@@ -190,7 +246,7 @@ const AddTask = () => {
   }
 
   function handleGoBack() {
-    goto("/list-case");
+    goto("/list-task");
     resetFormUI();
   }
 
@@ -200,7 +256,9 @@ const AddTask = () => {
         title="React.js Form Elements Dashboard | TailAdmin - React.js Admin Dashboard Template"
         description="This is React.js Form Elements  Dashboard page for TailAdmin - React.js Tailwind CSS Admin Dashboard Template"
       />
-      <PageBreadcrumb pageTitle="Add New Task" />
+      <PageBreadcrumb
+        pageTitle={id ? `Edit Task number ${id}` : "Add New Task"}
+      />
       <form onSubmit={handleSubmit(handleOperation)}>
         <div className="space-y-6">
           <ComponentCard title="Form task ">
@@ -209,7 +267,11 @@ const AddTask = () => {
                 <Label>Lawyer Name</Label>
 
                 <Select
-                  value={lawyerId ? lawyerId.toString() : ""}
+                  value={
+                    lawyerId
+                      ? lawyerId.toString()
+                      : taskDetails?.lawyer?.appUserId?.toString() || ""
+                  }
                   onValueChange={(value) => {
                     setValue("lawyerId", Number(value), {
                       shouldValidate: true,
@@ -217,11 +279,23 @@ const AddTask = () => {
                   }}
                 >
                   <SelectTrigger className="w-full ">
-                    <SelectValue placeholder="Select service type" />
+                    <SelectValue placeholder="Select case" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectGroup>
                       <SelectLabel>Lawyer List </SelectLabel>
+                      {taskDetails?.lawyer &&
+                        !list?.some(
+                          (lawyer) =>
+                            lawyer.appUserId === taskDetails.lawyer.appUserId,
+                        ) && (
+                          <SelectItem
+                            value={taskDetails.lawyer.appUserId.toString()}
+                          >
+                            {taskDetails.lawyer.appUserId}.{" "}
+                            {taskDetails.lawyer.fullName}
+                          </SelectItem>
+                        )}
 
                       {list?.map((l) => (
                         <SelectItem
@@ -243,17 +317,33 @@ const AddTask = () => {
                 <Label>Case Name</Label>
 
                 <Select
-                  value={caseId ? caseId.toString() : ""}
+                  value={
+                    caseId
+                      ? caseId.toString()
+                      : taskDetails?.legalCase?.caseId?.toString() || ""
+                  }
                   onValueChange={(value) =>
                     setValue("caseId", Number(value), { shouldValidate: true })
                   }
                 >
                   <SelectTrigger className="w-full ">
-                    <SelectValue placeholder="Select service type" />
+                    <SelectValue placeholder="Select case" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectGroup>
-                      <SelectLabel>Court list </SelectLabel>
+                      <SelectLabel>Case list </SelectLabel>
+                      {taskDetails?.legalCase &&
+                        !casesList?.some(
+                          (legalCase) =>
+                            legalCase.caseId === taskDetails.legalCase.caseId,
+                        ) && (
+                          <SelectItem
+                            value={taskDetails.legalCase.caseId.toString()}
+                          >
+                            {taskDetails.legalCase.caseId}.{" "}
+                            {taskDetails.legalCase.title}
+                          </SelectItem>
+                        )}
 
                       {casesList?.map((c) => (
                         <SelectItem key={c.caseId} value={c.caseId.toString()}>
@@ -274,9 +364,7 @@ const AddTask = () => {
                 <Select
                   value={status}
                   onValueChange={(value) =>
-                    setValue("status", value as CaseRequest["status"], {
-                      shouldValidate: true,
-                    })
+                    setValue("status", value, { shouldValidate: true })
                   }
                 >
                   <SelectTrigger className="w-full ">
@@ -284,7 +372,7 @@ const AddTask = () => {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectGroup>
-                      <SelectLabel> case status </SelectLabel>
+                      <SelectLabel> task status </SelectLabel>
 
                       {caseStatus?.map((status) => (
                         <SelectItem key={status.value} value={status.value}>
@@ -295,6 +383,29 @@ const AddTask = () => {
                   </SelectContent>
                 </Select>
                 <input type="hidden" {...register("status")} />
+              </div>
+              <div>
+                <Label htmlFor="input">Priority</Label>
+                <Select
+                  value={taskDetails?.priority || "LOW"}
+                  onValueChange={(value) =>
+                    setValue("taskPriority", value, { shouldValidate: true })
+                  }
+                >
+                  <SelectTrigger className="w-full ">
+                    <SelectValue placeholder="Select priority" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectLabel> task priority </SelectLabel>
+
+                      <SelectItem value="LOW">Low</SelectItem>
+                      <SelectItem value="MEDIUM">Medium</SelectItem>
+                      <SelectItem value="HIGH">High</SelectItem>
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+                <input type="hidden" {...register("taskPriority")} />
               </div>
               <div>
                 <Label htmlFor="input">Title</Label>
@@ -416,8 +527,8 @@ const AddTask = () => {
                           {endDate
                             ? format(endDate, "PPP")
                             : startDate
-                            ? "Choose your end date"
-                            : "Select start date first"}
+                              ? "Choose your end date"
+                              : "Select start date first"}
                         </span>
                       </div>
                     </Button>
@@ -508,7 +619,9 @@ const AddTask = () => {
               </Button>
             </div>
             <div className="space-y-6">
-              <Button type="submit">Create new task</Button>
+              <Button type="submit">
+                {id ? "Update Task" : "Create New Task"}
+              </Button>
             </div>
           </div>
         </div>

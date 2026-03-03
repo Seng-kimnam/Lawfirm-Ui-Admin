@@ -25,6 +25,7 @@ interface EditProfileModalProps {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
   onClose: () => void;
+  onUpdateSuccess?: () => Promise<void> | void;
 
   currentUser?: CurrentUserProfile;
 }
@@ -33,6 +34,7 @@ export function EditProfileModal({
   isOpen,
   setIsOpen,
   onClose,
+  onUpdateSuccess,
   currentUser,
 }: EditProfileModalProps) {
   const {
@@ -159,6 +161,7 @@ export function EditProfileModal({
         reset();
         setUploadedImagePath(Object);
         setIsOpen(false);
+        await onUpdateSuccess?.();
       } else {
         toast.error(res.message);
       }

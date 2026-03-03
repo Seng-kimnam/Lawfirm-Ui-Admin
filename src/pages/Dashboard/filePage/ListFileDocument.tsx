@@ -257,7 +257,7 @@ const ListFileDocument = () => {
                                     {item.title}
                                   </p>
                                   {/* <PdfViewer /> */}
-                                </DialogHeader>
+                                </DialogHeader> 
                                 <img
                                   className="h-[80vh] object-cover border-2 border-black "
                                   src={`http://localhost:8080/api/v1/files/preview-file?fileName=${item.fileCover}`}
@@ -276,7 +276,7 @@ const ListFileDocument = () => {
                               <DialogTrigger asChild>
                                 <img
                                   className="h-20 w-28"
-                                  src={`http://localhost:8080/api/v1/files/preview-file?fileName${item.fileCover}`}
+                                  src={`http://localhost:8080/api/v1/files/preview-file?fileName=${item.fileCover}`}
                                   alt={item.fileCover}
                                 />
                               </DialogTrigger>
