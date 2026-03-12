@@ -1,13 +1,13 @@
 import PageMeta from "../../../components/common/PageMeta.tsx";
 import PageBreadcrumb from "../../../components/common/PageBreadCrumb.tsx";
 import ComponentCard from "../../../components/common/ComponentCard.tsx";
-import Input from "../../../utils/input/InputField.tsx";
+// import Input from "../../../utils/input/InputField.tsx";
 import Label from "../../../components/form/Label.tsx";
 import { useEffect, useState } from "react";
-import TextArea from "../../../utils/input/TextArea.tsx";
-import { useDropzone } from "react-dropzone";
+// import TextArea from "../../../utils/input/TextArea.tsx";
+// import { useDropzone } from "react-dropzone";
 import Button from "../../../components/ui/button/Button.tsx";
-import PhoneInput from "../../../components/form/group-input/PhoneInput.tsx";
+// import PhoneInput from "../../../components/form/group-input/PhoneInput.tsx";
 import { useNavigate, useParams } from "react-router";
 import { Controller, useForm } from "react-hook-form";
 import {
@@ -19,10 +19,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select.tsx";
-import { statusList } from "@/enum/ClientStatus.ts";
-import { ClientInterface, ClientRequest } from "@/model/Client.tsx";
+// import { statusList } from "@/enum/ClientStatus.ts";
+// import { ClientInterface, ClientRequest } from "@/model/Client.tsx";
 import { request } from "@/constants/api.tsx";
-import { CourtInterface, CourtRequest } from "@/model/Court.tsx";
+import {  CourtRequest } from "@/model/Court.tsx";
 import { courtTypeList } from "@/enum/CourtType.ts";
 import {
   postNewCourtService,
@@ -103,13 +103,13 @@ const CourtForm = () => {
   return (
     <div>
       <PageMeta
-        title="Update Client"
+        title= {id ? "Edit Court" : "Add Courts"}
         description="This is React.js Form Elements  Dashboard page for TailAdmin - React.js Tailwind CSS Admin Dashboard Template"
       />
-      <PageBreadcrumb pageTitle="Client Form" />
+      <PageBreadcrumb pageTitle="Court Form" />
       <form onSubmit={handleSubmit(onAction)}>
         <div className="space-y-6">
-          <ComponentCard title="Update Client">
+          <ComponentCard title={!isEditing ? "Add New Court" : "Update Court"}>
             <div className="space-y-6 grid grid-cols-1 gap-6 xl:grid-cols-2">
               <div>
                 <Label htmlFor="input">Court Name</Label>
@@ -123,7 +123,7 @@ const CourtForm = () => {
                 />
               </div>
               <div>
-                <Label>location</Label>
+                <Label>Location</Label>
                 <input
                   // value={DocForUpdate?.title}
                   className="border-2 rounded-lg px-4 bg-gray-900 py-2 w-full  focus:transition-all duration-150 delay-75"

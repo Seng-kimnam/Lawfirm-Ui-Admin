@@ -20,7 +20,7 @@ import {
   SelectValue,
 } from "@/components/ui/select.tsx";
 import { statusList } from "@/enum/ClientStatus.ts";
-import { ClientInterface, ClientRequest } from "@/model/Client.tsx";
+import { ClientRequest } from "@/model/Client.tsx";
 import { request } from "@/constants/api.tsx";
 // import { request } from "../../../constants/api.tsx";
 const AddClientForm = () => {
@@ -64,7 +64,7 @@ const AddClientForm = () => {
     fetchClientById();
   }, [id]);
 
-  console.log("c ", specificClient);
+ 
   const removeClientImage = () => {
     setClientImage(null);
     setValue("fileCover", null);

@@ -13,13 +13,14 @@ import {
 import toast from "react-hot-toast";
 
 import Button from "../../../utils/button/Button";
-import { BoxIcon } from "../../../icons";
+// import { BoxIcon } from "../../../icons";
 import { BsArrowLeft, BsArrowRight } from "react-icons/bs";
 import { BiSearch } from "react-icons/bi";
 import { AiOutlinePlus } from "react-icons/ai";
-import { ServiceItem } from "../../../model/Service.tsx";
+// import { ServiceItem } from "../../../model/Service.tsx";
 import { request } from "@/constants/api.tsx";
-import { Edit, Trash } from "lucide-react";
+import { Trash } from "iconsax-reactjs";
+import { Edit } from "iconsax-reactjs";
 const ListService = () => {
   const navigate = useNavigate();
   const { list, page, totalPage, setPage } = GetService();
@@ -149,37 +150,37 @@ const ListService = () => {
                 <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
                   <TableRow>
                     <TableCell
-                      isHeader
+                      // isHeader
                       className="px-5 py-3 font-medium text-gray-500 text-center dark:text-gray-400"
                     >
                       Service Id
                     </TableCell>
                     <TableCell
-                      isHeader
+                      // isHeader
                       className="px-5 py-3 font-medium text-gray-500 text-center dark:text-gray-400"
                     >
                       Service Name
                     </TableCell>
                     <TableCell
-                      isHeader
+                      // isHeader
                       className="px-5 py-3 font-medium text-gray-500 text-center dark:text-gray-400"
                     >
                       Service Type
                     </TableCell>
                     <TableCell
-                      isHeader
+                      // isHeader
                       className="px-5 py-3 font-medium text-gray-500 text-center dark:text-gray-400"
                     >
                       Description
                     </TableCell>
                     <TableCell
-                      isHeader
+                      // isHeader
                       className="px-5 py-3 font-medium text-gray-500 text-center dark:text-gray-400"
                     >
                       Base Price
                     </TableCell>
                     <TableCell
-                      isHeader
+                      // isHeader
                       className="px-5 py-3 font-medium text-gray-500 text-center dark:text-gray-400"
                     >
                       Actions

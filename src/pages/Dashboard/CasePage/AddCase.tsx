@@ -2,7 +2,7 @@ import PageMeta from "../../../components/common/PageMeta.tsx";
 import PageBreadcrumb from "../../../components/common/PageBreadCrumb.tsx";
 import ComponentCard from "../../../components/common/ComponentCard.tsx";
 import Label from "../../../components/form/Label.tsx";
-import { useEffect, useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 
 import {
   Select,
@@ -22,15 +22,20 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover.tsx";
 import { Calendar2 } from "iconsax-reactjs";
-import { format, setMonth } from "date-fns";
+import { format } from "date-fns";
 import { Calendar } from "@/components/ui/calendar.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { CaseRequest, CaseStatus } from "@/model/Case.tsx";
 import { postCaseService } from "@/Service/CaseService.tsx";
 import toast from "react-hot-toast";
-import { useNavigate } from "react-router";
+import { useNavigate, useParams } from "react-router";
+import BtnBackComponent from "@/components/BtnBackComponent.tsx";
+import { request } from "@/constants/api.tsx";
 
 const AddCase = () => {
+  const { id } = useParams<{ id?: string }>();
+  const isEditMode = Boolean(id);
+  const caseId = id ? Number(id) : undefined;
   const { clientList } = GetClient();
   const { courtList } = GetCourt();
   const goto = useNavigate();
@@ -40,11 +45,12 @@ const AddCase = () => {
   const [openEnd, setOpenEnd] = useState<boolean>(false);
   const [monthStart, setMonthStart] = useState(new Date());
   const [monthEnd, setMonthEnd] = useState(new Date());
+  const [loadingCase, setLoadingCase] = useState(false);
 
   const {
     watch,
-    control,
-    formState: { errors },
+    // control,
+    // formState: { errors },
     reset,
     register,
     setValue,
@@ -66,7 +72,7 @@ const AddCase = () => {
   const currentYear = new Date().getFullYear();
   const years = Array.from(
     { length: 2099 - currentYear + 1 },
-    (_, i) => currentYear + i
+    (_, i) => currentYear + i,
   );
   const months: string[] = [
     "January",
@@ -145,15 +151,84 @@ const AddCase = () => {
     setOpenStart(false);
     setOpenEnd(false);
   }, [reset]);
+
+  useEffect(() => {
+    if (!isEditMode || !caseId || Number.isNaN(caseId)) return;
+
+    let cancelled = false;
+
+    const fetchAndPrefill = async () => {
+      setLoadingCase(true);
+      const response = await request(`cases/${caseId}`, "GET");
+
+      if (cancelled) return;
+
+      const payload = response?.payload;
+      if (!payload) {
+        setLoadingCase(false);
+        return;
+      }
+
+      const startedDateStr: string =
+        payload.startDate ?? payload.startedDate ?? "";
+      const endedDateStr: string = payload.endDate ?? payload.endedDate ?? "";
+
+      reset({
+        title: payload.title ?? "",
+        description: payload.description ?? "",
+        status: payload.status ?? "PENDING",
+        clientId: payload.clientId ?? payload.client?.clientId ?? 0,
+        courtId: payload.courtId ?? payload.court?.courtId ?? 0,
+        startedDate: startedDateStr,
+        endedDate: endedDateStr,
+      });
+
+      const parsedStart = startedDateStr ? new Date(startedDateStr) : undefined;
+      const parsedEnd = endedDateStr ? new Date(endedDateStr) : undefined;
+
+      if (parsedStart && !Number.isNaN(parsedStart.getTime())) {
+        setStartDate(parsedStart);
+        setMonthStart(parsedStart);
+      } else {
+        setStartDate(undefined);
+      }
+
+      if (parsedEnd && !Number.isNaN(parsedEnd.getTime())) {
+        setEndDate(parsedEnd);
+        setMonthEnd(parsedEnd);
+      } else {
+        setEndDate(undefined);
+      }
+
+      setOpenStart(false);
+      setOpenEnd(false);
+      setLoadingCase(false);
+    };
+
+    fetchAndPrefill();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [caseId, isEditMode, reset]);
+
   async function handleOperation(data: CaseRequest) {
+    if (isEditMode && (!caseId || Number.isNaN(caseId))) {
+      toast.error("Invalid case id");
+      return;
+    }
+
     try {
-      const response = await postCaseService(data);
+      const response = isEditMode
+        ? await request(`cases/${caseId}`, "PUT", data)
+        : await postCaseService(data);
 
       // This block only runs for 2xx statuses
       if (response?.success) {
         // Success: show success message, reset form, etc.
-       
-        toast.success("Case created successfully");
+
+        toast.success(isEditMode ? "Case updated successfully" : "Case created successfully");
+        goto("/list-case");
       }
 
       // handle other successful but non-ideal cases here if needed
@@ -169,14 +244,10 @@ const AddCase = () => {
         if (status === 409) {
           // Specific handling for duplicate case
           toast.error(errorData.message || "This case already exists!");
-          // Or use toast, set form error, etc.
         } else {
-          // Other errors (e.g., 400, 500)
           toast.error(errorData.message || "An error occurred");
         }
       } else if (error.request) {
-        // No response received (network issue, etc.)
-        console.error("No response:", error.request);
         toast.error("Network error – please try again");
       } else {
         // Other errors
@@ -196,10 +267,11 @@ const AddCase = () => {
         title="React.js Form Elements Dashboard | TailAdmin - React.js Admin Dashboard Template"
         description="This is React.js Form Elements  Dashboard page for TailAdmin - React.js Tailwind CSS Admin Dashboard Template"
       />
-      <PageBreadcrumb pageTitle="Add New Case" />
+      <BtnBackComponent url="/list-case" />
+      <PageBreadcrumb pageTitle={isEditMode ? "Update Case" : "Add New Case"} />
       <form onSubmit={handleSubmit(handleOperation)}>
         <div className="space-y-6">
-          <ComponentCard title="Form Case ">
+          <ComponentCard title={isEditMode ? "Update Case" : "Form Case "}>
             <div className="space-y-6 w-full grid grid-cols-1 gap-6 xl:grid-cols-2">
               <div>
                 <Label>Client Name</Label>
@@ -418,8 +490,8 @@ const AddCase = () => {
                           {endDate
                             ? format(endDate, "PPP")
                             : startDate
-                            ? "Choose your end date"
-                            : "Select start date first"}
+                              ? "Choose your end date"
+                              : "Select start date first"}
                         </span>
                       </div>
                     </Button>
@@ -505,12 +577,14 @@ const AddCase = () => {
 
           <div className="space-y-6 justify-end flex gap-5">
             <div className="space-y-6">
-              <Button type="button" onClick={handleGoBack}>
+              <Button type="button" className="hover:bg-red-600 hover:text-white" onClick={handleGoBack}>
                 Cancel
               </Button>
             </div>
             <div className="space-y-6">
-              <Button type="submit">Create new case</Button>
+              <Button type="submit" className="hover:bg-green-600 hover:text-white" disabled={loadingCase}>
+                {isEditMode ? "Update case" : "Create new case"}
+              </Button>
             </div>
           </div>
         </div>

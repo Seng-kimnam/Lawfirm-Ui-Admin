@@ -2,6 +2,7 @@ import { CaseInterface } from "@/model/Case";
 import { ClientInterface } from "@/model/Client";
 import { CourtInterface } from "@/model/Court";
 import { Lawyer } from "@/model/Lawyer";
+import { AlignBottom, Link1 } from "iconsax-reactjs";
 import {
   Calendar,
   MapPin,
@@ -13,10 +14,10 @@ import {
   Clock,
   CheckCircle,
   AlertCircle,
-  XCircle,
+  // XCircle,
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Link, Links } from "react-router";
+import { Link } from "react-router";
 
 interface TaskDetailProps {
   taskId: number | null;
@@ -26,6 +27,7 @@ interface TaskDetailProps {
   description?: string;
   status?: string;
   priority?: string;
+  startDate?: string;
   dueDate?: string;
   createdAt?: string;
   updatedAt?: string;
@@ -39,6 +41,7 @@ const DetailTaskComponent = ({
   description,
   status,
   priority,
+  startDate,
   dueDate,
   createdAt,
   updatedAt,
@@ -162,13 +165,21 @@ const DetailTaskComponent = ({
               </span>
             </div>
           </div>
+          <div
+            className={`font-semibold text-end flex   justify-end     gap-x-4 text-lg tracking-wide text-slate-500"}`}
+          >
+            <p className="flex bg-white text-blue-600 dark:text-blue-400 items-center my-2 px-4 py-2 rounded-full border border-slate-200 dark:border-slate-700">
+              <AlignBottom size="32" />
+              {priority || "Unknown Status"}
+            </p>
+          </div>
 
           <div className="border-t border-slate-200 dark:border-slate-700 pt-6">
             <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100 mb-2">
-              {title || "Untitled Case"}
+              Title: {title || "Untitled Case"}
             </h2>
             <p className="text-slate-600 dark:text-slate-300 leading-relaxed">
-              {description || "No description provided"}
+              Description: {description || "No description provided"}
             </p>
           </div>
         </div>
@@ -200,6 +211,10 @@ const DetailTaskComponent = ({
                 <h4 className="text-2xl font-bold text-slate-800 dark:text-slate-100 mb-1">
                   {fullName}
                 </h4>
+                <h4 className="text-lg  text-slate-800 dark:text-slate-100 mb-1">
+                  {lawyerTitle}
+                </h4>
+
                 <div
                   className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(
                     lawyerStatus,
@@ -218,9 +233,12 @@ const DetailTaskComponent = ({
                   <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1">
                     Email
                   </p>
-                  <p className="text-slate-800 dark:text-slate-200 break-all">
+                  <Link
+                    to={`mailto:${email || "N/A"}`}
+                    className="text-slate-800 dark:text-slate-200 break-all"
+                  >
                     {email || "N/A"}
-                  </p>
+                  </Link>
                 </div>
               </div>
 
@@ -237,14 +255,52 @@ const DetailTaskComponent = ({
               </div>
 
               <div className="flex items-start gap-3 p-4 bg-slate-50 dark:bg-slate-700/50 rounded-xl md:col-span-2">
-                <MapPin className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
+                <Link1 className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                 <div>
-                  <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1">
+                  <p className="text-xs font-semibold tetx text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1">
                     Facebook Link
                   </p>
                   <p className="text-slate-800 dark:text-slate-200">
-                    <Link to={facebookLink || "#"}>
+                    <Link
+                      to={facebookLink || "#"}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
                       {facebookLink || "N/A"}
+                    </Link>
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3 p-4 bg-slate-50 dark:bg-slate-700/50 rounded-xl md:col-span-2">
+                <Link1 className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                <div>
+                  <p className="text-xs font-semibold tetx text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1">
+                    TikTok Link
+                  </p>
+                  <p className="text-slate-800 dark:text-slate-200">
+                    <Link
+                      to={tiktokLink || "#"}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {tiktokLink || "N/A"}
+                    </Link>
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3 p-4 bg-slate-50 dark:bg-slate-700/50 rounded-xl md:col-span-2">
+                <Link1 className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                <div>
+                  <p className="text-xs font-semibold tetx text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1">
+                    Telegram Link
+                  </p>
+                  <p className="text-slate-800 dark:text-slate-200">
+                    <Link
+                      to={telegramLink || "#"}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {telegramLink || "N/A"}
                     </Link>
                   </p>
                 </div>
@@ -254,7 +310,7 @@ const DetailTaskComponent = ({
                 <FileText className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
                 <div>
                   <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1">
-                    Description
+                    Experience
                   </p>
                   <p className="text-slate-800 dark:text-slate-200 leading-relaxed">
                     {aboutLawyer || "No complaint filed"}
@@ -294,6 +350,14 @@ const DetailTaskComponent = ({
                   <div>
                     <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">
                       Start Date
+                    </p>
+                    <p className="text-slate-800 dark:text-slate-200 font-medium">
+                      {formatDate(startDate)}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">
+                      Due Date
                     </p>
                     <p className="text-slate-800 dark:text-slate-200 font-medium">
                       {formatDate(dueDate)}

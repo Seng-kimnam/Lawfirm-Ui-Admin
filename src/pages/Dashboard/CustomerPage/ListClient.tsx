@@ -115,21 +115,21 @@ const ListClient = () => {
           <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
             <div className="max-w-[1130px] overflow-x-auto">
               <Table>
-                <TableHeader className="border-b text-center bg-black border-gray-100 dark:border-white/[0.05]">
+                <TableHeader className="border-b text-center bg-gray-100 border-gray-200 dark:bg-gray-800 dark:border-white/[0.05]">
                   <TableRow>
-                    <TableCell className="px-5 py-3 text-xl text-center">
+                    <TableCell className="px-5 py-3 text-xl text-center text-gray-700 dark:text-gray-300">
                       Client ID
                     </TableCell>
-                    <TableCell className="px-5 py-3 text-xl text-center">
+                    <TableCell className="px-5 py-3 text-xl text-center text-gray-700 dark:text-gray-300">
                       Name
                     </TableCell>
-                    <TableCell className="px-5 py-3 text-xl text-center">
+                    <TableCell className="px-5 py-3 text-xl text-center text-gray-700 dark:text-gray-300">
                       Email
                     </TableCell>
-                    <TableCell className="px-5 py-3 text-xl text-center">
+                    <TableCell className="px-5 py-3 text-xl text-center text-gray-700 dark:text-gray-300">
                       Total Request
                     </TableCell>
-                    <TableCell className="px-5 py-3 text-xl text-center">
+                    <TableCell className="px-5 py-3 text-xl text-center text-gray-700 dark:text-gray-300">
                       Actions
                     </TableCell>
                   </TableRow>

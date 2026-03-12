@@ -19,6 +19,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { GetServiceType } from "../../../Service/ServiceTypeService.tsx";
 import { request } from "@/constants/api.tsx";
 import toast from "react-hot-toast";
+import BtnBackComponent from "@/components/BtnBackComponent.tsx";
 type ServiceForUpdate = {
   basePrice: number;
   description: string;
@@ -26,13 +27,13 @@ type ServiceForUpdate = {
   expertiseId: number;
   serviceId: number;
   serviceName: string;
-  createdAt : string,
-  updatedAt : string
+  createdAt: string;
+  updatedAt: string;
 };
 const Service = () => {
   const { id } = useParams();
 
-  const now = new Date()
+  const now = new Date();
   const [serviceForUpdate, setServiceForUpdate] = useState<ServiceForUpdate>();
   const [isUpdating, setIsUpdating] = useState(false);
   const [newService, setNewService] = useState<ServiceItem>({
@@ -41,8 +42,8 @@ const Service = () => {
     description: "",
     basePrice: 0,
     expertiseId: 0,
-    createdAt : "",
-    updatedAt :""
+    createdAt: "",
+    updatedAt: "",
   });
   useEffect(() => {
     const fetchData = async () => {
@@ -50,7 +51,7 @@ const Service = () => {
         `services/${id}`,
         "GET",
         undefined,
-        undefined
+        undefined,
       );
 
       setServiceForUpdate(payload);
@@ -67,8 +68,8 @@ const Service = () => {
         description: serviceForUpdate.description,
         basePrice: serviceForUpdate.basePrice,
         expertiseId: serviceForUpdate.expertiseId,
-        createdAt : serviceForUpdate.createdAt,
-        updatedAt : now.toLocaleString.toString()
+        createdAt: serviceForUpdate.createdAt,
+        updatedAt: now.toLocaleString.toString(),
       });
     }
   }, [isUpdating, serviceForUpdate]);
@@ -97,7 +98,7 @@ const Service = () => {
     const isCreate = newService.serviceId === 0;
 
     const loadingId = toast.loading(
-      isCreate ? "Creating service..." : "Updating service..."
+      isCreate ? "Creating service..." : "Updating service...",
     );
 
     try {
@@ -111,7 +112,7 @@ const Service = () => {
     } catch (error: any) {
       toast.error(
         error?.response?.data?.message ||
-          (isCreate ? "Create failed" : "Update failed")
+          (isCreate ? "Create failed" : "Update failed"),
       );
     } finally {
       toast.dismiss(loadingId);
@@ -119,10 +120,11 @@ const Service = () => {
     refetch();
     navigation("/list-service");
   };
- 
 
   return (
     <div>
+      <BtnBackComponent url="/list-service" />
+
       <PageMeta
         title="React.js Form Elements Dashboard | TailAdmin - React.js Admin Dashboard Template"
         description="This is React.js Form Elements  Dashboard page for TailAdmin - React.js Tailwind CSS Admin Dashboard Template"

@@ -1,14 +1,14 @@
 import {
-  getClientList,
+  // getClientList,
   getCourtList,
-  getServiceUrl,
-  postServiceUrl,
-  putServiceUrl,
+  // getServiceUrl,
+  // postServiceUrl,
+  // putServiceUrl,
 } from "../constants/constants_url";
-import { ServiceItem } from "../model/Service";
+
 import { request } from "../constants/api";
 import { useEffect, useState } from "react";
-import { ClientInterface, ClientRequest } from "@/model/Client";
+
 import { CourtInterface, CourtRequest } from "@/model/Court";
 
 export const GetCourt = () => {

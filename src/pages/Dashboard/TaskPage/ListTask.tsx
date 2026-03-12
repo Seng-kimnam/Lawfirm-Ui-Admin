@@ -138,7 +138,7 @@ const ListService = () => {
           searchInput={
             <Input
               type="text"
-              placeholder="Search service..."
+              placeholder="Search Task..."
               icon={<BiSearch className="w-5 h-5" />}
               id="input"
             />
@@ -186,7 +186,7 @@ const ListService = () => {
                     >
                       Task ID
                     </TableCell>
-                    <TableCell
+                    {/* <TableCell
                       // isHeader
                       className="px-5 py-3 font-medium text-gray-500  whitespace-nowrap dark:text-gray-400"
                     >
@@ -203,7 +203,7 @@ const ListService = () => {
                       className="px-5 py-3 font-medium text-gray-500  whitespace-nowrap dark:text-gray-400"
                     >
                       Court Name
-                    </TableCell>
+                    </TableCell> */}
                     <TableCell
                       // isHeader
                       className="px-5 py-3 font-medium text-gray-500  whitespace-nowrap dark:text-gray-400"
@@ -260,7 +260,6 @@ const ListService = () => {
                     </TableCell>
                   </TableRow>
                 </TableHeader>
-
                 {/* Table Body */}
                 <TableBody className="divide-y text-center divide-gray-100 dark:divide-white/[0.05]">
                   {taskList.map((item) => (
@@ -274,7 +273,7 @@ const ListService = () => {
                           </div>
                         </div>
                       </TableCell>
-                      <TableCell className="px-4 py-3 text-gray-500  text-theme-sm  dark:text-white/90">
+                      {/* <TableCell className="px-4 py-3 text-gray-500  text-theme-sm  dark:text-white/90">
                         {item.lawyer.fullName ?? "N/A"}
                       </TableCell>
                       <TableCell className="px-4 py-3 text-gray-500  text-theme-sm  dark:text-white/90">
@@ -282,7 +281,7 @@ const ListService = () => {
                       </TableCell>
                       <TableCell className="px-4 py-3 text-gray-500  text-theme-sm  dark:text-white/90">
                         {item.legalCase.court.courtName ?? "N/A"}
-                      </TableCell>
+                      </TableCell> */}
                       <TableCell className="px-5 py-4 sm:px-6 ">
                         <div className="flex items-center gap-3">
                           <div>

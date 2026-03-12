@@ -1,5 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { Mail, Phone, MapPin, Calendar, User } from "lucide-react";
+import { Mail, Phone, MapPin, Calendar, User, Pencil } from "lucide-react";
+import { Modal } from "@/components/ui/modal";
+import Button from "@/components/ui/button/Button";
+import { updateClientRequestById } from "@/Service/ClientRequestService";
+import { ClientRequest } from "@/model/Client";
 
 interface ClientData {
   clientId: number;
@@ -26,6 +30,67 @@ const DetailClientRequestComponent = ({
   createdAt,
   updatedAt,
 }: ClientData) => {
+  const [clientDetail, setClientDetail] = useState<ClientData>({
+    clientId,
+    clientName,
+    email,
+    phoneNumber,
+    complaint,
+    address,
+    status,
+    clientImage,
+    createdAt,
+    updatedAt,
+  });
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
+  const [editForm, setEditForm] = useState<ClientRequest>({
+    clientName,
+    email,
+    phoneNumber,
+    complaint,
+    address,
+    status,
+    clientImage,
+  });
+
+  useEffect(() => {
+    setClientDetail({
+      clientId,
+      clientName,
+      email,
+      phoneNumber,
+      complaint,
+      address,
+      status,
+      clientImage,
+      createdAt,
+      updatedAt,
+    });
+    setEditForm({
+      clientName,
+      email,
+      phoneNumber,
+      complaint,
+      address,
+      status,
+      clientImage,
+    });
+  }, [
+    clientId,
+    clientName,
+    email,
+    phoneNumber,
+    complaint,
+    address,
+    status,
+    clientImage,
+    createdAt,
+    updatedAt,
+  ]);
+
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("en-US", {
@@ -38,10 +103,10 @@ const DetailClientRequestComponent = ({
   };
   const [isLoading, setIsLoading] = useState(true);
   useEffect(() => {
-    setTimeout(() => setIsLoading(false), 2000);
-    // return clearTimeout(2000);
+    const timeoutId = setTimeout(() => setIsLoading(false), 2000);
+    return () => clearTimeout(timeoutId);
   }, [email]);
-  if (!email || isLoading) {
+  if (!clientDetail.email || isLoading) {
     return (
       <div className="flex mt-20 items-center justify-center min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
         <div className="text-center">
@@ -66,6 +131,62 @@ const DetailClientRequestComponent = ({
     }
   };
 
+  const openEditModal = () => {
+    setErrorMessage("");
+    setSuccessMessage("");
+    setEditForm({
+      clientName: clientDetail.clientName,
+      email: clientDetail.email,
+      phoneNumber: clientDetail.phoneNumber,
+      complaint: clientDetail.complaint,
+      address: clientDetail.address,
+      status: clientDetail.status,
+      clientImage: clientDetail.clientImage,
+    });
+    setIsEditOpen(true);
+  };
+
+  console.log("update request ", editForm);
+  const handleInputChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >,
+  ) => {
+    const { name, value } = e.target;
+    setEditForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleSaveChanges = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setErrorMessage("");
+    setSuccessMessage("");
+    setIsSaving(true);
+
+    try {
+      const updatedClient = await updateClientRequestById(
+        clientDetail.clientId,
+        editForm,
+      );
+
+      setClientDetail((prev) => ({
+        ...prev,
+        ...editForm,
+        ...(updatedClient || {}),
+        updatedAt: updatedClient?.updatedAt || new Date().toISOString(),
+      }));
+
+      setSuccessMessage("Client request updated successfully.");
+      setIsEditOpen(false);
+    } catch (error: any) {
+      setErrorMessage(error?.message || "Failed to update client request.");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   return (
     <div className="flex items-center mt-20 justify-center min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 p-6">
       <div className="w-full max-w-2xl bg-slate-800 rounded-2xl shadow-2xl overflow-hidden border border-slate-700">
@@ -73,10 +194,11 @@ const DetailClientRequestComponent = ({
         <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-6">
           <div className="flex items-start gap-4">
             <div className="w-20 h-20 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center border-4 border-white/30 overflow-hidden">
-              {clientImage && clientImage !== "string" ? (
+              {clientDetail.clientImage &&
+              clientDetail.clientImage !== "string" ? (
                 <img
-                  src={`http://localhost:8080/api/v1/files/preview-file?fileName=${clientImage}`}
-                  alt={clientName}
+                  src={`http://localhost:8080/api/v1/files/preview-file?fileName=${clientDetail.clientImage}`}
+                  alt={clientDetail.clientName}
                   className="w-full h-full object-cover"
                 />
               ) : (
@@ -85,22 +207,42 @@ const DetailClientRequestComponent = ({
             </div>
             <div className="flex-1">
               <h2 className="text-2xl font-bold text-white mb-1">
-                {clientName}
+                {clientDetail.clientName}
               </h2>
-              <p className="text-blue-100  text-sm">Request ID: #{clientId}</p>
+              <p className="text-blue-100  text-sm">
+                Request ID: #{clientDetail.clientId}
+              </p>
               <span
                 className={`inline-block mt-3 px-4 py-1.5 rounded-full text-sm font-semibold border ${getStatusColor(
-                  status
+                  clientDetail.status,
                 )}`}
               >
-                {status}
+                {clientDetail.status}
               </span>
             </div>
+            <button
+              type="button"
+              onClick={openEditModal}
+              className="flex items-center gap-2 rounded-lg border border-white/40 bg-white/10 px-3 py-2 text-sm font-semibold text-white hover:bg-white/20 transition-colors"
+            >
+              <Pencil className="w-4 h-4" />
+              Edit
+            </button>
           </div>
         </div>
 
         {/* Content Section */}
         <div className="p-6 space-y-4">
+          {successMessage && (
+            <div className="rounded-lg border border-green-500/40 bg-green-500/10 px-4 py-2 text-sm text-green-300">
+              {successMessage}
+            </div>
+          )}
+          {errorMessage && (
+            <div className="rounded-lg border border-red-500/40 bg-red-500/10 px-4 py-2 text-sm text-red-300">
+              {errorMessage}
+            </div>
+          )}
           {/* Contact Information */}
           <div className="grid gap-4">
             <div className="flex items-start gap-3 p-4 rounded-lg bg-slate-700/50 hover:bg-slate-700 transition-colors border border-slate-600">
@@ -109,7 +251,9 @@ const DetailClientRequestComponent = ({
                 <p className="text-xs text-slate-400 uppercase tracking-wide mb-1">
                   Email
                 </p>
-                <p className="text-slate-100 font-medium">{email}</p>
+                <p className="text-slate-100 font-medium">
+                  {clientDetail.email}
+                </p>
               </div>
             </div>
 
@@ -119,7 +263,9 @@ const DetailClientRequestComponent = ({
                 <p className="text-xs text-slate-400 uppercase tracking-wide mb-1">
                   Phone
                 </p>
-                <p className="text-slate-100 font-medium">{phoneNumber}</p>
+                <p className="text-slate-100 font-medium">
+                  {clientDetail.phoneNumber}
+                </p>
               </div>
             </div>
 
@@ -129,7 +275,9 @@ const DetailClientRequestComponent = ({
                 <p className="text-xs text-slate-400 uppercase tracking-wide mb-1">
                   Address
                 </p>
-                <p className="text-slate-100 font-medium">{address}</p>
+                <p className="text-slate-100 font-medium">
+                  {clientDetail.address}
+                </p>
               </div>
             </div>
           </div>
@@ -139,7 +287,7 @@ const DetailClientRequestComponent = ({
             <p className="text-xs text-slate-400 uppercase tracking-wide mb-2">
               Complaint
             </p>
-            <p className="text-slate-100">{complaint}</p>
+            <p className="text-slate-100">{clientDetail.complaint}</p>
           </div>
 
           {/* Timestamps */}
@@ -149,7 +297,7 @@ const DetailClientRequestComponent = ({
               <div>
                 <p className="text-xs text-slate-400 mb-0.5">Created</p>
                 <p className="text-sm text-slate-100 font-medium">
-                  {formatDate(createdAt)}
+                  {formatDate(clientDetail.createdAt)}
                 </p>
               </div>
             </div>
@@ -158,13 +306,122 @@ const DetailClientRequestComponent = ({
               <div>
                 <p className="text-xs text-slate-400 mb-0.5">Updated</p>
                 <p className="text-sm text-slate-100 font-medium">
-                  {formatDate(updatedAt)}
+                  {formatDate(clientDetail.updatedAt)}
                 </p>
               </div>
             </div>
           </div>
         </div>
       </div>
+
+      <Modal
+        isOpen={isEditOpen}
+        onClose={() => setIsEditOpen(false)}
+        className="max-w-2xl m-4 p-6"
+      >
+        <form onSubmit={handleSaveChanges} className="space-y-4">
+          <div>
+            <h3 className="text-xl font-semibold text-foreground">
+              Edit Client Request
+            </h3>
+            <p className="text-sm text-muted-foreground">
+              Update request ID #{clientDetail.clientId}
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="mb-1.5 block text-sm font-medium">
+                Client Name
+              </label>
+              <input
+                name="clientName"
+                value={editForm.clientName}
+                onChange={handleInputChange}
+                required
+                className="h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm outline-none focus:border-brand-300"
+              />
+            </div>
+            <div>
+              <label className="mb-1.5 block text-sm font-medium">Email</label>
+              <input
+                type="email"
+                name="email"
+                value={editForm.email}
+                onChange={handleInputChange}
+                required
+                className="h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm outline-none focus:border-brand-300"
+              />
+            </div>
+            <div>
+              <label className="mb-1.5 block text-sm font-medium">
+                Phone Number
+              </label>
+              <input
+                name="phoneNumber"
+                value={editForm.phoneNumber}
+                onChange={handleInputChange}
+                required
+                className="h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm outline-none focus:border-brand-300"
+              />
+            </div>
+            <div>
+              <label className="mb-1.5 block text-sm font-medium">
+                Address
+              </label>
+              <input
+                name="address"
+                value={editForm.address}
+                onChange={handleInputChange}
+                required
+                className="h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm outline-none focus:border-brand-300"
+              />
+            </div>
+            <div>
+              <label className="mb-1.5 block text-sm font-medium">Status</label>
+              <select
+                name="status"
+                value={editForm.status}
+                onChange={handleInputChange}
+                className="h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm outline-none focus:border-brand-300"
+              >
+                <option value="PENDING">PENDING</option>
+                <option value="APPROVED">APPROVED</option>
+                <option value="REJECTED">REJECTED</option>
+                <option value="IN_PROGRESS">IN PROGRESS</option>
+                <option value="DONE">DONE</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label className="mb-1.5 block text-sm font-medium">
+              Complaint
+            </label>
+            <textarea
+              name="complaint"
+              value={editForm.complaint}
+              onChange={handleInputChange}
+              required
+              rows={4}
+              className="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm outline-none focus:border-brand-300"
+            />
+          </div>
+
+          <div className="flex justify-end gap-3 pt-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setIsEditOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button type="submit" variant="primary" disabled={isSaving}>
+              {isSaving ? "Saving..." : "Save Changes"}
+            </Button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 };

@@ -12,13 +12,12 @@ import {
 import toast from "react-hot-toast";
 
 import Button from "../../../utils/button/Button";
-import { BoxIcon } from "../../../icons";
+// import { BoxIcon } from "../../../icons";
 import { BsArrowLeft, BsArrowRight } from "react-icons/bs";
 import { BiSearch } from "react-icons/bi";
 import { AiOutlinePlus } from "react-icons/ai";
 
 import { request } from "@/constants/api.tsx";
-
 
 import { useEffect } from "react";
 import { GetCourt } from "@/Service/CourtService.tsx";
@@ -31,6 +30,19 @@ const ListCourt = () => {
   const routeForUpdate = (id: number) => {
     navigate(`/edit-court/${id}`);
   };
+
+  function formatCourtType(type: string) {
+    switch (type) {
+      case "SUPREME_COURT":
+        return "Supreme Court";
+      case "COURT_OF_APPEAL":
+        return "Court of Appeal";
+      case "COURT_OF_FIRST_INSTANCE":
+        return "Court of First Instance";
+      default:
+        return type;
+    }
+  }
 
   function dateFormatter(iso: string) {
     return new Date(iso).toLocaleString("en-GB", {
@@ -70,13 +82,13 @@ const ListCourt = () => {
                     `services/${id}`,
                     "DELETE",
                     undefined,
-                    undefined
+                    undefined,
                   );
 
                   toast.dismiss(loadingId);
 
                   if (res?.status === "ACCEPTED") {
-                    toast.success(`Service ID ${id} deleted successfully`);
+                    toast.success(`Court ID ${id} deleted successfully`);
                   } else {
                     toast.error(res?.detail || "Delete failed");
                   }
@@ -94,7 +106,7 @@ const ListCourt = () => {
       {
         // kit jea millisecond
         duration: Infinity, // stays until user clicks
-      }
+      },
     );
   }
 
@@ -102,8 +114,8 @@ const ListCourt = () => {
     <div>
       <div className="space-y-6">
         <ComponentCard
-          title="List Services"
-          desc="A list of all services available in the system."
+          title="List Courts"
+          desc="A list of all courts available in the system."
           headerActions={
             <>
               <Button
@@ -159,56 +171,56 @@ const ListCourt = () => {
         >
           <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
             <div className="overflow-x-auto ">
-              <Table>
+              <Table className="table-fixed">
                 {/* Table Header */}
-                <TableHeader className="border-b   bg-black   border-gray-100 dark:border-white/[0.05]">
+                <TableHeader className="border-b bg-gray-100 border-gray-200 dark:bg-gray-800 dark:border-white/[0.05]">
                   <TableRow>
                     <TableCell
                       // isHeader
-                      className="px-5 py-3 font-medium whitespace-nowrap w-20 text-gray-500 text-center dark:text-gray-400"
+                      className="px-5 py-3 font-medium whitespace-nowrap w-20 text-gray-700 text-center dark:text-gray-300"
                     >
                       Court Id
                     </TableCell>
                     <TableCell
                       // isHeader
-                      className="px-5 py-3 font-medium whitespace-nowrap w-40 text-gray-500 text-center dark:text-gray-400"
+                      className="px-5 py-3 font-medium text-gray-700 text-center dark:text-gray-300 w-[200px]"
                     >
                       Court Name
                     </TableCell>
                     <TableCell
                       // isHeader
-                      className="px-5 py-3 font-medium text-gray-500 text-center dark:text-gray-400"
+                      className="px-5 py-3 font-medium text-gray-700 text-center dark:text-gray-300"
                     >
                       Type
                     </TableCell>
                     <TableCell
                       // isHeader
-                      className="px-5 py-3 font-medium text-gray-500 text-center dark:text-gray-400"
+                      className="px-5 py-3 font-medium text-gray-700 text-center dark:text-gray-300"
                     >
                       Location
                     </TableCell>
                     <TableCell
                       // isHeader
-                      className="px-5 py-3 m-3 whitespace-nowrap min-w-40 font-medium text-gray-500 text-center dark:text-gray-400"
+                      className="px-5 py-3 m-3 whitespace-nowrap min-w-40 font-medium text-gray-700 text-center dark:text-gray-300"
                     >
                       <span>Contact Number</span>
                     </TableCell>
 
                     <TableCell
                       // isHeader
-                      className="px-5 py-3 font-medium text-gray-500 text-center dark:text-gray-400"
+                      className="px-5 py-3 font-medium text-gray-700 text-center dark:text-gray-300"
                     >
                       Created At
                     </TableCell>
                     <TableCell
                       // isHeader
-                      className="px-5 py-3 font-medium text-gray-500 text-center dark:text-gray-400"
+                      className="px-5 py-3 font-medium text-gray-700 text-center dark:text-gray-300"
                     >
                       Updated At
                     </TableCell>
                     <TableCell
                       // isHeader
-                      className="px-5 py-3 bg-black font-medium text-gray-500 text-center dark:text-gray-400"
+                      className="px-5 py-3 font-medium text-gray-700 text-center dark:text-gray-300"
                     >
                       Actions
                     </TableCell>
@@ -218,7 +230,7 @@ const ListCourt = () => {
                 {/* Table Body */}
                 <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
                   {courtList.map((item) => (
-                    <TableRow className="h-20" key={item.courtId}>
+                    <TableRow className="min-h-20" key={item.courtId}>
                       <TableCell className="px-5 py-4 sm:px-6 text-center">
                         <div className="flex items-center gap-3">
                           <div>
@@ -228,14 +240,14 @@ const ListCourt = () => {
                           </div>
                         </div>
                       </TableCell>
-                      <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm  dark:text-white/90">
+                      <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-white/90 w-[200px] max-w-[200px] whitespace-normal break-words">
                         {item.courtName ?? "N/A"}
                       </TableCell>
                       <TableCell className="px-5 py-4 sm:px-6 text-center">
                         <div className="flex items-center gap-3">
                           <div>
                             <span className="block font-medium text-gray-800 text-theme-sm dark:text-white/90">
-                              {item.courtType ?? "N/A"}
+                              {formatCourtType(item.courtType) ?? "N/A"}
                             </span>
                           </div>
                         </div>

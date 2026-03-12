@@ -62,7 +62,7 @@ const ListService = () => {
                     `cases/${id}`,
                     "DELETE",
                     undefined,
-                    undefined
+                    undefined,
                   );
 
                   toast.dismiss(loadingId);
@@ -86,7 +86,7 @@ const ListService = () => {
       {
         // kit jea millisecond
         duration: Infinity, // stays until user clicks
-      }
+      },
     );
   }
   return (
@@ -109,7 +109,7 @@ const ListService = () => {
           searchInput={
             <Input
               type="text"
-              placeholder="Search service..."
+              placeholder="Search case..."
               icon={<BiSearch className="w-5 h-5" />}
               id="input"
             />
@@ -149,66 +149,66 @@ const ListService = () => {
             <div className=" max-w-[1130px] overflow-x-auto">
               <Table>
                 {/* Table Header */}
-                <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
+                <TableHeader className="border-b border-gray-200 bg-gray-100 dark:bg-gray-800 dark:border-white/[0.05]">
                   <TableRow>
                     <TableCell
-                      isHeader
-                      className="px-5 py-3 font-mediumbg bg-black text-gray-500 text-start whitespace-nowrap dark:text-gray-400"
+                      // isHeader
+                      className="px-5 py-3 text-gray-700 text-start whitespace-nowrap dark:text-gray-300"
                     >
                       Case Id
                     </TableCell>
                     <TableCell
-                      isHeader
-                      className="px-5 py-3 font-mediumbg bg-black text-gray-500 text-start whitespace-nowrap dark:text-gray-400"
+                      // isHeader
+                      className="px-5 py-3 text-gray-700 text-start whitespace-nowrap dark:text-gray-300"
                     >
                       Client Name
                     </TableCell>
                     <TableCell
-                      isHeader
-                      className="px-5 py-3 font-mediumbg bg-black text-gray-500 text-start whitespace-nowrap dark:text-gray-400"
+                      // isHeader
+                      className="px-5 py-3 text-gray-700 text-start   dark:text-gray-300 w-60"
                     >
                       Court Name
                     </TableCell>
                     <TableCell
-                      isHeader
-                      className="px-5 py-3 font-medium bg-black text-gray-500 text-start whitespace-nowrap dark:text-gray-400"
+                      // isHeader
+                      className="px-5 py-3 text-gray-700 text-start whitespace-nowrap dark:text-gray-300"
                     >
                       Title
                     </TableCell>
 
                     <TableCell
-                      isHeader
-                      className="px-5 py-3 w-80 font-medium  bg-black text-gray-500 text-start whitespace-nowrap dark:text-gray-400"
+                      // isHeader
+                      className="px-5 py-3 w-80 text-gray-700 text-start whitespace-nowrap dark:text-gray-300"
                     >
                       Status
                     </TableCell>
                     <TableCell
-                      isHeader
-                      className="px-5 py-3 font-medium bg-black text-gray-500 text-center whitespace-nowrap min-w-44 dark:text-gray-400"
+                      // isHeader
+                      className="px-5 py-3 text-gray-700 text-center whitespace-nowrap min-w-44 dark:text-gray-300"
                     >
                       Start Date
                     </TableCell>
                     <TableCell
-                      isHeader
-                      className="px-5 py-3 font-medium bg-black text-gray-500 text-start whitespace-nowrap min-w-44 dark:text-gray-400"
+                      // isHeader
+                      className="px-5 py-3 text-gray-700 text-start whitespace-nowrap min-w-44 dark:text-gray-300"
                     >
                       End Date
                     </TableCell>
                     <TableCell
-                      isHeader
-                      className="px-5 py-3 font-medium bg-black text-gray-500 text-start whitespace-nowrap min-w-44 dark:text-gray-400"
+                      // isHeader
+                      className="px-5 py-3 text-gray-700 text-start whitespace-nowrap min-w-44 dark:text-gray-300"
                     >
                       Created At
                     </TableCell>
                     <TableCell
-                      isHeader
-                      className="px-5 py-3 font-medium  bg-black text-gray-500 text-start whitespace-nowrap min-w-44 dark:text-gray-400"
+                      // isHeader
+                      className="px-5 py-3 text-gray-700 text-start whitespace-nowrap min-w-44 dark:text-gray-300"
                     >
                       Updated At
                     </TableCell>
                     <TableCell
-                      isHeader
-                      className="px-5 py-3 bg-black font-medium text-gray-500 text-center dark:text-gray-400"
+                      // isHeader
+                      className="px-5 py-3 text-gray-700 text-center dark:text-gray-300"
                     >
                       Actions
                     </TableCell>
@@ -237,7 +237,7 @@ const ListService = () => {
                           </div>
                         </div>
                       </TableCell>
-                      <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm  dark:text-white/90">
+                      <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm  dark:text-white/90 break-words w-[200px] max-w-[200px] whitespace-normal ">
                         {item.court.courtName ?? "N/A"}
                       </TableCell>
                       <TableCell className="px-5 py-4 sm:px-6 text-start">
@@ -265,7 +265,7 @@ const ListService = () => {
                           <div>
                             <span className="block font-medium text-gray-800 text-theme-sm dark:text-white/90">
                               {new Date(
-                                item.startDate ?? ""
+                                item.startDate ?? "",
                               ).toLocaleDateString("en-US", {
                                 year: "numeric",
                                 month: "long",
@@ -285,7 +285,7 @@ const ListService = () => {
                                   year: "numeric",
                                   month: "long",
                                   day: "numeric",
-                                }
+                                },
                               )}
                             </span>
                           </div>
@@ -296,7 +296,7 @@ const ListService = () => {
                           <div>
                             <span className="block font-medium text-gray-800 text-theme-sm dark:text-white/90">
                               {new Date(
-                                item.createdAt ?? ""
+                                item.createdAt ?? "",
                               ).toLocaleDateString("en-US", {
                                 year: "numeric",
                                 month: "long",
@@ -310,14 +310,13 @@ const ListService = () => {
                         <div className="flex items-center gap-3">
                           <div>
                             <span className="block font-medium text-gray-800 text-theme-sm dark:text-white/90">
-                              {new Date(item.updatedAt ?? "").toLocaleDateString(
-                                "en-US",
-                                {
-                                  year: "numeric",
-                                  month: "long",
-                                  day: "numeric",
-                                }
-                              )}
+                              {new Date(
+                                item.updatedAt ?? "",
+                              ).toLocaleDateString("en-US", {
+                                year: "numeric",
+                                month: "long",
+                                day: "numeric",
+                              })}
                             </span>
                           </div>
                         </div>
@@ -340,7 +339,9 @@ const ListService = () => {
                             <Trash size="24" color="#ffffff" />
                           </button>
                           <button
-                            onClick={() => goto(`/case-detail-info/${item.caseId}` )}
+                            onClick={() =>
+                              goto(`/case-detail-info/${item.caseId}`)
+                            }
                             className="p-2 text-sm rounded-md bg-green-700 text-white hover:bg-green-500"
                           >
                             <BsExclamation size="24" color="#ffffff" />

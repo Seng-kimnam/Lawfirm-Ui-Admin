@@ -8,7 +8,7 @@ import {
 import { ServiceItem } from "../model/Service";
 import { request } from "../constants/api";
 import { useEffect, useState } from "react";
-import { ClientInterface, ClientRequest } from "@/model/Client";
+
 import { CaseInterface, CaseRequest } from "@/model/Case";
 
 export const GetCase = () => {
@@ -50,7 +50,7 @@ export const GetCaseNoPagination = () => {
         "cases/no-pagination",
         "GET",
         undefined,
-        undefined
+        undefined,
       );
 
       // console.log("res", res);
@@ -61,7 +61,7 @@ export const GetCaseNoPagination = () => {
       // setExpert(res.payload.content || []);
       // setTotalPage(res.payload.totalPages || 1);
     } catch (error) {
-      console.error("Error fetching services:", error);
+      console.error("Error fetching case:", error);
     }
   };
 
@@ -69,7 +69,7 @@ export const GetCaseNoPagination = () => {
     fetchData();
   }, []); // refetch when page changes
 
-  return { casesList, page, setPage, refetch: fetchData };
+  return { casesList , page, setPage, refetch: fetchData };
 };
 
 // // fetchServiceById
@@ -92,17 +92,17 @@ export const postCaseService = async (req: CaseRequest) => {
     Authorization: `Bearer ${localStorage.getItem("token")}`,
   });
 
-  console.log("service response:", response);
+  // console.log("service response:", response);
   return response; // Always return the response (even if success: false)
 };
 
 // Update Service
-export const putService = async (req: ServiceItem) => {
+export const putCaseService = async (req: CaseRequest, id: number) => {
   try {
-    if (!req.serviceId) {
-      throw new Error("Service ID is required for update");
+    if (!id) {
+      throw new Error("Case ID is required for update");
     }
-    const response = await request(putServiceUrl + req.serviceId, "PUT", req, {
+    const response = await request("/cases/" + id, "PUT", req, {
       Authorization: `Bearer ${localStorage.getItem("token")}`,
     });
     if (response.status === 200) {
@@ -110,7 +110,7 @@ export const putService = async (req: ServiceItem) => {
     }
   } catch (error: any) {
     alert(
-      error.response?.data?.message || error.message || "Something went wrong"
+      error.response?.data?.message || error.message || "Something went wrong",
     );
   }
 };

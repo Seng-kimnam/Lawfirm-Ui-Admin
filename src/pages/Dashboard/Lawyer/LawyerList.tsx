@@ -1,32 +1,439 @@
 "use client";
 
 import { Lawyer } from "@/model/Lawyer";
-import { GetLawyers } from "@/Service/UserService";
+import { GetLawyers, searchLawyers } from "@/Service/UserService";
 import { AddSquare, Edit } from "iconsax-reactjs";
 import {
   Mail,
   Phone,
   Award,
+  Printer,
   MessageSquare,
   Send,
   Facebook,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router";
 
 export default function LawyerList() {
   const [selectedLawyer, setSelectedLawyer] = useState<Lawyer | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [searchResults, setSearchResults] = useState<Lawyer[] | null>(null);
+
   const [showContactOptions, setShowContactOptions] = useState(false);
   const { list } = GetLawyers();
   const goto = useNavigate();
-  const filteredLawyers = list.filter(
-    (lawyer) =>
-      lawyer.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      lawyer.expertises.some((exp) =>
-        exp.toLowerCase().includes(searchTerm.toLowerCase()),
-      ),
-  );
+
+  const printLawyersReport = (lawyers: Lawyer[]) => {
+    const escapeHtml = (value: unknown) =>
+      String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+
+    const now = new Date();
+    const generatedAt = now.toLocaleString(undefined, {
+      year: "numeric",
+      month: "long",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+
+    const markImageSrc =
+      "https://res.cloudinary.com/diqseuweg/image/upload/v1764937325/GroupGCL_kfldsx.png";
+
+    const rowsHtml = lawyers
+      .map((lawyer, index) => {
+        const expertises = Array.isArray(lawyer.expertises)
+          ? lawyer.expertises.join(", ")
+          : "";
+        const expertiseChips = Array.isArray(lawyer.expertises)
+          ? lawyer.expertises
+              .slice(0, 6)
+              .map((item) => `<span class="chip">${escapeHtml(item)}</span>`)
+              .join("")
+          : "";
+        const extraExpertiseCount = Array.isArray(lawyer.expertises)
+          ? Math.max(0, lawyer.expertises.length - 6)
+          : 0;
+
+        const imageSrc = lawyer.image
+          ? `http://localhost:8080/api/v1/files/preview-file?fileName=${encodeURIComponent(
+              lawyer.image,
+            )}`
+          : "";
+
+        const status = String(lawyer.lawyerStatus ?? "").toUpperCase();
+        const statusClass =
+          status === "ACTIVE"
+            ? "status status--active"
+            : status === "INACTIVE"
+              ? "status status--inactive"
+              : "status status--unknown";
+
+        return `
+          <tr>
+            <td>${index + 1}</td>
+            <td>
+              ${
+                imageSrc
+                  ? `<img class="avatar" src="${imageSrc}" alt="${escapeHtml(
+                      lawyer.fullName,
+                    )}" onerror="this.style.display='none'" />`
+                  : `<span style="color:#64748b;">N/A</span>`
+              }
+            </td>
+            <td>${escapeHtml(lawyer.fullName)}</td>
+            <td>${escapeHtml(lawyer.title?.split(",")?.[0] ?? "")}</td>
+            <td>${escapeHtml(lawyer.gender)}</td>
+            <td>${escapeHtml(lawyer.email)}</td>
+            <td>${escapeHtml(lawyer.phoneNumber)}</td>
+            <td><span class="${statusClass}">${escapeHtml(status || "N/A")}</span></td>
+            <td>
+              <div class="chips">
+                ${
+                  expertiseChips ||
+                  `<span style="color:#64748b;">${escapeHtml(expertises || "N/A")}</span>`
+                }
+                ${
+                  extraExpertiseCount > 0
+                    ? `<span class="chip chip--more">+${extraExpertiseCount}</span>`
+                    : ""
+                }
+              </div>
+            </td>
+          </tr>
+        `;
+      })
+      .join("");
+
+    const html = `
+      <!doctype html>
+      <html>
+        <head>
+          <meta charset="utf-8" />
+          <meta name="viewport" content="width=device-width, initial-scale=1" />
+          <title>Lawyers Report</title>
+          <style>
+            :root { color-scheme: light; }
+            * { box-sizing: border-box; }
+            html, body { height: 100%; }
+            body {
+              font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Liberation Sans", sans-serif;
+              margin: 0;
+              padding: 24px;
+              color: #0f172a;
+              background:
+                radial-gradient(1000px 500px at 10% 0%, rgba(59,130,246,0.12), transparent 60%),
+                radial-gradient(900px 480px at 90% 0%, rgba(16,185,129,0.10), transparent 55%),
+                #f8fafc;
+              -webkit-print-color-adjust: exact;
+              print-color-adjust: exact;
+            }
+
+            .page {
+              max-width: 1100px;
+              margin: 0 auto;
+              background: white;
+              border: 1px solid #e2e8f0;
+              border-radius: 16px;
+              overflow: hidden;
+              box-shadow: 0 24px 60px rgba(2,6,23,0.08);
+            }
+
+            .topbar {
+              padding: 20px 22px;
+              background: linear-gradient(135deg, rgba(37,99,235,0.10), rgba(16,185,129,0.08));
+              border-bottom: 1px solid #e2e8f0;
+              display: flex;
+              justify-content: space-between;
+              gap: 16px;
+              align-items: flex-start;
+            }
+
+            .title {
+              display: flex;
+              gap: 12px;
+              align-items: center;
+              min-width: 0;
+            }
+
+            .mark {
+              width: 40px;
+              height: 40px;
+              border-radius: 12px;
+              background-color: #ffffff;
+              background-image: url('${markImageSrc}');
+              background-position: center;
+              background-repeat: no-repeat;
+              background-size: 28px 28px;
+              border: 1px solid rgba(15,23,42,0.12);
+              box-shadow: 0 12px 30px rgba(37,99,235,0.25);
+              flex: 0 0 auto;
+            }
+
+            h1 { margin: 0; font-size: 18px; letter-spacing: -0.02em; }
+            .subtitle { margin-top: 4px; font-size: 12px; color: #475569; }
+
+            .meta {
+              text-align: right;
+              font-size: 12px;
+              color: #475569;
+              white-space: nowrap;
+            }
+
+            .meta strong { color: #0f172a; font-weight: 700; }
+
+            .content { padding: 18px 22px 22px; }
+
+            .stats {
+              display: grid;
+              grid-template-columns: repeat(3, minmax(0, 1fr));
+              gap: 10px;
+              margin-bottom: 14px;
+            }
+
+            .stat {
+              padding: 10px 12px;
+              border: 1px solid #e2e8f0;
+              border-radius: 12px;
+              background: #ffffff;
+            }
+
+            .stat .k { font-size: 11px; color: #64748b; }
+            .stat .v { margin-top: 3px; font-size: 14px; font-weight: 800; color: #0f172a; }
+
+            table {
+              width: 100%;
+              border-collapse: separate;
+              border-spacing: 0;
+              overflow: hidden;
+              border: 1px solid #e2e8f0;
+              border-radius: 12px;
+            }
+
+            thead th {
+              background: #0f172a;
+              color: #f8fafc;
+              text-align: left;
+              font-size: 11px;
+              text-transform: uppercase;
+              letter-spacing: 0.08em;
+              padding: 10px 10px;
+              border-bottom: 1px solid rgba(148,163,184,0.22);
+            }
+
+            tbody td {
+              padding: 10px 10px;
+              font-size: 12px;
+              color: #0f172a;
+              vertical-align: top;
+              border-bottom: 1px solid #e2e8f0;
+              background: #ffffff;
+            }
+
+            tbody tr:nth-child(2n) td { background: #f8fafc; }
+            tbody tr:last-child td { border-bottom: 0; }
+
+            .avatar {
+              width: 42px;
+              height: 42px;
+              border-radius: 9999px;
+              object-fit: cover;
+              display: block;
+              border: 2px solid rgba(15,23,42,0.12);
+              background: #f1f5f9;
+            }
+
+            .status {
+              display: inline-flex;
+              align-items: center;
+              gap: 6px;
+              padding: 4px 8px;
+              border-radius: 9999px;
+              font-size: 11px;
+              font-weight: 800;
+              letter-spacing: 0.02em;
+              border: 1px solid #e2e8f0;
+              background: #f8fafc;
+              color: #334155;
+              white-space: nowrap;
+            }
+            .status::before {
+              content: "";
+              width: 8px;
+              height: 8px;
+              border-radius: 9999px;
+              background: #94a3b8;
+            }
+            .status--active { background: rgba(16,185,129,0.12); border-color: rgba(16,185,129,0.35); color: #065f46; }
+            .status--active::before { background: #10b981; }
+            .status--inactive { background: rgba(239,68,68,0.10); border-color: rgba(239,68,68,0.30); color: #7f1d1d; }
+            .status--inactive::before { background: #ef4444; }
+
+            .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+            .chip {
+              display: inline-flex;
+              align-items: center;
+              padding: 3px 8px;
+              border-radius: 9999px;
+              border: 1px solid #e2e8f0;
+              background: rgba(37,99,235,0.06);
+              color: #1e40af;
+              font-size: 11px;
+              font-weight: 700;
+            }
+            .chip--more { background: rgba(100,116,139,0.10); color: #334155; }
+
+            .footnote { margin-top: 10px; font-size: 11px; color: #64748b; }
+
+            @page { size: A4; margin: 12mm; }
+            @media print {
+              body { padding: 0; background: white; }
+              .page { max-width: none; box-shadow: none; border-radius: 0; border: 0; }
+              .topbar { border-radius: 0; }
+              thead { display: table-header-group; }
+              tr { page-break-inside: avoid; }
+            }
+          </style>
+        </head>
+        <body>
+          <div class="page">
+            <div class="topbar">
+              <div class="title">
+                <div class="mark"></div>
+                <div style="min-width:0;">
+                  <h1>Lawyers Report</h1>
+                  <div class="subtitle">A printable overview of legal professionals</div>
+                </div>
+              </div>
+              <div class="meta">
+                <div><strong>Total:</strong> ${lawyers.length}</div>
+                <div>Last saved: ${escapeHtml(generatedAt)}</div>
+              </div>
+            </div>
+
+            <div class="content">
+              <div class="stats">
+                <div class="stat">
+                  <div class="k">Lawyers</div>
+                  <div class="v">${lawyers.length}</div>
+                </div>
+                <div class="stat">
+                  <div class="k">Active</div>
+                  <div class="v">${lawyers.filter((l) => String(l.lawyerStatus ?? "").toUpperCase() === "ACTIVE").length}</div>
+                </div>
+                <div class="stat">
+                  <div class="k">Inactive</div>
+                  <div class="v">${lawyers.filter((l) => String(l.lawyerStatus ?? "").toUpperCase() === "INACTIVE").length}</div>
+                </div>
+              </div>
+
+              <table>
+                <thead>
+                  <tr>
+                    <th style="width: 44px;">#</th>
+                    <th style="width: 74px;">Image</th>
+                    <th>Full Name</th>
+                    <th>Title</th>
+                    <th style="width: 84px;">Gender</th>
+                    <th>Email</th>
+                    <th style="width: 130px;">Phone</th>
+                    <th style="width: 96px;">Status</th>
+                    <th>Expertises</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${
+                    rowsHtml ||
+                    `<tr><td colspan="9" style="text-align:center;color:#64748b;padding:18px;">No data</td></tr>`
+                  }
+                </tbody>
+              </table>
+
+              <div class="footnote">
+                Tip: If images are missing, allow pop-ups and ensure the file preview endpoint is reachable.
+              </div>
+            </div>
+          </div>
+
+          <script>
+            window.onload = async () => {
+              const waitForImages = () => {
+                const imgs = Array.from(document.images || []);
+                if (imgs.length === 0) return Promise.resolve();
+
+                const loadPromises = imgs.map((img) => {
+                  if (img.complete) return Promise.resolve();
+                  return new Promise((resolve) => {
+                    img.onload = () => resolve();
+                    img.onerror = () => resolve();
+                  });
+                });
+
+                return Promise.race([
+                  Promise.all(loadPromises),
+                  new Promise((resolve) => setTimeout(resolve, 2000)),
+                ]);
+              };
+
+              await waitForImages();
+              window.focus();
+              window.print();
+              window.onafterprint = () => window.close();
+            };
+          </script>
+        </body>
+      </html>
+    `;
+
+    const printWindow = window.open("", "_blank", "width=1100,height=800");
+    if (!printWindow) {
+      alert("Pop-up blocked. Please allow pop-ups to print the report.");
+      return;
+    }
+
+    printWindow.document.open();
+    printWindow.document.write(html);
+    printWindow.document.close();
+  };
+
+  useEffect(() => {
+    let isCancelled = false;
+    const keyword = searchTerm.trim();
+
+    if (!keyword) {
+      setSearchResults(null);
+      return;
+    }
+
+    const timer = setTimeout(async () => {
+      try {
+        const res = await searchLawyers(keyword);
+        if (!isCancelled) {
+          setSearchResults(Array.isArray(res) ? (res as Lawyer[]) : []);
+        }
+      } catch (error) {
+        if (!isCancelled) {
+          setSearchResults([]);
+        }
+        console.error("Error searching lawyers:", error);
+      }
+    }, 300);
+
+    return () => {
+      isCancelled = true;
+      clearTimeout(timer);
+    };
+  }, [searchTerm]);
+
+  const filteredLawyers = useMemo(() => {
+    if (!searchTerm.trim()) return list;
+    return searchResults ?? [];
+  }, [list, searchResults, searchTerm]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900">
@@ -42,16 +449,28 @@ export default function LawyerList() {
                 Connect with experienced lawyers for your legal needs
               </p>
             </div>
-            <div className="text-sm font-medium text-slate-600 dark:text-slate-400">
-              {filteredLawyers.length} Professional
+            <div className="text-2xl  font-extrabold text-slate-600 dark:text-slate-400">
+              {filteredLawyers.length} Lawyer
               {filteredLawyers.length !== 1 ? "s" : ""}
             </div>
-            <button
-              onClick={() => goto(`/add-new-lawyer/`)}
-              className="p-2   rounded-3xl   text-white transition-colors duration-200 hover:bg-green-600"
-            >
-              <AddSquare size="30" color="#ffffff" />
-            </button>
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => printLawyersReport(filteredLawyers)}
+                className="p-2 rounded-3xl text-white transition-colors duration-200 hover:bg-slate-700 bg-slate-600"
+                title="Print lawyers report"
+              >
+                <Printer className="w-6 h-6" />
+              </button>
+              <button
+                type="button"
+                onClick={() => goto(`/add-new-lawyer/`)}
+                className="p-2 rounded-3xl text-white transition-colors duration-200 hover:bg-green-600 bg-green-500"
+                title="Add new lawyer"
+              >
+                <AddSquare size="30" color="#ffffff" />
+              </button>
+            </div>
           </div>
         </div>
       </header>
@@ -61,7 +480,7 @@ export default function LawyerList() {
         <div className="relative">
           <input
             type="text"
-            placeholder="Search lawyers by name or expertise..."
+            placeholder="Search lawyers by name, expertise, or state..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full px-4 py-3 pl-12 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
@@ -120,7 +539,12 @@ export default function LawyerList() {
                     ></div>
 
                     <button
-                      onClick={() => goto(`/edit-lawyer/${lawyer.appUserId}`)}
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        goto(`/edit-lawyer/${lawyer.appUserId}`);
+                      }}
                       className="p-2 absolute  right-2 top-2 text-sm rounded-md  text-white hover:bg-blue-800"
                     >
                       <Edit size="24" color="#ffffff" />
@@ -134,7 +558,7 @@ export default function LawyerList() {
                       <div className="relative">
                         <div className="w-24 h-24 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full overflow-hidden flex items-center justify-center ring-4 ring-white dark:ring-slate-800">
                           <img
-                            src={`http://localhost:8080/api/v1/files/preview-file?fileName${lawyer.image}`}
+                            src={`http://localhost:8080/api/v1/files/preview-file?fileName=${lawyer.image}`}
                             alt={lawyer.fullName}
                             className="w-full h-full object-cover"
                           />
@@ -336,17 +760,17 @@ export default function LawyerList() {
                 {/* Action Buttons */}
                 <div className="flex gap-3 pt-6 border-t border-slate-200 dark:border-slate-700">
                   <button
+                    onClick={() => setSelectedLawyer(null)}
+                    className="flex-1 px-6 py-3 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white font-medium rounded-lg hover:bg-slate-50 dark:hover:bg-red-700 transition-colors"
+                  >
+                    Close
+                  </button>
+                  <button
                     onClick={() => setShowContactOptions(!showContactOptions)}
                     className="flex-1 px-6 py-3 bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white font-medium rounded-lg transition-colors text-center flex items-center justify-center gap-2"
                   >
                     <MessageSquare className="w-4 h-4" />
                     Contact Now
-                  </button>
-                  <button
-                    onClick={() => setSelectedLawyer(null)}
-                    className="flex-1 px-6 py-3 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white font-medium rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
-                  >
-                    Close
                   </button>
                 </div>
 

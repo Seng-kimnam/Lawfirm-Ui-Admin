@@ -1,9 +1,6 @@
 import { useEffect, useState } from "react";
-
-import { registerUrl } from "../constants/constants_url";
 import { request } from "../constants/api";
 import { Lawyer, LawyerProfileRequest, Lawyers } from "@/model/Lawyer";
-import { tr } from "date-fns/locale";
 
 export const GetLawyers = () => {
   const [list, setList] = useState<Lawyer[]>([]);
@@ -63,6 +60,21 @@ export const registerLawyerService = async (data: LawyerProfileRequest) => {
 
   return response.data;
 };
+
+export const updateLawyerByIdService = async (
+  id: number | string,
+  data: Partial<LawyerProfileRequest>,
+) => {
+  const response = await request(
+    `admins/lawyers/${id}`,
+    "PUT",
+    data,
+    undefined,
+    "application/json",
+  );
+
+  return response;
+};
 // Update Lawyer
 // fetchLawyerById
 export const fetchLawyerById = async (
@@ -108,5 +120,23 @@ export const updateProfileService = async (data: LawyerProfileRequest) => {
   } catch (err) {
     console.error("Error updating lawyer profile:", err);
     return null;
+  }
+};
+
+export const searchLawyers = async (query: string) => {
+  try {
+    const res = await request(
+      `lawyers/search-lawyer?keyword=${encodeURIComponent(query)}`,
+      "GET",
+      undefined,
+      {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    );
+    if (!res || !res.payload) return [];
+    return res.payload;
+  } catch (err) {
+    console.error("Error searching lawyers:", err);
+    return [];
   }
 };

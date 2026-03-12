@@ -233,7 +233,7 @@ const AddFileDocument = () => {
         title="React.js Form Elements Dashboard | TailAdmin - React.js Admin Dashboard Template"
         description="This is React.js Form Elements Dashboard page for TailAdmin - React.js Tailwind CSS Admin Dashboard Template"
       />
-      <PageBreadcrumb pageTitle="Add new file document" />
+      <PageBreadcrumb pageTitle="Add new Law document" />
 
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="space-y-6">
@@ -243,7 +243,7 @@ const AddFileDocument = () => {
                 <Label htmlFor="title">Title</Label>
                 <input
                   // value={DocForUpdate?.title}
-                  className="border-2 rounded-lg px-4 py-1 w-96"
+                  className="h-11 w-96 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-none focus:ring-3 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
                   type="text"
                   placeholder="Enter the title"
                   id="title"
@@ -289,7 +289,7 @@ const AddFileDocument = () => {
           </ComponentCard>
 
           {/* Cover Image Upload */}
-          <ComponentCard title="Upload Cover Image">
+          <ComponentCard title="Upload Cover Document">
             <div className="transition border border-gray-300 border-dashed cursor-pointer dark:hover:border-brand-500 dark:border-gray-700 rounded-xl hover:border-brand-500">
               <div
                 {...getCoverRootProps()}
@@ -322,8 +322,8 @@ const AddFileDocument = () => {
 
                   <h4 className="mb-3 font-semibold text-gray-800 text-theme-xl dark:text-white/90">
                     {isCoverDragActive
-                      ? "Drop Cover Image Here"
-                      : "Drag & Drop Cover Image Here"}
+                      ? "Drop Cover Document Here"
+                      : "Drag & Drop Cover Document Here"}
                   </h4>
 
                   <span className="text-center mb-5 block w-full max-w-72.5 text-sm text-gray-700 dark:text-gray-400">
@@ -340,7 +340,7 @@ const AddFileDocument = () => {
             {!coverFile && DocForUpdate?.fileCover && (
               <div className="mt-4">
                 <Label className="text-lg">
-                  Current Cover Image (Click to get better preview)
+                  Current Cover Document (Click to get better preview)
                 </Label>
                 <Dialog>
                   <DialogTrigger asChild>

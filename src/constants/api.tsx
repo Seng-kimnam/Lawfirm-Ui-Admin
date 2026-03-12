@@ -22,7 +22,7 @@
 
 import axios, { Method } from "axios";
 import { base_Url } from "./constants_url";
-  
+
 export const request = async (
   url: string,
   method: Method,
@@ -51,7 +51,7 @@ export const request = async (
       headers: headers,
     });
     return response.data;
-  } catch (error) {
-    throw error; // so caller can catch it
+  } catch (error : any) {
+    return error; // so caller can catch it
   }
 };

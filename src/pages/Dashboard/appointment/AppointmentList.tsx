@@ -1,13 +1,7 @@
 import ComponentCard from "../../../components/common/ComponentCard";
-import Input from "../../../utils/input/InputField.tsx";
 import { useNavigate } from "react-router-dom";
-
 import Button from "../../../utils/button/Button";
-
 import { BsArrowLeft, BsArrowRight } from "react-icons/bs";
-import { BiSearch } from "react-icons/bi";
-
-
 import { GetDefaultAppointmentList } from "@/Service/AppointmentService.tsx";
 import PageMeta from "@/components/common/PageMeta.tsx";
 import { Table } from "@/components/ui/table.tsx";
@@ -20,12 +14,13 @@ const AppointmentList = () => {
     page,
     totalPage,
     setPage,
-    refetch,
+    // refetch,
     parseDate,
     parseTime,
   } = GetDefaultAppointmentList();
 
 
+  // console.log(' dd' , appointmentList)
   // Ensure list is an array
   return (
     <div>
@@ -48,14 +43,7 @@ const AppointmentList = () => {
               </Button>
             </>
           }
-          searchInput={
-            <Input
-              type="text"
-              placeholder="Search service..."
-              icon={<BiSearch className="w-5 h-5" />}
-              id="input"
-            />
-          }
+         
           footer={
             <div className="flex justify-between items-center">
               <span>

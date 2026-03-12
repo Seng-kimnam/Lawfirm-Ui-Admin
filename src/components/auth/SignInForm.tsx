@@ -28,7 +28,7 @@ export default function SignInForm() {
 
     try {
       const res = await request(loginUrl, "POST", data);
-      console.log(res);
+
       if (res?.success) {
         const { payload } = res;
         const { roleName } = payload.currentUser.role;
@@ -39,12 +39,18 @@ export default function SignInForm() {
         navigate("/");
         toast.success("Login successfully! Welcome to GClaw firm system.");
       }
-    } catch (error: any) {
-      const res = await request(loginUrl, "POST", data);
       if (res?.status === 400) {
-        toast.error(res?.detail);
-        console.error("Login fail.", res?.detail);
+        toast.error(res.response.data.detail);
+        // console.error("My response", res.response.data.detail);
+        // console.error("Login fail.", res?.detail);
       }
+    } catch (error: any) {
+      // const res = await request(loginUrl, "POST", data);
+      // console.log("Login fail.", res.response.data.detail);
+      // if (res?.status === 400) {
+      //   // toast.error(res?.data?.detail || "Login failed. Please check your credentials.");
+      console.log("Login fail.", error);
+      // }
     }
   };
 

@@ -52,6 +52,7 @@ const TaskDetail = () => {
         description={taskDetail?.description}
         status={taskDetail?.status} 
         priority={taskDetail?.priority}
+        startDate={taskDetail?.startedDate}
         dueDate={taskDetail?.dueDate}
         createdAt={taskDetail?.createdAt}
         updatedAt={taskDetail?.updatedAt}

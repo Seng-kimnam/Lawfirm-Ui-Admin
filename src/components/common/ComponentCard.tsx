@@ -1,74 +1,3 @@
-// interface ComponentCardProps {
-//   title: string;
-//   children: React.ReactNode;
-//   className?: string; // Additional custom classes for styling
-//   desc?: string; // Description text
-//   headerActions?: React.ReactNode;
-//   footer?: React.ReactNode;        // Footer content
-// }
-
-// const ComponentCard: React.FC<ComponentCardProps> = ({
-//   title,
-//   children,
-//   className = "",
-//   desc = "",
-//   headerActions,
-//   footer
-// }) => {
-//   return (
-//     <div
-//       className={`rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] ${className}`}
-//     >
-//       {/* Card Header */}
-//       {/* <div className="px-6 py-5">
-//         <h3 className="text-base font-medium text-gray-800 dark:text-white/90">
-//           {title}
-//         </h3>
-//         {desc && (
-//           <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-//             {desc}
-//           </p>
-//         )}
-//       </div> */}
-//       {/* Card Header */}
-//       <div className="px-6 py-5 flex items-center justify-between">
-//         <div>
-//           <h3 className="text-base font-medium text-gray-800 dark:text-white/90">
-//             {title}
-//           </h3>
-//           {desc && (
-//             <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-//               {desc}
-//             </p>
-//           )}
-//         </div>
-
-//         {/* Right Side Buttons */}
-//         {headerActions && (
-//           <div className="flex items-center gap-3">
-//             {headerActions}
-//           </div>
-//         )}
-//       </div>
-
-//       {/* Card Body */}
-//       <div className="p-4 border-t border-gray-100 dark:border-gray-800 sm:p-6">
-//         <div className="space-y-6">
-//           {children}
-//         </div>
-//       </div>
-//       {/* Footer */}
-//       {footer && (
-//         <div className="px-6 py-4 border-t border-gray-800   text-base font-medium text-gray-800 dark:text-white/90">
-//           {footer}
-//         </div>
-//       )}
-//     </div>
-//   );
-// };
-
-// export default ComponentCard;
-
 interface ComponentCardProps {
   title: string;
   children: React.ReactNode;
@@ -76,7 +5,7 @@ interface ComponentCardProps {
   desc?: string;
   headerActions?: React.ReactNode;
   footer?: React.ReactNode;
-  searchInput?: React.ReactNode; // ⭐ NEW: Search form under header
+  searchInput?: React.ReactNode;
 }
 
 const ComponentCard: React.FC<ComponentCardProps> = ({
@@ -86,15 +15,15 @@ const ComponentCard: React.FC<ComponentCardProps> = ({
   desc = "",
   headerActions,
   footer,
-  searchInput, // NEW
+  searchInput,
 }) => {
   return (
     <div
-      className={`rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] ${className}`}
+      className={`w-full rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] ${className}`}
     >
       {/* Header */}
-      <div className="px-6 py-5 flex items-center justify-between">
-        <div>
+      <div className="w-full px-6 py-5 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div className="flex-1 min-w-0">
           <h3 className="text-base font-medium text-gray-800 dark:text-white/90">
             {title}
           </h3>
@@ -106,22 +35,27 @@ const ComponentCard: React.FC<ComponentCardProps> = ({
         </div>
 
         {headerActions && (
-          <div className="flex items-center gap-3">{headerActions}</div>
+          <div className="w-full md:w-auto flex flex-wrap items-center gap-3">
+            {headerActions}
+          </div>
         )}
       </div>
+
+      {/* Search Section */}
       {searchInput && (
-        <div className="px-3 py-3 flex items-center justify-between border-t border-gray-100 dark:border-gray-800">
-          {searchInput}
+        <div className="w-full px-6 py-3 border-t border-gray-100 dark:border-gray-800">
+          <div className="w-full">{searchInput}</div>
         </div>
       )}
+
       {/* Body */}
-      <div className="p-4 border-t border-gray-100 dark:border-gray-800 sm:p-6">
-        <div className="space-y-6">{children}</div>
+      <div className="w-full p-4 border-t border-gray-100 dark:border-gray-800 sm:p-6">
+        <div className="space-y-6 w-full">{children}</div>
       </div>
 
       {/* Footer */}
       {footer && (
-        <div className="px-6 py-4 border-t dark:border-gray-800 border-gray-100 text-base font-medium text-gray-800 dark:text-white/90">
+        <div className="w-full px-6 py-4 border-t border-gray-100 dark:border-gray-800 text-base font-medium text-gray-800 dark:text-white/90">
           {footer}
         </div>
       )}

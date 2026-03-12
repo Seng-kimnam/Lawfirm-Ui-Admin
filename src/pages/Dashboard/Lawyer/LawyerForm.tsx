@@ -21,14 +21,19 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { X } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Label from "@/components/form/Label";
 import { LawyerProfileRequest } from "@/model/Lawyer";
-import { GetExpertiseList, GetServiceType } from "@/Service/ServiceTypeService";
+import { GetExpertiseList } from "@/Service/ServiceTypeService";
 import { useNavigate, useParams } from "react-router";
 import toast from "react-hot-toast";
-import { registerLawyerService } from "@/Service/UserService";
+import {
+  fetchLawyerById,
+  registerLawyerService,
+  updateLawyerByIdService,
+} from "@/Service/UserService";
 import { request } from "@/constants/api";
+import { base_Url } from "@/constants/constants_url";
 
 const LawyerForm = () => {
   const {
@@ -58,12 +63,19 @@ const LawyerForm = () => {
     },
   });
   const { id } = useParams<{ id: string }>();
+  const goto = useNavigate();
+  const isEdit = Number.isFinite(Number(id)) && Number(id) > 0;
 
   const { list } = GetExpertiseList();
   const EXPERTISE_OPTIONS = list;
   const expertises = watch("expertiseIdList");
+  const currentImage = watch("image");
   const [inputExpertise, setInputExpertise] = useState("");
-  const [uploadedImagePath, setUploadedImagePath] = useState(Object);
+  const [uploadedImagePath, setUploadedImagePath] = useState<File | null>(null);
+  const [isPrefilling, setIsPrefilling] = useState(false);
+  const [uploadedPreviewUrl, setUploadedPreviewUrl] = useState<string | null>(
+    null,
+  );
 
   async function handleUploadImage(e: any) {
     const file = e.target.files[0];
@@ -73,6 +85,81 @@ const LawyerForm = () => {
 
     setUploadedImagePath(file); // uploadedImagePath = file
   }
+
+  useEffect(() => {
+    if (!uploadedImagePath) {
+      setUploadedPreviewUrl(null);
+      return;
+    }
+
+    const objectUrl = URL.createObjectURL(uploadedImagePath);
+    setUploadedPreviewUrl(objectUrl);
+
+    return () => {
+      URL.revokeObjectURL(objectUrl);
+    };
+  }, [uploadedImagePath]);
+
+  useEffect(() => {
+    if (!isEdit) return;
+
+    let cancelled = false;
+
+    const run = async () => {
+      setIsPrefilling(true);
+      try {
+        const lawyer = await fetchLawyerById(id as string);
+        if (cancelled) return;
+
+        if (!lawyer) {
+          toast.error("Failed to load lawyer details.");
+          return;
+        }
+
+        const gender = String(lawyer.gender ?? "MALE").toUpperCase();
+        const normalizedGender =
+          gender === "MALE" || gender === "FEMALE" || gender === "OTHER"
+            ? gender
+            : "MALE";
+
+        const status = String(lawyer.lawyerStatus ?? "ACTIVE").toUpperCase();
+        const normalizedStatus =
+          status === "ACTIVE" || status === "INACTIVE" || status === "SUSPENDED"
+            ? status
+            : "ACTIVE";
+
+        reset({
+          fullName: lawyer.fullName ?? "",
+          gender: normalizedGender,
+          lawyerStatus: normalizedStatus,
+          email: lawyer.email ?? "",
+          phoneNumber: lawyer.phoneNumber ?? "",
+          password: "",
+          roleId: typeof lawyer.roleId === "number" ? lawyer.roleId : 2,
+          title: lawyer.title ?? "",
+          description: lawyer.description ?? "",
+          image: typeof lawyer.image === "string" ? lawyer.image : "",
+          expertiseIdList: Array.isArray(lawyer.expertiseIdList)
+            ? lawyer.expertiseIdList
+            : [],
+          facebookLink: lawyer.facebookLink ?? "",
+          tiktokLink: lawyer.tiktokLink ?? "",
+          telegramLink: lawyer.telegramLink ?? "",
+        });
+      } catch (err) {
+        if (!cancelled) toast.error("Failed to load lawyer details.");
+      } finally {
+        if (!cancelled) setIsPrefilling(false);
+      }
+    };
+
+    run();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [id, isEdit, reset]);
+
   const handleAddExpertise = (expertiseId: number) => {
     if (!expertises.includes(expertiseId)) {
       const newExpertises = [...expertises, expertiseId];
@@ -98,25 +185,48 @@ const LawyerForm = () => {
   const hanleSaveData = async (data: LawyerProfileRequest) => {
     try {
       setIsLoading(true);
-      const fd = new FormData();
-      fd.append("file", uploadedImagePath);
-      const { payload } = await request(
-        `files/upload-file`,
-        "POST",
-        fd,
-        undefined,
-        "multipart/form-data",
-      );
+
+      let imageName = data.image;
+      if (uploadedImagePath) {
+        const fd = new FormData();
+        fd.append("file", uploadedImagePath);
+        const { payload } = await request(
+          `files/upload-file`,
+          "POST",
+          fd,
+          undefined,
+          "multipart/form-data",
+        );
+        imageName = payload?.fileName ?? imageName;
+      } else if (!isEdit) {
+        toast.error("Please upload an image.");
+        return;
+      }
+
       const finishedData: LawyerProfileRequest = {
         ...data,
-        image: payload?.fileName,
+        image: imageName,
       };
 
-      const res = await registerLawyerService(finishedData);
+      const payloadToSend: Partial<LawyerProfileRequest> =
+        isEdit && !finishedData.password.trim()
+          ? (() => {
+              const { password, ...rest } = finishedData;
+              return rest;
+            })()
+          : finishedData;
+
+      const res = isEdit
+        ? await updateLawyerByIdService(id as string, payloadToSend)
+        : await registerLawyerService(finishedData);
       if (res.success) {
         toast.success(res.message);
-        reset();
-        setUploadedImagePath(Object);
+        if (isEdit) {
+          goto("/list-lawyer");
+        } else {
+          reset();
+          setUploadedImagePath(null);
+        }
       } else {
         toast.error(res.message);
       }
@@ -131,7 +241,7 @@ const LawyerForm = () => {
       <CardHeader>
         <CardTitle>Lawyer Profile</CardTitle>
         <CardDescription>
-          {Number(id) ? "Edit" : "Create new"} lawyer information and expertise
+          {isEdit ? "Edit" : "Create new"} lawyer information and expertise
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -315,18 +425,24 @@ const LawyerForm = () => {
                 </Button>
               </div>
               <div className="flex flex-wrap gap-2">
-                {expertises.map((id) => (
-                  <Badge key={id} variant="secondary" className="px-3 py-1">
-                    {getExpertiseName(id)}
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveExpertise(id)}
-                      className="ml-2 hover:text-destructive"
-                    >
-                      <X className="w-3 h-3" />
-                    </button>
-                  </Badge>
-                ))}
+                {expertises.length > 0 ? (
+                  expertises.map((id) => (
+                    <Badge key={id} variant="secondary" className="px-3 py-1">
+                      {getExpertiseName(id)}
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveExpertise(id)}
+                        className="ml-2 hover:text-destructive"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </Badge>
+                  ))
+                ) : (
+                  <p className="text-sm text-muted-foreground">
+                    No expertise selected yet.
+                  </p>
+                )}
               </div>
             </div>
           </div>
@@ -343,10 +459,12 @@ const LawyerForm = () => {
                 type="password"
                 placeholder="Enter password"
                 {...register("password", {
-                  required: "Password is required",
-                  minLength: {
-                    value: 6,
-                    message: "Password must be at least 6 characters",
+                  required: isEdit ? false : "Password is required",
+                  validate: (value) => {
+                    if (!value) return true;
+                    return (
+                      value.length >= 6 || "Password must be at least 6 characters"
+                    );
                   },
                 })}
                 className={errors.password ? "border-red-500" : ""}
@@ -407,6 +525,37 @@ const LawyerForm = () => {
                 className="w-full bg-white/10 backdrop-blur-xl border-2 border-white/20 rounded-2xl px-4 py-3 cursor-pointer text-white file:mr-4 file:py-2 file:px-6 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-gradient-to-r file:from-blue-500 file:to-purple-500 file:text-white hover:file:from-blue-600 hover:file:to-purple-600 file:transition-all file:duration-300"
                 accept="image/*"
               />
+              {uploadedPreviewUrl ? (
+                <div className="mt-3">
+                  <p className="text-sm text-muted-foreground mb-2">
+                    New image preview:
+                  </p>
+                  <img
+                    src={uploadedPreviewUrl}
+                    alt="New lawyer profile preview"
+                    className="h-32 w-32 rounded-xl object-cover border border-white/20"
+                  />
+                </div>
+              ) : (
+                isEdit &&
+                currentImage && (
+                  <div className="mt-3">
+                    <p className="text-sm text-muted-foreground mb-2">
+                      Current image:
+                    </p>
+                    <img
+                      src={`${base_Url}files/preview-file?fileName=${encodeURIComponent(
+                        currentImage,
+                      )}`}
+                      alt="Current lawyer profile"
+                      className="h-32 w-32 rounded-xl object-cover border border-white/20"
+                    />
+                    <p className="text-sm text-muted-foreground mt-2">
+                      Current image filename: {currentImage}
+                    </p>
+                  </div>
+                )
+              )}
               {uploadedImagePath && (
                 <p className="text-sm text-green-400 mt-2 flex items-center">
                   {uploadedImagePath?.name && (
@@ -434,16 +583,17 @@ const LawyerForm = () => {
               Reset Form
             </Button>
             <Button
+              type="submit"
               className={`${
-                Number(id)
+                isEdit
                   ? "bg-green-600   hover:bg-green-800"
                   : "bg-blue-600   hover:bg-blue-800"
-              } text-white " type="submit`}
-              disabled={isLoading}
+              } text-white`}
+              disabled={isLoading || isPrefilling}
             >
               {isLoading
                 ? "Saving..."
-                : Number(id)
+                : isEdit
                   ? "Update lawyer"
                   : "Save new lawyer"}
             </Button>

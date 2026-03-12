@@ -44,13 +44,13 @@ const navItems: NavItem[] = [
     roles: ["ROLE_ADMIN", "ROLE_LAWYER"],
     subItems: [
       { name: "List Appointment", path: "/list-appointment" },
-      { name: "Add Appointment", path: "/add-appointment" },
       { name: "Calendar", path: "/appointment-calender" },
+      { name: "Add Appointment", path: "/add-appointment" },
     ],
   },
 
   {
-    icon: <Task size="26" color="#d9e3f0" />,
+    icon: <Task size="26" />,
     name: "Tasks",
     roles: ["ROLE_ADMIN", "ROLE_LAWYER"],
     subItems: [
@@ -63,6 +63,24 @@ const navItems: NavItem[] = [
   /* ---------- ADMIN ONLY ---------- */
 
   {
+    icon: <IoDocumentTextSharp />,
+    name: "Case",
+    roles: ["ROLE_ADMIN"],
+    subItems: [
+      { name: "List Case", path: "/list-case" },
+      { name: "Case Form", path: "/add-case" },
+    ],
+  },
+  {
+    icon: <Courthouse size="26" />,
+    name: "Court",
+    roles: ["ROLE_ADMIN"],
+    subItems: [
+      { name: "Court List", path: "/list-court" },
+      { name: "Court Form", path: "/add-court" },
+    ],
+  },
+  {
     icon: <MdMiscellaneousServices />,
     name: "Services",
     roles: ["ROLE_ADMIN"],
@@ -71,22 +89,14 @@ const navItems: NavItem[] = [
       { name: "Service Type", path: "/servicetype" },
     ],
   },
-  {
-    icon: <IoDocumentTextSharp />,
-    name: "Case",
-    roles: ["ROLE_ADMIN"],
-    subItems: [
-      { name: "Case Form", path: "/add-case" },
-      { name: "List Case", path: "/list-case" },
-    ],
-  },
+
   {
     icon: <HiUsers />,
     name: "Client Control",
     roles: ["ROLE_ADMIN"],
     subItems: [
       { name: "Client List", path: "/list-client" },
-      { name: "Poster", path: "/poster" },
+      { name: "Banner", path: "/banner" },
     ],
   },
   {
@@ -95,25 +105,20 @@ const navItems: NavItem[] = [
     roles: ["ROLE_ADMIN"],
     subItems: [{ name: "Lawyer List", path: "/list-lawyer" }],
   },
-  {
-    icon: <Courthouse size="26" />,
-    name: "Court",
-    roles: ["ROLE_ADMIN"],
-    subItems: [{ name: "Court List", path: "/list-court" }],
-  },
+
   //  {/* file doc  */}
   //             <Route path="/add-file-doc" element={<AddFileDocument />} />
   //             <Route path="/edit-file-doc/:id" element={<AddFileDocument />} />
   //             <Route path="/doc-category" element={<DocumentCategoryList />} />
   //             <Route path="/list-file-doc" element={<ListFileDocument />} />
   {
-    icon: <TableDocument size="26" color="#d9e3f0" />,
+    icon: <TableDocument size="26" />,
     name: "File Document",
     roles: ["ROLE_ADMIN"],
     subItems: [
       { name: "Document List", path: "/list-file-doc" },
       { name: "Document Category", path: "/doc-category" },
-      { name: "Add New Document", path: "/add-file-doc" },
+      { name: "Document Form", path: "/add-file-doc" },
     ],
   },
 ];
@@ -179,8 +184,7 @@ const AppSidebar: React.FC = () => {
   return (
     <aside
       className={`fixed top-0 left-0 h-screen z-50 transition-all
-      bg-white dark:bg-slate-900
-       border-slate-200 dark:border-grey-900
+      bg-slate-900 text-white dark:bg-gray-900 dark:text-gray-200 border-r border-slate-700 dark:border-gray-800
       ${isExpanded || isHovered || isMobileOpen ? "w-[290px]" : "w-[90px]"}
       ${isMobileOpen ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0`}
       onMouseEnter={() => !isExpanded && setIsHovered(true)}
@@ -188,7 +192,7 @@ const AppSidebar: React.FC = () => {
     >
       {/* LOGO */}
       <div
-        className={`py-6 flex items-center border-b border-gray-200 dark:border-gray-800
+        className={`py-6 flex items-center border-b border-slate-700 dark:border-gray-800
     ${!isExpanded && !isHovered ? "lg:justify-center" : "justify-center"}`}
       >
         <Link to="/" className="flex items-center gap-3">
@@ -232,8 +236,8 @@ const AppSidebar: React.FC = () => {
                       )
                     }
                     className="flex items-center gap-3 w-full px-3 py-2 rounded-lg
-                    text-slate-700 dark:text-slate-200
-                    hover:bg-slate-100 dark:hover:bg-slate-800"
+                    text-white/90 dark:text-gray-200
+                    hover:bg-white/10 dark:hover:bg-gray-800"
                   >
                     {nav.icon}
                     {(isExpanded || isHovered || isMobileOpen) && (
@@ -266,8 +270,8 @@ const AppSidebar: React.FC = () => {
                             className={`block px-3 py-1.5 rounded-md text-sm
                             ${
                               isActive(sub.path)
-                                ? "bg-blue-500 text-white"
-                                : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+                                ? "bg-white/20 text-white"
+                                : "text-white/80 dark:text-gray-300 hover:bg-white/10 dark:hover:bg-gray-800"
                             }`}
                           >
                             {sub.name}
@@ -283,8 +287,8 @@ const AppSidebar: React.FC = () => {
                   className={`flex items-center gap-3 px-3 py-2 rounded-lg
                   ${
                     isActive(nav.path!)
-                      ? "bg-blue-500 text-white"
-                      : "text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800"
+                      ? "bg-white/20 text-white"
+                      : "text-white/90 dark:text-gray-200 hover:bg-white/10 dark:hover:bg-gray-800"
                   }`}
                 >
                   {nav.icon}

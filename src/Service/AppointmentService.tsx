@@ -152,6 +152,17 @@ export const GetDefaultAppointmentList = () => {
   };
 };
 
+export const GetAppointmentById = async (id: number) => {
+  const response = await request(
+    `appointments/${id}`,
+    "GET",
+    undefined,
+    undefined,
+  );
+
+  console.log("service appointment response:", response);
+  return response; // Always return the response (even if success: false)
+};
 export const PostAppointmentService = async (req?: AppointmentFormData) => {
   const response = await request("appointments", "POST", req);
 
@@ -159,8 +170,11 @@ export const PostAppointmentService = async (req?: AppointmentFormData) => {
   return response; // Always return the response (even if success: false)
 };
 
-export const PutAppointmentService = async (req?: AppointmentFormData) => {
-  const response = await request("appointments", "PUT", req);
+export const PutAppointmentService = async (
+  id: number,
+  req?: AppointmentFormData,
+) => {
+  const response = await request(`appointments/${id}`, "PUT", req);
 
   console.log("service appointment response:", response);
   return response; // Always return the response (even if success: false)

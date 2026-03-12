@@ -11,7 +11,7 @@ import Avatars from "./pages/UiElements/Avatars";
 import Buttons from "./pages/UiElements/Buttons";
 import LineChart from "./pages/Charts/LineChart";
 import BarChart from "./pages/Charts/BarChart";
-import Calendar from "./pages/Calendar";
+import AppointmentCalendar from "./pages/AppointmentCalendar.tsx";
 import BasicTables from "./pages/Tables/BasicTables";
 import FormElements from "./pages/Forms/FormElements";
 import Blank from "./pages/Blank";
@@ -41,13 +41,13 @@ import ClientRequestDetail from "./pages/Dashboard/CustomerPage/ClientRequestDet
 import AppointmentList from "./pages/Dashboard/appointment/AppointmentList.tsx";
 import AddAppointment from "./pages/Dashboard/appointment/AddAppointment.tsx";
 import AppointmentDetail from "./pages/Dashboard/appointment/AppointmentDetail.tsx";
-import Poster from "./pages/Dashboard/CustomerPage/Poster.tsx";
 import LawyerList from "./pages/Dashboard/Lawyer/LawyerList.tsx";
 import FormComponent from "./pages/Dashboard/Lawyer/components/FormComponent.tsx";
 import ForgetPasswordPage from "./pages/AuthPages/ForgetPassword.tsx";
 import OtpPage from "./pages/AuthPages/OtpPage.tsx";
 import ResetPassword from "./pages/AuthPages/ResetPassword.tsx";
 import UserProfiles from "./pages/UserProfiles.tsx";
+import Banner from "./pages/Dashboard/CustomerPage/Banner.tsx";
 
 export default function App() {
   return (
@@ -73,7 +73,10 @@ export default function App() {
               <Route path="/add-task" element={<AddTask />} />
               <Route path="/list-task" element={<ListTask />} />
               <Route path="/task-detail-info/:id" element={<TaskDetail />} />
-              <Route path="/appointment-calender" element={<Calendar />} />
+              <Route
+                path="/appointment-calender"
+                element={<AppointmentCalendar />}
+              />
               <Route
                 path="/appointment-detail/:id"
                 element={<AppointmentDetail />}
@@ -90,7 +93,7 @@ export default function App() {
               <Route path="/add-new-lawyer" element={<FormComponent />} />
               <Route path="/edit-lawyer/:id" element={<FormComponent />} />
               <Route path="/list-client" element={<ListCustomer />} />
-              <Route path="/poster" element={<Poster />} />
+              <Route path="/banner" element={<Banner />} />
               <Route path="/list-service" element={<ListService />} />
               <Route path="/service" element={<Service />} />
               <Route path="/service/:id" element={<Service />} />

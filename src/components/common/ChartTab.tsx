@@ -1,17 +1,11 @@
-import { useState } from "react";
-
-type Period = "monthly" | "quarterly" | "annually";
+type Period = "monthly" | "quarterly" | "annually" | "custom";
 type Props = {
   period: Period;
   onChange: (p: Period) => void;
 };
-const ChartTab: React.FC<Props> = ({ onChange }) => {
-  const [selected, setSelected] = useState<
-    "optionOne" | "optionTwo" | "optionThree"
-  >("optionOne");
-
-  const getButtonClass = (option: "optionOne" | "optionTwo" | "optionThree") =>
-    selected === option
+const ChartTab: React.FC<Props> = ({ period, onChange }) => {
+  const getButtonClass = (value: Period) =>
+    period === value
       ? "shadow-theme-xs text-gray-900 dark:text-white bg-white dark:bg-gray-800"
       : "text-gray-500 dark:text-gray-400";
 
@@ -19,11 +13,10 @@ const ChartTab: React.FC<Props> = ({ onChange }) => {
     <div className="flex items-center gap-0.5 rounded-lg bg-gray-100 p-0.5 dark:bg-gray-900">
       <button
         onClick={() => {
-          setSelected("optionOne");
           onChange("monthly");
         }}
-        className={`px-3 py-2 font-medium w-full rounded-md text-theme-sm hover:text-gray-900   dark:hover:text-white ${getButtonClass(
-          "optionOne"
+        className={`px-3 py-2 font-medium w-full rounded-md text-theme-sm hover:text-gray-900 dark:hover:text-white ${getButtonClass(
+          "monthly",
         )}`}
       >
         Monthly
@@ -31,11 +24,10 @@ const ChartTab: React.FC<Props> = ({ onChange }) => {
 
       <button
         onClick={() => {
-          setSelected("optionTwo");
           onChange("quarterly");
         }}
-        className={`px-3 py-2 font-medium w-full rounded-md text-theme-sm hover:text-gray-900   dark:hover:text-white ${getButtonClass(
-          "optionTwo"
+        className={`px-3 py-2 font-medium w-full rounded-md text-theme-sm hover:text-gray-900 dark:hover:text-white ${getButtonClass(
+          "quarterly",
         )}`}
       >
         Quarterly
@@ -43,14 +35,24 @@ const ChartTab: React.FC<Props> = ({ onChange }) => {
 
       <button
         onClick={() => {
-          setSelected("optionThree");
           onChange("annually");
         }}
-        className={`px-3 py-2 font-medium w-full rounded-md text-theme-sm hover:text-gray-900   dark:hover:text-white ${getButtonClass(
-          "optionThree"
+        className={`px-3 py-2 font-medium w-full rounded-md text-theme-sm hover:text-gray-900 dark:hover:text-white ${getButtonClass(
+          "annually",
         )}`}
       >
         Annually
+      </button>
+
+      <button
+        onClick={() => {
+          onChange("custom");
+        }}
+        className={`px-3 py-2 font-medium w-full rounded-md text-theme-sm hover:text-gray-900 dark:hover:text-white ${getButtonClass(
+          "custom",
+        )}`}
+      >
+        Custom
       </button>
     </div>
   );

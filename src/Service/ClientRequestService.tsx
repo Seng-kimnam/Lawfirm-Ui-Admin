@@ -89,3 +89,17 @@ export const putService = async (req: ServiceItem) => {
     );
   }
 };
+
+export const updateClientRequestById = async (
+  clientId: number,
+  req: ClientRequest
+) => {
+  try {
+    const response = await request(`clients/${clientId}`, "PUT", req);
+    return response?.payload ?? response?.data ?? response;
+  } catch (error: any) {
+    throw new Error(
+      error?.response?.data?.message || error?.message || "Failed to update client request"
+    );
+  }
+};

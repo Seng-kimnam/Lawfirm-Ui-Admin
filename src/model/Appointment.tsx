@@ -14,7 +14,6 @@ export interface AppointmentInterface {
   updatedAt: string;
 }
 
-
 export interface AppointmentFormData {
   taskId: number;
   purpose: string;
@@ -22,5 +21,5 @@ export interface AppointmentFormData {
   appointmentDate: string;
   appointmentTime: string;
   meetingType: "IN_PERSON" | "ONLINE";
-  status: "PENDING" | "CONFIRMED" | "CANCELLED" | "COMPLETED";
+  status: "PENDING" | "CONFIRMED" | "CANCELLED" | "FINISHED";
 }

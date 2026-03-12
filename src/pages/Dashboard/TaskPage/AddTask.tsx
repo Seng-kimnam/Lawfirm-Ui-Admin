@@ -24,7 +24,7 @@ import { Calendar2 } from "iconsax-reactjs";
 import { format } from "date-fns";
 import { Calendar } from "@/components/ui/calendar.tsx";
 import { Button } from "@/components/ui/button.tsx";
-import { CaseRequest, CaseStatus } from "@/model/Case.tsx";
+import { CaseStatus } from "@/model/Case.tsx";
 import { GetCaseNoPagination } from "@/Service/CaseService.tsx";
 import toast from "react-hot-toast";
 import { useNavigate, useParams } from "react-router";
@@ -35,9 +35,8 @@ import { TaskInterface, TaskRequest } from "@/model/Task.tsx";
 
 const AddTask = () => {
   const { id } = useParams<{ id: string }>();
-  console.log("Received task ID:", id);
   const { list } = GetLawyers();
-  const { casesList } = GetCaseNoPagination();
+  const { casesList } = GetCaseNoPagination() || [];
   const goto = useNavigate();
   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
   const [endDate, setEndDate] = useState<Date | undefined>(undefined);
@@ -322,9 +321,10 @@ const AddTask = () => {
                       ? caseId.toString()
                       : taskDetails?.legalCase?.caseId?.toString() || ""
                   }
-                  onValueChange={(value) =>
-                    setValue("caseId", Number(value), { shouldValidate: true })
-                  }
+                  onValueChange={(value) => {
+                    if (value === "__no_cases__") return;
+                    setValue("caseId", Number(value), { shouldValidate: true });
+                  }}
                 >
                   <SelectTrigger className="w-full ">
                     <SelectValue placeholder="Select case" />
@@ -345,11 +345,20 @@ const AddTask = () => {
                           </SelectItem>
                         )}
 
-                      {casesList?.map((c) => (
-                        <SelectItem key={c.caseId} value={c.caseId.toString()}>
-                          {c.caseId}. {c.title}
+                      {casesList?.length > 0 ? (
+                        casesList?.map((c) => (
+                          <SelectItem
+                            key={c.caseId}
+                            value={c.caseId.toString()}
+                          >
+                            {c.caseId}. {c.title}
+                          </SelectItem>
+                        ))
+                      ) : (
+                        <SelectItem value="__no_cases__">
+                          No cases available
                         </SelectItem>
-                      ))}
+                      )}
                     </SelectGroup>
                   </SelectContent>
                 </Select>
@@ -410,7 +419,7 @@ const AddTask = () => {
               <div>
                 <Label htmlFor="input">Title</Label>
                 <input
-                  className="border-2 rounded-lg px-4 bg-gray-800 py-2 w-full  focus:transition-all duration-150 delay-75"
+                  className="border-2 rounded-lg px-4 dark:bg-gray-800 py-2 w-full  focus:transition-all duration-150 delay-75"
                   type="text"
                   placeholder="Enter the title"
                   id="title"
@@ -424,7 +433,7 @@ const AddTask = () => {
                   <PopoverTrigger asChild>
                     <Button
                       variant="outline"
-                      className="w-full rounded-xl h-12 border-2 font-normal px-4 bg-gray-800 hover:bg-gray-700 text-left justify-start"
+                      className="w-full rounded-xl h-12 border-2 font-normal px-4 dark:bg-gray-800 hover:bg-gray-700 text-left justify-start"
                     >
                       <div className="flex items-center w-full">
                         <div className="mr-2 text-gray-400 flex-shrink-0">
@@ -512,7 +521,7 @@ const AddTask = () => {
                   <PopoverTrigger asChild>
                     <Button
                       variant="outline"
-                      className="w-full rounded-xl h-12 border-2 font-normal px-4 bg-gray-800 hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed text-left justify-start"
+                      className="w-full rounded-xl h-12 border-2 font-normal px-4 dark:bg-gray-800 hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed text-left justify-start"
                       disabled={!startDate}
                     >
                       <div className="flex items-center w-full">
@@ -602,7 +611,7 @@ const AddTask = () => {
                 Description
               </Label>
               <textarea
-                className="border-2  rounded-lg p-4 bg-gray-800  w-full  focus:transition-all duration-150 delay-75"
+                className="border-2  rounded-lg p-4 dark:bg-gray-800  w-full  focus:transition-all duration-150 delay-75"
                 placeholder="Describe the case"
                 id="title"
                 {...register("description", {
@@ -614,13 +623,17 @@ const AddTask = () => {
 
           <div className="space-y-6 justify-end flex gap-5">
             <div className="space-y-6">
-              <Button type="button" onClick={handleGoBack}>
+              <Button
+                className="hover:bg-red-600"
+                type="button"
+                onClick={handleGoBack}
+              >
                 Cancel
               </Button>
             </div>
             <div className="space-y-6">
-              <Button type="submit">
-                {id ? "Update Task" : "Create New Task"}
+              <Button type="submit" className="hover:bg-blue-600 ">
+                {id ? "Update Task" : "Save Task"}
               </Button>
             </div>
           </div>

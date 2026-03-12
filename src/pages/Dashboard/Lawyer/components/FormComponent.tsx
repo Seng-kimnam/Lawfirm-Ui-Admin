@@ -10,10 +10,11 @@ const FormComponent = () => {
   return (
     <main className="min-h-screen rounded-3xl bg-transparent text-foreground pt-12">
       <button
-        className="border  fixed top-24   border-white text-lg flex items-center gap-2 rounded-full
+        className="border  fixed top-24    dark:border-white text-lg flex items-center gap-2 rounded-full
                    px-4 py-2 w-auto
-                   text-white
-                   hover:bg-white hover:text-black 
+                   dark:text-white
+                   dark:hover:bg-white dark:hover:text-black 
+                   hover:bg-black hover:text-white
                    transition-colors duration-300 ease-in-out"
         onClick={() => goto("/list-lawyer")}
       >

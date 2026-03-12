@@ -11,13 +11,14 @@ import type {
   EventClickArg,
 } from "@fullcalendar/core";
 import { Modal } from "@/components/ui/modal";
-import { CalendarDays, MapPin, Clock, User, Briefcase } from "lucide-react";
+import { CalendarDays, MapPin, Clock, User } from "lucide-react";
 import type {
   AppointmentFormData,
   AppointmentInterface,
 } from "@/model/Appointment";
 import {
   GetAllAppointment,
+  PutAppointmentService,
   PostAppointmentService,
 } from "@/Service/AppointmentService";
 import { useModal } from "@/hooks/useModal";
@@ -31,10 +32,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { GetCaseNoPagination } from "@/Service/CaseService";
 import Label from "@/components/form/Label";
-import { P } from "node_modules/framer-motion/dist/types.d-DagZKalS";
 import toast from "react-hot-toast";
+import { GetTask } from "@/Service/TaskService";
 
 interface CalendarEvent extends EventInput {
   extendedProps: {
@@ -42,19 +42,32 @@ interface CalendarEvent extends EventInput {
   };
 }
 
+const getLocalDateInputValue = (date: Date) => {
+  const tzOffsetMs = date.getTimezoneOffset() * 60 * 1000;
+  return new Date(date.getTime() - tzOffsetMs).toISOString().slice(0, 10);
+};
+
+const isBeforeToday = (date: Date) => {
+  const candidate = new Date(date);
+  candidate.setHours(0, 0, 0, 0);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return candidate < today;
+};
+
 // Status colors mapping
 const statusColors: Record<string, string> = {
   PENDING: "bg-amber-500",
-  CONFIRMED: "bg-emerald-500",
+  CONFIRMED: "bg-blue-500",
   CANCELLED: "bg-red-500",
-  COMPLETED: "bg-blue-500",
+  FINISHED: "bg-emerald-500",
 };
 
 const statusBorderColors: Record<string, string> = {
   PENDING: "border-l-amber-500",
-  CONFIRMED: "border-l-emerald-500",
+  CONFIRMED: "border-l-blue-500",
   CANCELLED: "border-l-red-500",
-  COMPLETED: "border-l-blue-500",
+  FINISHED: "border-l-emerald-500",
 };
 
 const AppointmentCalendar = () => {
@@ -63,16 +76,16 @@ const AppointmentCalendar = () => {
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const calendarRef = useRef<FullCalendar>(null);
   const { isOpen, openModal, closeModal } = useModal();
-  const { appointmentList, loading } = GetAllAppointment();
-  const { casesList } = GetCaseNoPagination();
+  const { appointmentList, loading, refetch } = GetAllAppointment();
+  const { taskList } = GetTask();
+  const todayInputMin = getLocalDateInputValue(new Date());
 
   const {
     register,
     control,
     handleSubmit,
     reset,
-    setValue,
-    watch,
+    setError,
     formState: { errors },
   } = useForm<AppointmentFormData>({
     defaultValues: {
@@ -85,16 +98,6 @@ const AppointmentCalendar = () => {
       status: "PENDING",
     },
   });
-
-  function dateFormatter(iso: string) {
-    return new Date(iso).toLocaleString("en-GB", {
-      year: "numeric",
-      month: "short",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  }
 
   useEffect(() => {
     const calendarEvents: CalendarEvent[] = appointmentList.map((apt) => ({
@@ -111,6 +114,11 @@ const AppointmentCalendar = () => {
   }, [appointmentList]);
 
   const handleDateSelect = (selectInfo: DateSelectArg) => {
+    if (isBeforeToday(selectInfo.start)) {
+      toast.error("You can only create appointments for today or a future date.");
+      calendarRef.current?.getApi().unselect();
+      return;
+    }
     setSelectedAppointment(null);
     reset({
       taskId: 0,
@@ -142,14 +150,55 @@ const AppointmentCalendar = () => {
   };
 
   const onSubmit = async (data: AppointmentFormData) => {
-    console.log("data", data);
-    try {
-      const res = await PostAppointmentService(data);
-      toast.success(res?.message);
-    } catch (e: any) {
-      toast.error(e);
+    if (!selectedAppointment) {
+      const dateCandidate = new Date(`${data.appointmentDate}T00:00:00`);
+      if (!data.appointmentDate || Number.isNaN(dateCandidate.getTime())) {
+        setError("appointmentDate", {
+          type: "manual",
+          message: "Date is required",
+        });
+        return;
+      }
+      if (isBeforeToday(dateCandidate)) {
+        setError("appointmentDate", {
+          type: "manual",
+          message: "Appointment date must be today or later",
+        });
+        toast.error("Appointment date must be today or later.");
+        return;
+      }
     }
-    closeModal();
+
+    try {
+      const payload = {
+        ...data,
+        taskId: Number(data.taskId),
+      };
+
+      const res = selectedAppointment
+        ? await PutAppointmentService(
+            selectedAppointment.appointmentId,
+            payload,
+          )
+        : await PostAppointmentService(payload);
+
+      if (res?.success) {
+        toast.success(
+          selectedAppointment
+            ? "Appointment updated successfully."
+            : "Appointment created successfully.",
+        );
+        await refetch();
+        closeModal();
+        return;
+      }
+
+      toast.error(res?.message || "Failed to save appointment.");
+    } catch (e: unknown) {
+      const message =
+        e instanceof Error ? e.message : "Failed to save appointment.";
+      toast.error(message);
+    }
   };
 
   const handleDelete = () => {
@@ -190,10 +239,6 @@ const AppointmentCalendar = () => {
     );
   }
 
-  // Watch form values for controlled radio buttons
-  const meetingType = watch("meetingType");
-  const status = watch("status");
-
   return (
     <div className="rounded-2xl border border-border bg-card shadow-sm">
       <div className="p-4">
@@ -221,6 +266,7 @@ const AppointmentCalendar = () => {
           }}
           events={events}
           selectable={true}
+          selectAllow={(selectInfo) => !isBeforeToday(selectInfo.start)}
           select={handleDateSelect}
           eventClick={handleEventClick}
           eventContent={renderEventContent}
@@ -238,7 +284,7 @@ const AppointmentCalendar = () => {
             </h2>
             <p className="text-sm text-muted-foreground mt-1">
               {selectedAppointment
-                ? `Case: ${selectedAppointment.task.title}`
+                ? `Task title: ${selectedAppointment.task.title}`
                 : "Schedule a new appointment"}
             </p>
           </div>
@@ -247,16 +293,16 @@ const AppointmentCalendar = () => {
           {selectedAppointment ? (
             <div className="p-4 rounded-lg bg-muted space-y-2">
               <div className="flex items-center gap-2 text-sm">
-                <User className="h-4 w-4 text-muted-foreground" />
-                <span className="font-medium text-foreground">
+                <User className="h-6 w-6 text-muted-foreground" />
+                <span className="font-medium text-xl text-foreground">
                   {selectedAppointment.task.lawyer.fullName}
                 </span>
               </div>
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Briefcase className="h-4 w-4" />
+                {/* <Briefcase className="h-4 w-4" />
                 <span>
                   {selectedAppointment.task.legalCase.court.courtName}
-                </span>
+                </span> */}
               </div>
             </div>
           ) : (
@@ -269,7 +315,7 @@ const AppointmentCalendar = () => {
                 render={({ field }) => (
                   <Select
                     value={field.value.toString()}
-                    onValueChange={field.onChange}
+                    onValueChange={(value) => field.onChange(Number(value))}
                   >
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder="Select a task" />
@@ -277,13 +323,20 @@ const AppointmentCalendar = () => {
                     <SelectContent sideOffset={4}>
                       <SelectGroup>
                         <SelectLabel>Available Tasks</SelectLabel>
-                        {casesList?.map(
-                          ({ caseId, client, startDate, court }) => (
-                            <SelectItem key={caseId} value={caseId.toString()}>
-                              {caseId}. {client.clientName},{" "}
-                              {dateFormatter(startDate)} - {court.courtName}
+                        {taskList.length > 0 ? (
+                          taskList.map((task) => (
+                            <SelectItem
+                              key={task.taskId}
+                              value={task.taskId.toString()}
+                            >
+                              {task.taskId}. {task.title} -{" "}
+                              {task.lawyer.fullName}
                             </SelectItem>
-                          )
+                          ))
+                        ) : (
+                          <div className="p-4 text-sm text-muted-foreground">
+                            No tasks available
+                          </div>
                         )}
                       </SelectGroup>
                     </SelectContent>
@@ -325,6 +378,7 @@ const AppointmentCalendar = () => {
                 </label>
                 <input
                   type="date"
+                  min={selectedAppointment ? undefined : todayInputMin}
                   {...register("appointmentDate", {
                     required: "Date is required",
                   })}
@@ -419,12 +473,7 @@ const AppointmentCalendar = () => {
                 render={({ field }) => (
                   <div className="flex flex-wrap gap-3">
                     {(
-                      [
-                        "PENDING",
-                        "CONFIRMED",
-                        "CANCELLED",
-                        "COMPLETED",
-                      ] as const
+                      ["PENDING", "CONFIRMED", "CANCELLED", "FINISHED"] as const
                     ).map((statusOption) => (
                       <label
                         key={statusOption}
@@ -493,9 +542,9 @@ const AppointmentCalendar = () => {
 function getStatusColor(status: string) {
   const colors: Record<string, string> = {
     PENDING: "#f59e0b",
-    CONFIRMED: "#10b981",
+    CONFIRMED: "#3b82f6",
     CANCELLED: "#ef4444",
-    COMPLETED: "#3b82f6",
+    FINISHED: "#10b981",
   };
   return colors[status];
 }

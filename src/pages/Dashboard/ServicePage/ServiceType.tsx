@@ -9,7 +9,7 @@ import {
   TableRow,
 } from "../../../components/ui/table";
 import Button from "../../../utils/button/Button";
-import { BoxIcon } from "../../../icons";
+// import { BoxIcon } from "../../../icons";
 import { BsArrowLeft, BsArrowRight } from "react-icons/bs";
 import { BiSearch } from "react-icons/bi";
 import {
@@ -24,9 +24,10 @@ import {
   putServiceType,
 } from "../../../Service/ServiceTypeService.tsx";
 import { ServiceType } from "../../../model/ServiceType.tsx";
-import { Edit, Trash } from "lucide-react";
+
 import toast from "react-hot-toast";
 import { AiOutlinePlus } from "react-icons/ai";
+import { Edit, Trash } from "iconsax-reactjs";
 const ServiceTypes = () => {
   const [newServiceType, setNewServiceType] = useState<ServiceType>({
     expertiseId: 0,
@@ -230,35 +231,35 @@ const ServiceTypes = () => {
             <div className="max-w-full overflow-x-auto">
               <Table>
                 {/* Table Header */}
-                <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
+                <TableHeader className="border-b text-center border-gray-100 dark:border-white/[0.05]">
                   <TableRow>
                     <TableCell
-                      isHeader
+                      // isHeader
                       className="px-5 py-3 font-medium text-lg text-gray-500   dark:text-gray-400"
                     >
-                      Id
+                      ID
                     </TableCell>
                     <TableCell
-                      isHeader
+                      // isHeader
                       className="px-5 py-3 font-medium text-gray-500  text-lg dark:text-gray-400"
                     >
                       Service Type Name
                     </TableCell>
                     <TableCell
-                      isHeader
+                      // isHeader
                       className="px-5 py-3 font-medium text-gray-500   text-lg dark:text-gray-400"
                     >
                       Created At
                     </TableCell>
                     <TableCell
-                      isHeader
+                      // isHeader
                       className="px-5 py-3 font-medium text-gray-500 text-lg  dark:text-gray-400"
                     >
                       Updated At
                     </TableCell>
                     <TableCell
-                      isHeader
-                      className="px-5 py-3 font-medium text-gray-500   dark:text-gray-400"
+                      // isHeader
+                      className="px-5 py-3 font-medium text-gray-500 text-lg   dark:text-gray-400"
                     >
                       Action
                     </TableCell>

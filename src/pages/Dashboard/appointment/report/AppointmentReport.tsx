@@ -50,14 +50,14 @@ const AppointmentReport = ({
     location: "",
     clientName: "",
   });
-  console.log("Initial appointment list in report:", appointmentList);
+  console.log("Initial appointment list in report:", apiFilteredList);
   const hasServerFilters = useMemo(
     () =>
       Boolean(
         filters.status ||
-          filters.meetingType ||
-          filters.location.trim() ||
-          filters.clientName.trim(),
+        filters.meetingType ||
+        filters.location.trim() ||
+        filters.clientName.trim(),
       ),
     [filters.clientName, filters.location, filters.meetingType, filters.status],
   );
@@ -286,23 +286,23 @@ const AppointmentReport = ({
 
           <div class="summary">
             <div class="summary-item">
-              <strong>${filteredData.length}</strong>
+              <strong>${apiFilteredList.length}</strong>
               <span>Total Appointments</span>
             </div>
             <div class="summary-item">
-              <strong>${filteredData.filter((a) => a.status === "CONFIRMED").length}</strong>
+              <strong>${apiFilteredList.filter((a) => a.status === "CONFIRMED").length}</strong>
               <span>Confirmed</span>
             </div>
             <div class="summary-item">
-              <strong>${filteredData.filter((a) => a.status === "PENDING").length}</strong>
+              <strong>${apiFilteredList.filter((a) => a.status === "PENDING").length}</strong>
               <span>Pending</span>
             </div>
             <div class="summary-item">
-              <strong>${filteredData.filter((a) => a.status === "FINISHED").length}</strong>
+              <strong>${apiFilteredList.filter((a) => a.status === "FINISHED").length}</strong>
               <span>Finished</span>
             </div>
             <div class="summary-item">
-              <strong>${filteredData.filter((a) => a.status === "CANCELLED").length}</strong>
+              <strong>${apiFilteredList.filter((a) => a.status === "CANCELLED").length}</strong>
               <span>Cancelled</span>
             </div>
           </div>
@@ -335,7 +335,7 @@ const AppointmentReport = ({
               </tr>
             </thead>
             <tbody>
-              ${filteredData
+              ${apiFilteredList
                 .map(
                   (item) => `
                 <tr>
@@ -398,7 +398,7 @@ const AppointmentReport = ({
       <div className="bg-white dark:bg-white/[0.03] rounded-xl border border-gray-200 dark:border-white/[0.05] p-6">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-            Appointment Report & Export
+            Appointment Report
           </h2>
           <Button
             size="md"
@@ -536,7 +536,9 @@ const AppointmentReport = ({
           <p className="text-sm text-gray-700 dark:text-gray-300">
             <strong>
               Showing {filteredData.length} of{" "}
-              {hasServerFilters ? apiFilteredList.length : appointmentList.length}{" "}
+              {hasServerFilters
+                ? apiFilteredList.length
+                : appointmentList.length}{" "}
               appointments
             </strong>
           </p>
@@ -551,7 +553,7 @@ const AppointmentReport = ({
         <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
           <div className="max-w-full overflow-x-auto">
             <Table>
-              {filteredData.length > 0 && (
+              {apiFilteredList.length > 0 && (
                 <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
                   <TableRow>
                     <TableCell
@@ -559,6 +561,12 @@ const AppointmentReport = ({
                       className="px-5 py-3 font-medium text-gray-500 whitespace-nowrap dark:text-gray-400"
                     >
                       Appointment ID
+                    </TableCell>
+                    <TableCell
+                      isHeader
+                      className="px-5 py-3 font-medium text-gray-500 whitespace-nowrap dark:text-gray-400"
+                    >
+                      Title Name
                     </TableCell>
                     <TableCell
                       isHeader
@@ -618,11 +626,14 @@ const AppointmentReport = ({
                 </TableHeader>
               )}
               <TableBody className="divide-y divide-gray-100 text-center dark:divide-white/[0.05]">
-                {filteredData.length > 0 ? (
+                {apiFilteredList.length > 0 ? (
                   apiFilteredList.map((item) => (
                     <TableRow key={item.appointmentId}>
                       <TableCell className="px-5 py-4">
                         {item.appointmentId ?? "N/A"}
+                      </TableCell>
+                      <TableCell className="px-5 py-4">
+                        {item.task.title ?? "N/A"}
                       </TableCell>
                       <TableCell className="px-4 py-3 whitespace-nowrap  text-gray-500 dark:text-white/90">
                         {parseDate(item.appointmentDate) ?? "N/A"}

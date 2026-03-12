@@ -148,7 +148,7 @@ const PopUpAddCategory = ({ categoryId, isEditing, refetch }: CategoryProp) => {
                 <div className="xl:col-span-2">
                   <Label htmlFor="categoryName">Category name</Label>
                   <input
-                    className="border-2 rounded-lg px-4 text-sm mt-4 py-2 w-full bg-black"
+                    className="mt-4 h-11 w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-none focus:ring-3 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
                     type="text"
                     defaultValue={specificCategory?.categoryName}
                     placeholder="Enter the category name"
