@@ -3,7 +3,9 @@
   "private": true,
   "version": "2.0.2",
   "type": "module",
+  "homepage": "https://Seng-Kimnam.github.io/Lawfirm-Ui-Admin",
   "scripts": {
+    "deploy": "gh-pages -d build",
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
