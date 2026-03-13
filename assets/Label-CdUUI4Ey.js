@@ -1,1 +1,0 @@
-import{j as s}from"./index-rQhmFAjG.js";import{c as a,t as m}from"./clsx-BzRwHxf0.js";const l=({htmlFor:t,children:e,className:r})=>s.jsx("label",{htmlFor:t,className:a(m("mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400",r)),children:e});export{l as L};
