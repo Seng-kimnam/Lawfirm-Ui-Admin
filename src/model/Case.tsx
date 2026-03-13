@@ -1,5 +1,5 @@
 import { ClientInterface } from "./Client";
-import { CourtInterface, CourtTypeInterface } from "./Court";
+import { CourtInterface } from "./Court";
 
 export interface CaseInterface {
   caseId: number;

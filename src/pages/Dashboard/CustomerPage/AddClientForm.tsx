@@ -1,13 +1,10 @@
 import PageMeta from "../../../components/common/PageMeta.tsx";
 import PageBreadcrumb from "../../../components/common/PageBreadCrumb.tsx";
 import ComponentCard from "../../../components/common/ComponentCard.tsx";
-import Input from "../../../utils/input/InputField.tsx";
 import Label from "../../../components/form/Label.tsx";
 import { useEffect, useState } from "react";
-import TextArea from "../../../utils/input/TextArea.tsx";
 import { useDropzone } from "react-dropzone";
 import Button from "../../../components/ui/button/Button.tsx";
-import PhoneInput from "../../../components/form/group-input/PhoneInput.tsx";
 import { useNavigate, useParams } from "react-router";
 import { Controller, useForm } from "react-hook-form";
 import {
@@ -20,18 +17,15 @@ import {
   SelectValue,
 } from "@/components/ui/select.tsx";
 import { statusList } from "@/enum/ClientStatus.ts";
-import { ClientRequest } from "@/model/Client.tsx";
 import { request } from "@/constants/api.tsx";
 // import { request } from "../../../constants/api.tsx";
 const AddClientForm = () => {
   const { id } = useParams();
   const [clientImage, setClientImage] = useState<File | null>(null);
-  const [specificClient, setSpecificClient] = useState<ClientRequest>();
 
   const {
     control,
     setValue,
-    formState: { errors },
     register,
     reset,
   } = useForm();
@@ -47,7 +41,6 @@ const AddClientForm = () => {
       try {
         const res = await request(`clients/${id}`, "GET");
         const client = res.payload;
-        setSpecificClient(client);
         reset({
           clientName: client.clientName,
           email: client.email,

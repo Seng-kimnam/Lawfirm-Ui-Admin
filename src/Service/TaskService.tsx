@@ -1,9 +1,5 @@
 import {
-  getClientList,
-  getServiceUrl,
   getTaskList,
-  postServiceUrl,
-  putServiceUrl,
 } from "../constants/constants_url";
 
 import { request } from "../constants/api";

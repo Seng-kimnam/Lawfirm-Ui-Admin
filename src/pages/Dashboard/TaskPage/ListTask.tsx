@@ -20,12 +20,9 @@ import { request } from "@/constants/api.tsx";
 import { AiOutlinePlus } from "react-icons/ai";
 const ListService = () => {
   const navigate = useNavigate();
-  const { taskList, page, totalPage, setPage, refetch } = GetTask();
+  const { taskList, page, totalPage, setPage } = GetTask();
   console.log("taskList", taskList);
   const goto = useNavigate();
-  function handleViewDetails(id: number) {
-    navigate(`/service-detail/${id}`);
-  }
 
   function formatReadableStatus(status?: string) {
     switch (status?.toLowerCase()) {

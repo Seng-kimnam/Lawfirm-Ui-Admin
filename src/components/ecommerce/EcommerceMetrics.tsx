@@ -15,7 +15,7 @@ import { GetAllAppointment } from "@/Service/AppointmentService";
 export default function EcommerceMetrics() {
   const { clientList } = GetClient();
   const { list } = GetLawyers();
-  const { taskList, page } = GetTask();
+  const { taskList } = GetTask();
   const { appointmentList } = GetAllAppointment();
   const currentRole = localStorage.getItem("role");
 

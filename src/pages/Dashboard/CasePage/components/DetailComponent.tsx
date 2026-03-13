@@ -68,7 +68,6 @@ const DetailComponent = ({
     email,
     phoneNumber,
     status: clientStatus,
-    updatedAt: clientUpdatedAt,
   } = client;
 
   const getStatusColor = (status?: string) => {

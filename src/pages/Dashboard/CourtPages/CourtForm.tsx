@@ -3,7 +3,7 @@ import PageBreadcrumb from "../../../components/common/PageBreadCrumb.tsx";
 import ComponentCard from "../../../components/common/ComponentCard.tsx";
 // import Input from "../../../utils/input/InputField.tsx";
 import Label from "../../../components/form/Label.tsx";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 // import TextArea from "../../../utils/input/TextArea.tsx";
 // import { useDropzone } from "react-dropzone";
 import Button from "../../../components/ui/button/Button.tsx";
@@ -22,7 +22,7 @@ import {
 // import { statusList } from "@/enum/ClientStatus.ts";
 // import { ClientInterface, ClientRequest } from "@/model/Client.tsx";
 import { request } from "@/constants/api.tsx";
-import {  CourtRequest } from "@/model/Court.tsx";
+import { CourtRequest } from "@/model/Court.tsx";
 import { courtTypeList } from "@/enum/CourtType.ts";
 import {
   postNewCourtService,
@@ -33,12 +33,10 @@ import toast from "react-hot-toast";
 const CourtForm = () => {
   const { id } = useParams<{ id?: string }>();
   const isEditing = Boolean(id);
-  const [specificCourt, setSpecificCourt] = useState<CourtRequest>();
   const backTo = useNavigate();
 
   const {
     control,
-    formState: { errors },
     register,
     reset,
     handleSubmit,
@@ -61,7 +59,6 @@ const CourtForm = () => {
         const res = await request(`courts/${id}`, "GET");
         const court = res.payload;
 
-        setSpecificCourt(court);
         const courtTypeByKey = courtTypeList.find(
           (c) => c.key === court.courtType
         )?.key;

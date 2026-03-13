@@ -1,13 +1,11 @@
 import {
   getClientList,
-  getServiceUrl,
-  postServiceUrl,
   putServiceUrl,
 } from "../constants/constants_url";
 import { ServiceItem } from "../model/Service";
 import { request } from "../constants/api";
 import { useEffect, useState } from "react";
-import { ClientInterface, ClientRequest, ClientRequestInterface } from "@/model/Client";
+import { ClientRequest, ClientRequestInterface } from "@/model/Client";
 
 export const GetClientRequest = () => {
   const [clientRequestList, setClientRequestList] = useState<ClientRequestInterface[]>([]);

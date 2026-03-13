@@ -1,5 +1,3 @@
-import { useState } from "react";
-import toast from "react-hot-toast";
 import LawyerForm from "../LawyerForm";
 import { ArrowLeft2 } from "iconsax-reactjs";
 import { useNavigate } from "react-router";

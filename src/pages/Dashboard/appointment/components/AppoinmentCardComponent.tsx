@@ -10,7 +10,6 @@ import {
   Briefcase,
   Phone,
   Mail,
-  Scale,
   FileText,
   Video,
   PhoneCall,
@@ -19,55 +18,6 @@ import {
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { AppointmentInterface } from "@/model/Appointment";
-
-interface Client {
-  clientId: number;
-  clientName: string;
-  email: string;
-  phoneNumber: string;
-  complaint: string;
-  address: string;
-  status: string;
-  clientImage: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-interface Court {
-  courtId: number;
-  courtName: string;
-  courtType: string;
-  location: string;
-  contactNumber: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-interface LegalCase {
-  caseId: number;
-  client: Client;
-  court: Court;
-  title: string;
-  description: string;
-  status: string;
-  startDate: string;
-  endDate: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-interface Appointment {
-  appointmentId: number;
-  legalCase: LegalCase;
-  appointmentDate: string;
-  appointmentTime: string;
-  meetingType: "IN_PERSON" | "VIRTUAL" | "PHONE";
-  location: string;
-  purpose: string;
-  status: "PENDING" | "CONFIRMED" | "CANCELLED" | "COMPLETED";
-  createdAt: string;
-  updatedAt: string;
-}
 
 interface AppointmentDetailCardProps {
   appointment: AppointmentInterface;
@@ -108,13 +58,6 @@ const meetingTypeConfig: Record<
   IN_PERSON: { icon: <Users className="h-4 w-4" />, label: "In Person" },
   VIRTUAL: { icon: <Video className="h-4 w-4" />, label: "Virtual" },
   PHONE: { icon: <PhoneCall className="h-4 w-4" />, label: "Phone Call" },
-};
-
-const courtTypeLabels: Record<string, string> = {
-  SUPREME_COURT: "Supreme Court",
-  APPELLATE_COURT: "Appellate Court",
-  DISTRICT_COURT: "District Court",
-  MUNICIPAL_COURT: "Municipal Court",
 };
 
 function formatDate(dateString: string) {
@@ -296,39 +239,6 @@ const AppointmentCardComponent = ({
             </div>
           </div>
         </div>
-
-        {/* Court Information */}
-        {/* <div className="space-y-3">
-          <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
-            <Scale className="h-4 w-4 text-muted-foreground" />
-            Court Information
-          </h4>
-          <div className="p-4 rounded-lg border border-border bg-card">
-            <div className="flex items-start justify-between gap-4">
-              <div className="space-y-2">
-                <div>
-                  <p className="font-medium text-foreground">
-                    {court.courtName}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    {courtTypeLabels[court.courtType] ||
-                      court.courtType.replace("_", " ")}
-                  </p>
-                </div>
-                <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                  <div className="flex items-center gap-1.5">
-                    <MapPin className="h-3.5 w-3.5" />
-                    <span>{court.location}</span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <Phone className="h-3.5 w-3.5" />
-                    <span>{court.contactNumber}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div> */}
 
         {/* Actions */}
         {(onEdit || onDelete) && (

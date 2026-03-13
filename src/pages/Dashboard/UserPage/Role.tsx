@@ -5,6 +5,7 @@ import {
   TableBody,
   TableCell,
   TableHeader,
+  TableHead,
   TableRow,
 } from "../../../components/ui/table";
 import Button from "../../../utils/button/Button";
@@ -137,36 +138,31 @@ const Role = () => {
                 {/* Table Header */}
                 <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
                   <TableRow>
-                    <TableCell
-                      isHeader
+                    <TableHead
                       className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                     >
                       ID
-                    </TableCell>
-                    <TableCell
-                      isHeader
+                    </TableHead>
+                    <TableHead
                       className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                     >
                       Role Name
-                    </TableCell>
-                    <TableCell
-                      isHeader
+                    </TableHead>
+                    <TableHead
                       className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                     >
                       Created At
-                    </TableCell>
-                    <TableCell
-                      isHeader
+                    </TableHead>
+                    <TableHead
                       className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                     >
                       Updated At
-                    </TableCell>
-                    <TableCell
-                      isHeader
+                    </TableHead>
+                    <TableHead
                       className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                     >
                       Action
-                    </TableCell>
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
 

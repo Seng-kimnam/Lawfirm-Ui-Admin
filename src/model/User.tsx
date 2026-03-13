@@ -1,6 +1,3 @@
-import { Roles } from "./Roles";
-import { ServiceType } from "./ServiceType";
-
 export interface User {
   email: string;
   password: string;

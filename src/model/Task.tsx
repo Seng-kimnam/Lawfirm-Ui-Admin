@@ -1,5 +1,5 @@
 import { CaseInterface } from "./Case";
-import { Lawyer, Lawyers } from "./Lawyer";
+import { Lawyer } from "./Lawyer";
 
 export interface TaskInterface {
   taskId: number;

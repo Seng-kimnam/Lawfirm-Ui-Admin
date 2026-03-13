@@ -1,5 +1,5 @@
 import { request } from "@/constants/api";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router";
 import AppoinmentCardComponent from "./components/AppoinmentCardComponent";
 import { TaskInterface } from "@/model/Task";

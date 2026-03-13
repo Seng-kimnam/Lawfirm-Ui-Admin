@@ -48,7 +48,6 @@ const AddTask = () => {
 
   const {
     watch,
-    formState: { errors },
     reset,
     register,
     setValue,

@@ -1,4 +1,3 @@
-import { CaseInterface } from "./Case";
 import { TaskInterface } from "./Task";
 
 export interface AppointmentInterface {

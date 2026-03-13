@@ -1,11 +1,8 @@
 import { CaseInterface } from "@/model/Case";
-import { ClientInterface } from "@/model/Client";
-import { CourtInterface } from "@/model/Court";
 import { Lawyer } from "@/model/Lawyer";
 import { AlignBottom, Link1 } from "iconsax-reactjs";
 import {
   Calendar,
-  MapPin,
   Phone,
   Mail,
   FileText,
@@ -66,7 +63,6 @@ const DetailTaskComponent = ({
   const {
     appUserId,
     fullName,
-    gender,
     lawyerStatus,
     email,
     phoneNumber,
@@ -77,7 +73,6 @@ const DetailTaskComponent = ({
     description: aboutLawyer,
     title: lawyerTitle,
     createdAt: clientCreatedAt,
-    updatedAt: clientUpdatedAt,
   } = lawyer;
 
   const getStatusColor = (status?: string) => {
