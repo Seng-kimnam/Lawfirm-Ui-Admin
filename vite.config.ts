@@ -4,6 +4,7 @@ import svgr from "vite-plugin-svgr";
 import { fileURLToPath, URL } from "node:url";
 
 export default defineConfig({
+  base: "/Lawfirm-Ui-Admin/",
   plugins: [
     react(),
     svgr({
