@@ -115,7 +115,7 @@ const CourtForm = () => {
                 <Label htmlFor="input">Court Name</Label>
                 <input
                   // value={DocForUpdate?.title}
-                  className="border-2 rounded-lg px-4 bg-gray-900 py-2 w-full  focus:transition-all duration-150 delay-75"
+                  className="border-2 rounded-lg px-4 dark:bg-gray-900 py-2 w-full  focus:transition-all duration-150 delay-75"
                   type="text"
                   placeholder="Enter court name"
                   id="title"
@@ -126,7 +126,7 @@ const CourtForm = () => {
                 <Label>Location</Label>
                 <input
                   // value={DocForUpdate?.title}
-                  className="border-2 rounded-lg px-4 bg-gray-900 py-2 w-full  focus:transition-all duration-150 delay-75"
+                  className="border-2 rounded-lg px-4 dark:bg-gray-900 py-2 w-full  focus:transition-all duration-150 delay-75"
                   type="text"
                   placeholder="Enter court location"
                   id="title"
@@ -139,7 +139,7 @@ const CourtForm = () => {
                 <Label>Contact Number</Label>
                 <input
                   // value={DocForUpdate?.title}
-                  className="border-2 rounded-lg px-4 bg-gray-900 py-2 w-full  focus:transition-all duration-150 delay-75"
+                  className="border-2 rounded-lg px-4 dark:bg-gray-900 py-2 w-full  focus:transition-all duration-150 delay-75"
                   type="text"
                   placeholder="+855 12 345 678"
                   id="title"

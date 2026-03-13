@@ -65,8 +65,12 @@ export const getTaskList = (page: Number) => {
   return `tasks?page=${page}&size=10&sortBy=taskId&ascending=true`;
 };
 
-export const getClientDetailByEmail = (email: string | null) => {
-  return `clients/request?email=${email}&page=1&size=5&sortBy=clientId&ascending=true`;
+export const getClientDetailByEmail = (
+  email: string | null,
+  page = 1,
+  size = 5,
+) => {
+  return `clients/request?email=${email}&page=${page}&size=${size}&sortBy=clientId&ascending=true`;
 };
 
 export const getAppointmentList = (page: Number) => {

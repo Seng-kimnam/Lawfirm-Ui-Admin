@@ -28,7 +28,7 @@ const ListClient = () => {
   const [isSearching, setIsSearching] = useState<boolean>(false);
 
   function routeForDetail(email: string) {
-    navigate(`/client-request-info?email=${email}`);
+    navigate(`/client-request-history?email=${email}`);
   }
 
   // Debounced search
@@ -44,7 +44,7 @@ const ListClient = () => {
       try {
         setIsSearching(true);
         const data = await searchClientByEmail(keyword.trim());
-        console
+        console;
         // If backend returns Page object
         setSearchResult(data?.payload?.content ?? []);
       } catch (err) {
@@ -54,7 +54,6 @@ const ListClient = () => {
 
     return () => clearTimeout(delay);
   }, [keyword]);
-
 
   const dataToRender = isSearching ? searchResult : clientRequestList;
 
@@ -117,19 +116,19 @@ const ListClient = () => {
               <Table>
                 <TableHeader className="border-b text-center bg-gray-100 border-gray-200 dark:bg-gray-800 dark:border-white/[0.05]">
                   <TableRow>
-                    <TableCell className="px-5 py-3 text-xl text-center text-gray-700 dark:text-gray-300">
+                    <TableCell className="px-5 py-3 text-lg text-center text-gray-700 dark:text-gray-300">
                       Client ID
                     </TableCell>
-                    <TableCell className="px-5 py-3 text-xl text-center text-gray-700 dark:text-gray-300">
+                    <TableCell className="px-5 py-3 text-lg text-center text-gray-700 dark:text-gray-300">
                       Name
                     </TableCell>
-                    <TableCell className="px-5 py-3 text-xl text-center text-gray-700 dark:text-gray-300">
+                    <TableCell className="px-5 py-3 text-lg text-center text-gray-700 dark:text-gray-300">
                       Email
                     </TableCell>
-                    <TableCell className="px-5 py-3 text-xl text-center text-gray-700 dark:text-gray-300">
+                    <TableCell className="px-5 py-3 text-lg text-center text-gray-700 dark:text-gray-300">
                       Total Request
                     </TableCell>
-                    <TableCell className="px-5 py-3 text-xl text-center text-gray-700 dark:text-gray-300">
+                    <TableCell className="px-5 py-3 text-lg text-center text-gray-700 dark:text-gray-300">
                       Actions
                     </TableCell>
                   </TableRow>
@@ -152,7 +151,7 @@ const ListClient = () => {
                         <TableCell className="text-center">
                           {item.email ?? "N/A"}
                         </TableCell>
-                        <TableCell className="text-center">
+                        <TableCell className="text-center text-lg">
                           {item.requestCount ?? "N/A"}
                         </TableCell>
                         <TableCell className="text-center">

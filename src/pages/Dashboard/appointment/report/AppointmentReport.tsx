@@ -503,7 +503,7 @@ const AppointmentReport = ({
             </label>
             <input
               type="text"
-              placeholder="Filter location"
+              placeholder="Search by location"
               value={filters.location}
               onChange={(e) => handleFilterChange("location", e.target.value)}
               className="w-full px-3 py-3 border border-gray-300 dark:border-white/[0.1] rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
@@ -516,7 +516,7 @@ const AppointmentReport = ({
             </label>
             <input
               type="text"
-              placeholder="Filter client"
+              placeholder="Search by client name"
               value={filters.clientName}
               onChange={(e) => handleFilterChange("clientName", e.target.value)}
               className="w-full px-3 py-3 border border-gray-300 dark:border-white/[0.1] rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"

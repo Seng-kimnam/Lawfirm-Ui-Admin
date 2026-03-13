@@ -102,7 +102,7 @@ export default function App() {
               <Route path="/edit-case/:id" element={<AddCase />} />
               <Route path="/case-detail-info/:id" element={<CaseDetail />} />
               <Route
-                path="/client-request-info"
+                path="/client-request-history"
                 element={<ClientRequestDetail />}
               />
               {/* file doc  */}

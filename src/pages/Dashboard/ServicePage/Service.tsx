@@ -168,7 +168,7 @@ const Service = () => {
             </div>
             <div className="space-y-6 grid grid-cols-1 gap-6 xl:grid-cols-2">
               <div>
-                <Label htmlFor="input">Base Price</Label>
+                <Label htmlFor="input">Base Price (Optional)</Label>
                 <Input
                   type="text"
                   placeholder="Enter base price"

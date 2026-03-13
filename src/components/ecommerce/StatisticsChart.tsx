@@ -241,7 +241,7 @@ export default function StatisticsChart() {
 
         setChart({
           period,
-          ...(period !== "annually" && period !== "custom" ? { year } : {}),
+          ...(period !== "annually" ? { year } : {}),
           categories: payload.categories,
           data: payload.data,
         });

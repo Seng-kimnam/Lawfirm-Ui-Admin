@@ -24,7 +24,7 @@ const LayoutContent: React.FC = () => {
     setChecked(true);
   }, [navigate]);
 
-  // ⛔ BLOCK UI until auth is checked
+  // BLOCK UI until auth is checked
   if (!checked) return null;
 
   return (

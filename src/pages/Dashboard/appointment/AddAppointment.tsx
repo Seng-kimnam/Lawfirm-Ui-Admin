@@ -77,6 +77,7 @@ const formatTimeForInput = (time: string) => {
 type taskForDropdown = {
   taskId: number;
   title: string;
+  lawyerName?: string;
 };
 
 type AppointmentTaskShape = {
@@ -110,6 +111,7 @@ export default function CreateAppointmentForm() {
       const options = taskList.map((task) => ({
         taskId: task.taskId,
         title: task.title,
+        lawyerName: task.lawyer.fullName,
       }));
       setTaskOptionsIdAndTitle(options);
     }
@@ -218,14 +220,17 @@ export default function CreateAppointmentForm() {
       const res = id
         ? await PutAppointmentService(Number(id), data)
         : await PostAppointmentService(data);
+      const { detail, status } = res?.response?.data || {};
       if (res.success) {
         toast.success(
           `Appointment ${id ? "updated" : "created"} successfully!`,
         );
         goto("/list-appointment");
       }
-
-      console.log("Appointment created:", data);
+      if (status === 400) {
+        toast.error(detail || "Validation error. Please check your input.");
+      }
+      if (res.response) console.log("Appointment created:", data);
     } catch (error) {
       console.error("Form submission error:", error);
       toast.error("Failed to create appointment. Please try again.");
@@ -282,7 +287,12 @@ export default function CreateAppointmentForm() {
                             {taskOptionsIdAndTitle.find(
                               (option) =>
                                 String(option.taskId) === String(taskOptionId),
-                            )?.title || "Unknown Task"}
+                            )?.title || "Unknown Task"}{" "}
+                            -{" "}
+                            {taskOptionsIdAndTitle.find(
+                              (option) =>
+                                String(option.taskId) === String(taskOptionId),
+                            )?.lawyerName || "Unknown Task"}
                           </SelectItem>
                         ))}
                       </SelectContent>

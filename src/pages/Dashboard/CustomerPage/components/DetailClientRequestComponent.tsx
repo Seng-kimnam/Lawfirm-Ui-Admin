@@ -11,6 +11,7 @@ interface ClientData {
   email: string;
   phoneNumber: string;
   complaint: string;
+  feedBack: string;
   address: string;
   status: "PENDING" | "APPROVED" | "REJECTED";
   clientImage: string;
@@ -24,6 +25,7 @@ const DetailClientRequestComponent = ({
   email,
   phoneNumber,
   complaint,
+  feedBack,
   address,
   status,
   clientImage,
@@ -38,6 +40,7 @@ const DetailClientRequestComponent = ({
     complaint,
     address,
     status,
+    feedBack,
     clientImage,
     createdAt,
     updatedAt,
@@ -53,8 +56,9 @@ const DetailClientRequestComponent = ({
     complaint,
     address,
     status,
+    feedBack,
     clientImage,
-  });
+  }); 
 
   useEffect(() => {
     setClientDetail({
@@ -65,6 +69,7 @@ const DetailClientRequestComponent = ({
       complaint,
       address,
       status,
+      feedBack,
       clientImage,
       createdAt,
       updatedAt,
@@ -76,6 +81,7 @@ const DetailClientRequestComponent = ({
       complaint,
       address,
       status,
+      feedBack,
       clientImage,
     });
   }, [
@@ -141,12 +147,12 @@ const DetailClientRequestComponent = ({
       complaint: clientDetail.complaint,
       address: clientDetail.address,
       status: clientDetail.status,
+      feedBack: clientDetail.feedBack || "",
       clientImage: clientDetail.clientImage,
     });
     setIsEditOpen(true);
   };
 
-  console.log("update request ", editForm);
   const handleInputChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
@@ -165,6 +171,7 @@ const DetailClientRequestComponent = ({
     setSuccessMessage("");
     setIsSaving(true);
 
+    console.log("Saving changes with data: ", editForm);
     try {
       const updatedClient = await updateClientRequestById(
         clientDetail.clientId,
@@ -187,9 +194,11 @@ const DetailClientRequestComponent = ({
     }
   };
 
+  console.log("client detail ", clientDetail);
+
   return (
-    <div className="flex items-center mt-20 justify-center min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 p-6">
-      <div className="w-full max-w-2xl bg-slate-800 rounded-2xl shadow-2xl overflow-hidden border border-slate-700">
+    <div className="flex items-center mt-20 justify-center min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 p-6">
+      <div className="w-full max-w-2xl bg-white dark:bg-slate-800 rounded-2xl shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-700">
         {/* Header Section */}
         <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-6">
           <div className="flex items-start gap-4">
@@ -199,6 +208,7 @@ const DetailClientRequestComponent = ({
                 <img
                   src={`http://localhost:8080/api/v1/files/preview-file?fileName=${clientDetail.clientImage}`}
                   alt={clientDetail.clientName}
+                  title={clientDetail.clientImage}
                   className="w-full h-full object-cover"
                 />
               ) : (
@@ -209,7 +219,7 @@ const DetailClientRequestComponent = ({
               <h2 className="text-2xl font-bold text-white mb-1">
                 {clientDetail.clientName}
               </h2>
-              <p className="text-blue-100  text-sm">
+              <p className="text-blue-100 text-sm">
                 Request ID: #{clientDetail.clientId}
               </p>
               <span
@@ -234,48 +244,48 @@ const DetailClientRequestComponent = ({
         {/* Content Section */}
         <div className="p-6 space-y-4">
           {successMessage && (
-            <div className="rounded-lg border border-green-500/40 bg-green-500/10 px-4 py-2 text-sm text-green-300">
+            <div className="rounded-lg border border-green-500/40 bg-green-500/10 px-4 py-2 text-sm text-green-700 dark:text-green-300">
               {successMessage}
             </div>
           )}
           {errorMessage && (
-            <div className="rounded-lg border border-red-500/40 bg-red-500/10 px-4 py-2 text-sm text-red-300">
+            <div className="rounded-lg border border-red-500/40 bg-red-500/10 px-4 py-2 text-sm text-red-700 dark:text-red-300">
               {errorMessage}
             </div>
           )}
           {/* Contact Information */}
           <div className="grid gap-4">
-            <div className="flex items-start gap-3 p-4 rounded-lg bg-slate-700/50 hover:bg-slate-700 transition-colors border border-slate-600">
-              <Mail className="w-5 h-5 text-blue-400 mt-0.5 flex-shrink-0" />
+            <div className="flex items-start gap-3 p-4 rounded-lg bg-slate-50 hover:bg-slate-100 dark:bg-slate-700/50 dark:hover:bg-slate-700 transition-colors border border-slate-200 dark:border-slate-600">
+              <Mail className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
               <div>
-                <p className="text-xs text-slate-400 uppercase tracking-wide mb-1">
+                <p className="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1">
                   Email
                 </p>
-                <p className="text-slate-100 font-medium">
+                <p className="text-slate-900 dark:text-slate-100 font-medium">
                   {clientDetail.email}
                 </p>
               </div>
             </div>
 
-            <div className="flex items-start gap-3 p-4 rounded-lg bg-slate-700/50 hover:bg-slate-700 transition-colors border border-slate-600">
-              <Phone className="w-5 h-5 text-blue-400 mt-0.5 flex-shrink-0" />
+            <div className="flex items-start gap-3 p-4 rounded-lg bg-slate-50 hover:bg-slate-100 dark:bg-slate-700/50 dark:hover:bg-slate-700 transition-colors border border-slate-200 dark:border-slate-600">
+              <Phone className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
               <div>
-                <p className="text-xs text-slate-400 uppercase tracking-wide mb-1">
+                <p className="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1">
                   Phone
                 </p>
-                <p className="text-slate-100 font-medium">
+                <p className="text-slate-900 dark:text-slate-100 font-medium">
                   {clientDetail.phoneNumber}
                 </p>
               </div>
             </div>
 
-            <div className="flex items-start gap-3 p-4 rounded-lg bg-slate-700/50 hover:bg-slate-700 transition-colors border border-slate-600">
-              <MapPin className="w-5 h-5 text-blue-400 mt-0.5 flex-shrink-0" />
+            <div className="flex items-start gap-3 p-4 rounded-lg bg-slate-50 hover:bg-slate-100 dark:bg-slate-700/50 dark:hover:bg-slate-700 transition-colors border border-slate-200 dark:border-slate-600">
+              <MapPin className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
               <div>
-                <p className="text-xs text-slate-400 uppercase tracking-wide mb-1">
+                <p className="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1">
                   Address
                 </p>
-                <p className="text-slate-100 font-medium">
+                <p className="text-slate-900 dark:text-slate-100 font-medium">
                   {clientDetail.address}
                 </p>
               </div>
@@ -283,29 +293,35 @@ const DetailClientRequestComponent = ({
           </div>
 
           {/* Complaint Section */}
-          <div className="p-4 rounded-lg border-2 border-slate-600 bg-slate-700/30">
-            <p className="text-xs text-slate-400 uppercase tracking-wide mb-2">
+          <div className="p-4 rounded-lg border-2 border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700/30">
+            <p className="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-2">
               Complaint
             </p>
-            <p className="text-slate-100">{clientDetail.complaint}</p>
+            <p className="text-slate-900 dark:text-slate-100">
+              {clientDetail.complaint}
+            </p>
           </div>
 
           {/* Timestamps */}
-          <div className="grid grid-cols-2 gap-4 pt-4 border-t border-slate-600">
+          <div className="grid grid-cols-2 gap-4 pt-4 border-t border-slate-200 dark:border-slate-600">
             <div className="flex items-start gap-2">
-              <Calendar className="w-4 h-4 text-slate-400 mt-1" />
+              <Calendar className="w-4 h-4 text-slate-500 dark:text-slate-400 mt-1" />
               <div>
-                <p className="text-xs text-slate-400 mb-0.5">Created</p>
-                <p className="text-sm text-slate-100 font-medium">
+                <p className="text-xs text-slate-500 dark:text-slate-400 mb-0.5">
+                  Created
+                </p>
+                <p className="text-sm text-slate-900 dark:text-slate-100 font-medium">
                   {formatDate(clientDetail.createdAt)}
                 </p>
               </div>
             </div>
             <div className="flex items-start gap-2">
-              <Calendar className="w-4 h-4 text-slate-400 mt-1" />
+              <Calendar className="w-4 h-4 text-slate-500 dark:text-slate-400 mt-1" />
               <div>
-                <p className="text-xs text-slate-400 mb-0.5">Updated</p>
-                <p className="text-sm text-slate-100 font-medium">
+                <p className="text-xs text-slate-500 dark:text-slate-400 mb-0.5">
+                  Updated
+                </p>
+                <p className="text-sm text-slate-900 dark:text-slate-100 font-medium">
                   {formatDate(clientDetail.updatedAt)}
                 </p>
               </div>
@@ -339,7 +355,7 @@ const DetailClientRequestComponent = ({
                 value={editForm.clientName}
                 onChange={handleInputChange}
                 required
-                className="h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm outline-none focus:border-brand-300"
+                className="h-11 w-full rounded-lg border border-gray-300 dark:border-slate-700 bg-transparent px-4 py-2.5 text-sm text-slate-900 dark:text-slate-100 outline-none focus:border-brand-300"
               />
             </div>
             <div>
@@ -350,7 +366,7 @@ const DetailClientRequestComponent = ({
                 value={editForm.email}
                 onChange={handleInputChange}
                 required
-                className="h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm outline-none focus:border-brand-300"
+                className="h-11 w-full rounded-lg border border-gray-300 dark:border-slate-700 bg-transparent px-4 py-2.5 text-sm text-slate-900 dark:text-slate-100 outline-none focus:border-brand-300"
               />
             </div>
             <div>
@@ -362,7 +378,7 @@ const DetailClientRequestComponent = ({
                 value={editForm.phoneNumber}
                 onChange={handleInputChange}
                 required
-                className="h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm outline-none focus:border-brand-300"
+                className="h-11 w-full rounded-lg border border-gray-300 dark:border-slate-700 bg-transparent px-4 py-2.5 text-sm text-slate-900 dark:text-slate-100 outline-none focus:border-brand-300"
               />
             </div>
             <div>
@@ -374,7 +390,7 @@ const DetailClientRequestComponent = ({
                 value={editForm.address}
                 onChange={handleInputChange}
                 required
-                className="h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm outline-none focus:border-brand-300"
+                className="h-11 w-full rounded-lg border border-gray-300 dark:border-slate-700 bg-transparent px-4 py-2.5 text-sm text-slate-900 dark:text-slate-100 outline-none focus:border-brand-300"
               />
             </div>
             <div>
@@ -383,7 +399,7 @@ const DetailClientRequestComponent = ({
                 name="status"
                 value={editForm.status}
                 onChange={handleInputChange}
-                className="h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm outline-none focus:border-brand-300"
+                className="h-11 w-full rounded-lg border border-gray-300 dark:border-slate-700 bg-transparent px-4 py-2.5 text-sm text-slate-900 dark:text-slate-100 outline-none focus:border-brand-300"
               >
                 <option value="PENDING">PENDING</option>
                 <option value="APPROVED">APPROVED</option>
@@ -391,6 +407,19 @@ const DetailClientRequestComponent = ({
                 <option value="IN_PROGRESS">IN PROGRESS</option>
                 <option value="DONE">DONE</option>
               </select>
+            </div>
+            <div>
+              <label className="mb-1.5 block text-sm font-medium">
+                Feedback
+              </label>
+              <input
+                name="feedBack"
+                placeholder="Enter feedback for client"
+                value={editForm.feedBack}
+                onChange={handleInputChange}
+                required
+                className="h-11 w-full rounded-lg border border-gray-300 dark:border-slate-700 bg-transparent px-4 py-2.5 text-sm text-slate-900 dark:text-slate-100 outline-none focus:border-brand-300"
+              />
             </div>
           </div>
 
@@ -404,7 +433,7 @@ const DetailClientRequestComponent = ({
               onChange={handleInputChange}
               required
               rows={4}
-              className="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm outline-none focus:border-brand-300"
+              className="w-full rounded-lg border border-gray-300 dark:border-slate-700 bg-transparent px-4 py-2.5 text-sm text-slate-900 dark:text-slate-100 outline-none focus:border-brand-300"
             />
           </div>
 

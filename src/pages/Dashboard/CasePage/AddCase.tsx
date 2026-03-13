@@ -285,7 +285,7 @@ const AddCase = () => {
                   }}
                 >
                   <SelectTrigger className="w-full ">
-                    <SelectValue placeholder="Select service type" />
+                    <SelectValue placeholder="Select client request" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectGroup>
@@ -296,7 +296,7 @@ const AddCase = () => {
                           key={client.clientId}
                           value={client.clientId.toString()}
                         >
-                          {client.clientId}. {client.clientName}
+                          {client.clientId}. {client.clientName} - {client.complaint}
                         </SelectItem>
                       ))}
                     </SelectGroup>
@@ -317,7 +317,7 @@ const AddCase = () => {
                   }
                 >
                   <SelectTrigger className="w-full ">
-                    <SelectValue placeholder="Select service type" />
+                    <SelectValue placeholder="Select the court " />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectGroup>
@@ -370,7 +370,7 @@ const AddCase = () => {
               <div>
                 <Label htmlFor="input">Title</Label>
                 <input
-                  className="border-2 rounded-lg px-4 bg-gray-800 py-2 w-full  focus:transition-all duration-150 delay-75"
+                  className="border-2 rounded-lg px-4 dark:bg-gray-800 py-2 w-full  focus:transition-all duration-150 delay-75"
                   type="text"
                   placeholder="Enter the title"
                   id="title"
@@ -565,7 +565,7 @@ const AddCase = () => {
                 Description
               </Label>
               <textarea
-                className="border-2  rounded-lg p-4 bg-gray-800  w-full  focus:transition-all duration-150 delay-75"
+                className="border-2  rounded-lg p-4 dark:bg-gray-800  w-full  focus:transition-all duration-150 delay-75"
                 placeholder="Describe the case"
                 id="title"
                 {...register("description", {

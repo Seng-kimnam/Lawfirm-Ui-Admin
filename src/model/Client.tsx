@@ -7,6 +7,7 @@ export interface ClientInterface {
   address: string;
   complaint: string;
   clientImage: string;
+  feedBack: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -20,6 +21,7 @@ export interface ClientRequest {
   phoneNumber: string;
   address: string;
   complaint: string;
+  feedBack: string;
   clientImage: string;
 }
 
