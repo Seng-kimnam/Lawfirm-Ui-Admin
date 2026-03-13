@@ -1,1 +1,0 @@
-import{j as e}from"./index-DPwNui4_.js";const d=({docId:t,fileUrl:i,title:r})=>e.jsx("div",{style:{height:"80vh",width:"100%"},children:e.jsx("iframe",{src:i,title:r,width:"100%",height:"100%"},t)});export{d as E};
