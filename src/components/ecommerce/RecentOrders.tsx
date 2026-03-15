@@ -48,11 +48,11 @@ export default function RecentOrders() {
           </h3>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center  gap-3">
           <select
             value={status}
             onChange={(e) => setStatus(e.target.value as TaskStatusFilter)}
-            className="rounded-md border border-gray-300 px-3 py-2 text-sm"
+            className="rounded-md border bg-white dark:text-black border-gray-300 px-3 py-2 text-sm"
           >
             <option value="ALL">All</option>
             <option value="UNDER_PROGRESS">Under Progress</option>

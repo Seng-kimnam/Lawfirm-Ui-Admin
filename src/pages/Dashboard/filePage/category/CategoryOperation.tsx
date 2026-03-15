@@ -15,7 +15,7 @@ export const CategoryOperation = () => {
         getCategoryWithPagination(page),
         "GET",
         undefined,
-        undefined
+        undefined,
       );
 
       if (!res || !res.payload) throw new Error("No data received");
@@ -56,16 +56,8 @@ export const CategoryOperation = () => {
 /// ------------------- config soon --------------------------
 export const postCategory = async (req: CategoryRequest) => {
   try {
-    const response = await request(
-      "categories",
-      "POST",
-      req,
-      {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
-      "application/json"
-    );
-    if (response?.success) {
+    const response = await request("categories", "POST", req);
+    if (response) {
       return response;
     }
   } catch (error) {
@@ -76,7 +68,7 @@ export const postCategory = async (req: CategoryRequest) => {
 // // Update Service
 export const putCategoryById = async (
   req: CategoryRequest,
-  categoryId: number
+  categoryId: number,
 ) => {
   try {
     if (!categoryId) {
@@ -85,12 +77,12 @@ export const putCategoryById = async (
     const response = await request(`categories/${categoryId}`, "PUT", req, {
       Authorization: `Bearer ${localStorage.getItem("token")}`,
     });
-    if (response?.success) {
+    if (response) {
       return response;
     }
   } catch (error: any) {
     alert(
-      error.response?.data?.message || error.message || "Something went wrong"
+      error.response?.data?.message || error.message || "Something went wrong",
     );
   }
 };

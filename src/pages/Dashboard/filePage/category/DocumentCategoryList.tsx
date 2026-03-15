@@ -113,7 +113,7 @@ const DocumentCategoryList = () => {
           searchInput={
             <Input
               type="text"
-              placeholder="Search service..."
+              placeholder="Search category..."
               icon={<BiSearch className="w-5 h-5" />}
               // className="px-6 py-5 flex items-center justify-between border-t border-gray-100 dark:border-gray-800"
               id="input"

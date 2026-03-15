@@ -82,6 +82,10 @@ export default function App() {
                 element={<AppointmentDetail />}
               />
               <Route path="/blank" element={<Blank />} />
+              <Route path="/add-file-doc" element={<AddFileDocument />} />
+              <Route path="/edit-file-doc/:id" element={<AddFileDocument />} />
+              <Route path="/doc-category" element={<DocumentCategoryList />} />
+              <Route path="/list-file-doc" element={<ListFileDocument />} />
               {/* Add any other shared pages here */}
             </Route>
           </Route>

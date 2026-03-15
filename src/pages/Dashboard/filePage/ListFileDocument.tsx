@@ -105,8 +105,8 @@ const ListFileDocument = () => {
     <div>
       <div className="space-y-6">
         <ComponentCard
-          title="List Services"
-          desc="A list of all services available in the system."
+          title="List Of File Documents"
+          desc="A list of all file documents available in the system."
           headerActions={
             <>
               <Button
@@ -122,7 +122,7 @@ const ListFileDocument = () => {
           searchInput={
             <Input
               type="text"
-              placeholder="Search service..."
+              placeholder="Search document..."
               icon={<BiSearch className="w-5 h-5" />}
               // className="px-6 py-5 flex items-center justify-between border-t border-gray-100 dark:border-gray-800"
               id="input"

@@ -658,7 +658,7 @@ const AppointmentReport = ({
                       </TableCell>
                       <TableCell className="px-5 py-4">
                         <span
-                          className={`px-3 py-1 rounded-full ${changeStatusColor(item.status)} text-sm font-medium  text-gray-800 dark:text-gray-200`}
+                          className={`px-3 py-1 rounded-full text-lg text-white ${changeStatusColor(item.status)} text-sm font-medium  text-gray-800 dark:text-gray-200`}
                         >
                           {changeStatusToNormalText(
                             item.status,

@@ -67,9 +67,9 @@ export default function ForgetPasswordForm() {
         <div className="flex flex-col justify-center flex-1 w-full max-w-md mx-auto">
           <button
             onClick={handleNavToSignin}
-            className="text-lg text-brand-50 my-6   flex items-center text-left hover:text-brand-600 dark:text-gray-400"
+            className="text-lg dark:text-brand-50 my-6   flex items-center text-left hover:text-brand-600"
           >
-            <ArrowLeft size="24" color="#d9e3f0" /> Back
+            <ArrowLeft size="28" className="dark:text-white text-black" /> 
           </button>
           <div>
             <div className="mb-5 sm:mb-8">

@@ -155,7 +155,7 @@ export function EditProfileModal({
       };
 
       const res = await updateProfileService(finishedData);
-      console.log("Update profile response:", res);
+
       if (res.success) {
         toast.success(res.message);
         reset();

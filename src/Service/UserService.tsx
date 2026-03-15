@@ -94,9 +94,24 @@ export const fetchLawyerById = async (
   }
 };
 
-export const fetchCurrentUser = async () => {
+export const fetchCurrentAdminLogin = async () => {
   try {
     const res = await request(`admins/admin-profile`, "GET", undefined, {
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
+    });
+
+    if (!res || !res.payload) return null;
+
+    return res;
+  } catch (err) {
+    console.error("Error fetching lawyer by ID:", err);
+    return null;
+  }
+};
+
+export const fetchCurrentLawyerLogin = async () => {
+  try {
+    const res = await request(`lawyers/lawyer-profile`, "GET", undefined, {
       Authorization: `Bearer ${localStorage.getItem("token")}`,
     });
 

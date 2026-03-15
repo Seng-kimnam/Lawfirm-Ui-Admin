@@ -3,7 +3,10 @@
 import { useState, useEffect } from "react";
 import PageMeta from "../components/common/PageMeta";
 import { CurrentUserProfile } from "@/model/User";
-import { fetchCurrentUser } from "@/Service/UserService";
+import {
+  fetchCurrentAdminLogin,
+  fetchCurrentLawyerLogin,
+} from "@/Service/UserService";
 import { Facebook, Musicnote, Send2 } from "iconsax-reactjs";
 import { Link } from "react-router";
 
@@ -16,9 +19,14 @@ const UserProfiles = () => {
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  const role = localStorage.getItem("role");
+
+  const isAdmin = role === "ROLE_ADMIN";
   const fetchUserData = async () => {
     try {
-      const response = await fetchCurrentUser();
+      const response = isAdmin
+        ? await fetchCurrentAdminLogin()
+        : await fetchCurrentLawyerLogin();
       setCurrentUser(response.payload);
     } catch (error) {
       console.error("Failed to fetch user data:", error);
@@ -90,9 +98,8 @@ const UserProfiles = () => {
                 <div className="w-20 h-20 overflow-hidden border border-gray-200 rounded-full dark:border-gray-800">
                   <img
                     src={
-                      currentUser.image
-                        ? `http://localhost:8080/api/v1/files/preview-file?fileName=${currentUser.image}`
-                        : "/images/user/default-avatar.jpg"
+                      currentUser.image &&
+                      `http://localhost:8080/api/v1/files/preview-file?fileName=${currentUser.image}`
                     }
                     alt={currentUser.fullName}
                   />

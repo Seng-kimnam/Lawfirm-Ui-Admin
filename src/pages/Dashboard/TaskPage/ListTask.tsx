@@ -116,12 +116,14 @@ const ListService = () => {
       },
     );
   }
+  const role = localStorage.getItem("role");
+  const isLawyer = role === "ROLE_LAWYER";
   // Ensure list is an array
   return (
     <div>
       <div className="space-y-6">
         <ComponentCard
-          title="List Of Laywer Tasks"
+          title={isLawyer ? "My Tasks" : "List Of Laywer Tasks"}
           desc="A list of all taks available in the system."
           headerActions={
             <>

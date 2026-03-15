@@ -81,7 +81,12 @@ type taskForDropdown = {
 };
 
 type AppointmentTaskShape = {
-  task?: { taskId?: number | string; id?: number | string };
+  task?: {
+    taskId?: number | string;
+    id?: number | string;
+    title?: string;
+    lawyer?: { fullName?: string };
+  };
   taskId?: number | string;
 };
 
@@ -102,6 +107,8 @@ export default function CreateAppointmentForm() {
   const goto = useNavigate();
   const [currentAppointment, setCurrentAppointment] =
     useState<AppointmentFormData | null>(null);
+  const [selectedTaskOption, setSelectedTaskOption] =
+    useState<taskForDropdown | null>(null);
   const [taskOptionsIdAndTitle, setTaskOptionsIdAndTitle] = useState<
     taskForDropdown[]
   >([]);
@@ -125,6 +132,18 @@ export default function CreateAppointmentForm() {
           if (res.success) {
             const appointmentData = res.payload;
             const selectedTaskId = getTaskIdFromAppointment(appointmentData);
+            const appointmentTask = appointmentData?.task;
+
+            if (appointmentTask && selectedTaskId > 0) {
+              setSelectedTaskOption({
+                taskId: selectedTaskId,
+                title:
+                  appointmentTask.title || `Task ${String(selectedTaskId)}`,
+                lawyerName: appointmentTask.lawyer?.fullName || "Unknown Lawyer",
+              });
+            } else {
+              setSelectedTaskOption(null);
+            }
             setCurrentAppointment({
               taskId: selectedTaskId,
               appointmentDate: formatDateForInput(
@@ -185,9 +204,6 @@ export default function CreateAppointmentForm() {
 
   const meetingType = watch("meetingType");
   const status = watch("status");
-  const defaultTaskOptions = taskOptionsIdAndTitle.map((option) =>
-    String(option.taskId),
-  );
   const todayInputMin = getLocalDateInputValue(new Date());
 
   useEffect(() => {
@@ -263,11 +279,29 @@ export default function CreateAppointmentForm() {
                     Number.isFinite(selectedTaskId) && selectedTaskId > 0
                       ? String(selectedTaskId)
                       : "";
-                  const taskOptions =
-                    selectedTaskValue &&
-                    !defaultTaskOptions.includes(selectedTaskValue)
-                      ? [selectedTaskValue, ...defaultTaskOptions]
-                      : defaultTaskOptions;
+                  const currentOption =
+                    taskOptionsIdAndTitle.find(
+                      (option) =>
+                        String(option.taskId) === String(selectedTaskValue),
+                    ) || null;
+                  const fallbackOption: taskForDropdown | null =
+                    selectedTaskValue && !currentOption
+                      ? selectedTaskOption || {
+                          taskId: selectedTaskId,
+                          title: `Task ${String(selectedTaskId)}`,
+                          lawyerName: "Unknown Lawyer",
+                        }
+                      : null;
+                  const orderedTaskOptions = selectedTaskValue
+                    ? [
+                        ...(currentOption ? [currentOption] : []),
+                        ...(fallbackOption ? [fallbackOption] : []),
+                        ...taskOptionsIdAndTitle.filter(
+                          (option) =>
+                            String(option.taskId) !== String(selectedTaskValue),
+                        ),
+                      ]
+                    : taskOptionsIdAndTitle;
 
                   return (
                     <Select
@@ -281,20 +315,15 @@ export default function CreateAppointmentForm() {
                         <SelectValue placeholder="Select task ID" />
                       </SelectTrigger>
                       <SelectContent>
-                        {taskOptions.map((taskOptionId) => (
-                          <SelectItem key={taskOptionId} value={taskOptionId}>
-                            Task {taskOptionId} -{" "}
-                            {taskOptionsIdAndTitle.find(
-                              (option) =>
-                                String(option.taskId) === String(taskOptionId),
-                            )?.title || "Unknown Task"}{" "}
-                            -{" "}
-                            {taskOptionsIdAndTitle.find(
-                              (option) =>
-                                String(option.taskId) === String(taskOptionId),
-                            )?.lawyerName || "Unknown Task"}
-                          </SelectItem>
-                        ))}
+                        {orderedTaskOptions.map((taskOption) => {
+                          const taskOptionId = String(taskOption.taskId);
+                          return (
+                            <SelectItem key={taskOptionId} value={taskOptionId}>
+                              Task {taskOptionId} - {taskOption.title} -{" "}
+                              {taskOption.lawyerName || "Unknown Lawyer"}
+                            </SelectItem>
+                          );
+                        })}
                       </SelectContent>
                     </Select>
                   );

@@ -11,7 +11,12 @@ import Button from "../../../utils/button/Button";
 import { BoxIcon } from "../../../icons";
 import { BiSearch } from "react-icons/bi";
 import { useEffect, useState } from "react";
-import { deleteRole, getRoles, postRole, putRole } from "../../../Service/RoleService.tsx";
+import {
+  deleteRole,
+  getRoles,
+  postRole,
+  putRole,
+} from "../../../Service/RoleService.tsx";
 import { CustomModal } from "../../../utils/CustomModal.tsx";
 import Label from "../../../components/form/Label.tsx";
 import { Roles } from "../../../model/Roles.tsx";
@@ -48,23 +53,23 @@ const Role = () => {
     setOpen(false);
     refetch();
   };
-   const handleUpdate = (item: Roles) => {
-      setNewRole(item);
-      setOpen(true);
-    };
-    
-    const handleDelete = async (roleId : Number) => {
+  const handleUpdate = (item: Roles) => {
+    setNewRole(item);
+    setOpen(true);
+  };
+
+  const handleDelete = async (roleId: Number) => {
     console.log("Deleting role with ID:", roleId);
-        try {
-          const res = await deleteRole(roleId);
-          console.log("Delete response:", res);
-          refetch(); // refresh the list after deletion
-        } catch (error) {
-          console.error("Failed to delete role:", error);
-          alert("An error occurred while deleting the role.");
-        }
-      };
-    
+    try {
+      const res = await deleteRole(roleId);
+      console.log("Delete response:", res);
+      refetch(); // refresh the list after deletion
+    } catch (error) {
+      console.error("Failed to delete role:", error);
+      alert("An error occurred while deleting the role.");
+    }
+  };
+
   return (
     <div>
       <CustomModal
@@ -99,14 +104,16 @@ const Role = () => {
             placeholder="Enter role name"
             id="input"
             value={newRole.roleName}
-            onChange={(e) => setNewRole({...newRole, roleName: e.target.value})}
+            onChange={(e) =>
+              setNewRole({ ...newRole, roleName: e.target.value })
+            }
           />
         </div>
       </CustomModal>
       <div className="space-y-6">
         <ComponentCard
-          title="List Services"
-          desc="A list of all services available in the system."
+          title="List Of Roles"
+          desc="A list of all roles available in the system."
           headerActions={
             <>
               <Button
@@ -125,7 +132,7 @@ const Role = () => {
           searchInput={
             <Input
               type="text"
-              placeholder="Search service type..."
+              placeholder="Search role..."
               icon={<BiSearch className="w-5 h-5" />}
               id="input"
             />
@@ -138,31 +145,31 @@ const Role = () => {
                 <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
                   <TableRow>
                     <TableCell
-                      isHeader
+                      // isHeader
                       className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                     >
                       ID
                     </TableCell>
                     <TableCell
-                      isHeader
+                      // isHeader
                       className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                     >
                       Role Name
                     </TableCell>
                     <TableCell
-                      isHeader
+                      // isHeader
                       className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                     >
                       Created At
                     </TableCell>
                     <TableCell
-                      isHeader
+                      // isHeader
                       className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                     >
                       Updated At
                     </TableCell>
                     <TableCell
-                      isHeader
+                      // isHeader
                       className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                     >
                       Action
@@ -200,7 +207,7 @@ const Role = () => {
                           <div>
                             <span className="block font-medium text-gray-800 text-theme-sm dark:text-white/90">
                               {new Date(
-                                item.createdAt ?? ""
+                                item.createdAt ?? "",
                               ).toLocaleDateString("en-US", {
                                 year: "numeric",
                                 month: "long",
@@ -215,7 +222,7 @@ const Role = () => {
                           <div>
                             <span className="block font-medium text-gray-800 text-theme-sm dark:text-white/90">
                               {new Date(
-                                item.updatedAt ?? ""
+                                item.updatedAt ?? "",
                               ).toLocaleDateString("en-US", {
                                 year: "numeric",
                                 month: "long",

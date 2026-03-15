@@ -135,7 +135,7 @@ export default function SignInForm() {
             </div>
           </div>
         ) : (
-          <span className="mx-auto m-0 loader"></span>
+          <span className="mx-auto m-0  loader"></span>
         )}
       </div>
     </div>

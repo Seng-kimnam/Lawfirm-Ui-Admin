@@ -114,7 +114,7 @@ const navItems: NavItem[] = [
   {
     icon: <TableDocument size="26" />,
     name: "File Document",
-    roles: ["ROLE_ADMIN"],
+    roles: ["ROLE_ADMIN", "ROLE_LAWYER"],
     subItems: [
       { name: "Document List", path: "/list-file-doc" },
       { name: "Document Category", path: "/doc-category" },

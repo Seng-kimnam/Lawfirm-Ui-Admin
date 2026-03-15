@@ -17,6 +17,7 @@ import {
 import Button from "@/components/ui/button/Button";
 import { AiOutlinePlus } from "react-icons/ai";
 import { Edit } from "iconsax-reactjs";
+import toast from "react-hot-toast";
 
 type CategoryProp = {
   categoryId?: number;
@@ -75,14 +76,18 @@ const PopUpAddCategory = ({ categoryId, isEditing, refetch }: CategoryProp) => {
     try {
       const res = await postCategory(data);
 
+      const { status, message } = res?.response?.data;
       if (res?.success) {
         setIsOpen(false);
         refetch();
-
-        alert("Category success");
+        toast.success("Category created successfully!");
+      }
+      if (status === 409) {
+        toast.error(message || "Category already exists!");
       }
     } catch (e) {
       console.error("Error ", e);
+      toast.error("Failed to create category. Please try again.");
     }
     refetch();
   }
@@ -94,16 +99,22 @@ const PopUpAddCategory = ({ categoryId, isEditing, refetch }: CategoryProp) => {
       }
 
       const res = await putCategoryById(data, categoryId as number);
+      const { status, message } = res?.response?.data;
 
       console.log("update ", res);
       if (res?.success) {
         setIsOpen(false);
 
         refetch();
-        alert("Category success");
+        toast.success("Category updated successfully!");
+      }
+
+      if (status === 409) {
+        toast.error(message || "Category already exists!");
       }
     } catch (e) {
       console.error("Error ", e);
+      toast.error("Failed to update category. Please try again.");
     }
   }
 

@@ -7,11 +7,13 @@ import RecentOrders from "../../components/ecommerce/RecentOrders";
 import PageMeta from "../../components/common/PageMeta";
 
 export default function Home() {
-    // const name = localStorage.getItem("name");
-    // if (!name) {
-    //     window.location.href = "/signin";
-    //     return null;
-    // }
+  // const name = localStorage.getItem("name");
+  // if (!name) {
+  //     window.location.href = "/signin";
+  //     return null;
+  // }
+  const role = localStorage.getItem("role");
+  const isLawyer = role === "ROLE_LAWYER";
   return (
     <>
       <PageMeta
@@ -20,9 +22,12 @@ export default function Home() {
       />
       <div className="grid grid-cols-12 gap-4 md:gap-6">
         <div className="col-span-12 space-y-6 ">
-          <EcommerceMetrics />
-
-          <MonthlySalesChart />
+          {!isLawyer && (
+            <>
+              <MonthlySalesChart />
+              <StatisticsChart />
+            </>
+          )}
         </div>
 
         {/* <div className="col-span-12 xl:col-span-5">
@@ -30,7 +35,7 @@ export default function Home() {
         </div> */}
 
         <div className="col-span-12">
-          <StatisticsChart />
+          <EcommerceMetrics />
         </div>
 
         {/* <div className="col-span-12 ">

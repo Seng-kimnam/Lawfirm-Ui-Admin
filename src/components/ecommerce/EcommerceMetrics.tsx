@@ -86,12 +86,12 @@ export default function EcommerceMetrics() {
             <div className="flex items-end justify-between mt-5">
               <div>
                 <span className="text-lg dark:font-bold text-gray-500 dark:text-gray-400">
-                  Task
+                  Total Tasks
                 </span>
                 <h4 className="mt-2  font-bold text-3xl text-gray-800  dark:text-white/90">
                   {taskList?.length}
 
-                  {taskList?.length > 1 ? " Requests" : " Request"}
+                  {taskList?.length > 1 ? " Tasks" : " Task"}
                 </h4>
               </div>
               <Badge color="success">
@@ -110,10 +110,10 @@ export default function EcommerceMetrics() {
             <div className="flex items-end justify-between mt-5">
               <div>
                 <span className="text-lg text-gray-500 dark:text-gray-400">
-                  Appointment
+                  Total Appointments
                 </span>
                 <h4 className="mt-2 text-3xl   font-bold text-gray-800 dark:text-white/90">
-                  {appointmentList.length} {list.length > 1 ? "Lawyers" : "Lawyer"}
+                  {appointmentList.length} {appointmentList.length > 1 ? "Appointments" : "Appointment"}
                 </h4>
               </div>
               <Badge color="success">
