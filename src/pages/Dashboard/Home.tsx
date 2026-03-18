@@ -24,6 +24,9 @@ export default function Home() {
         <div className="col-span-12 space-y-6 ">
           {!isLawyer && (
             <>
+              <div className="col-span-12">
+                <EcommerceMetrics />
+              </div>
               <MonthlySalesChart />
               <StatisticsChart />
             </>
@@ -34,14 +37,12 @@ export default function Home() {
           <MonthlyTarget />
         </div> */}
 
-        <div className="col-span-12">
-          <EcommerceMetrics />
-        </div>
-
         {/* <div className="col-span-12 ">
           <DemographicCard />
         </div> */}
-
+        <div className="col-span-12">
+          <EcommerceMetrics />
+        </div>
         <div className="col-span-12 ">
           <RecentOrders />
         </div>

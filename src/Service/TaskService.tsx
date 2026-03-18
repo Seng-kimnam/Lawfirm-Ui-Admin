@@ -1,6 +1,7 @@
 import {
   getClientList,
   getServiceUrl,
+  getTaskByLawyer,
   getTaskList,
   postServiceUrl,
   putServiceUrl,
@@ -37,6 +38,35 @@ export const GetTask = () => {
   }, []); // refetch when page changes
 
   return { taskList, page, setPage, totalPage, refetch: fetchData };
+};
+
+export const GetTaskByLawyer = () => {
+  const [taskListByLawyer, setTaskListByLawyer] = useState<TaskInterface[]>([]);
+  // const [expert , setExpert ] = useState<ServiceItem[]>([]);
+  const [page, setPage] = useState<number>(1); // backend uses page 0-based
+  const [totalPage, setTotalPage] = useState(1);
+  const lawyerId = localStorage.getItem("appUserId") || ""; // Get lawyer ID from localStorage
+  const fetchData = async () => {
+    try {
+      const res = await request(getTaskByLawyer(lawyerId, page), "GET", undefined, undefined);
+
+      // console.log("res", res);
+      if (!res || !res.payload) throw new Error("No data received");
+
+      // map data from API
+      setTaskListByLawyer(res?.payload?.content || []);
+      // setExpert(res.payload.content || []);
+      setTotalPage(res.payload.totalPages || 1);
+    } catch (error) {
+      console.error("Error fetching services:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []); // refetch when page changes
+
+  return { taskListByLawyer, page, setPage, totalPage, refetch: fetchData };
 };
 
 // // fetchServiceById
@@ -99,7 +129,7 @@ export const postTask = async (req: TaskRequest) => {
 };
 
 // Update Service
-export const  putTask = async (req: TaskRequest, id: number) => {
+export const putTask = async (req: TaskRequest, id: number) => {
   try {
     if (!id) {
       throw new Error("Task ID is required for update");

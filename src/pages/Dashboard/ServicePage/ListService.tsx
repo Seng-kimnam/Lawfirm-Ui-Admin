@@ -21,9 +21,19 @@ import { AiOutlinePlus } from "react-icons/ai";
 import { request } from "@/constants/api.tsx";
 import { Trash } from "iconsax-reactjs";
 import { Edit } from "iconsax-reactjs";
+import { useMemo, useState } from "react";
 const ListService = () => {
   const navigate = useNavigate();
-  const { list, page, totalPage, setPage } = GetService();
+  const { list, page, totalPage, setPage, refetch } = GetService();
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const filteredList = useMemo(() => {
+    const term = searchTerm.trim().toLowerCase();
+    if (!term) return list;
+    return list.filter((item) =>
+      (item.serviceName ?? "").toLowerCase().includes(term),
+    );
+  }, [list, searchTerm]);
 
   // Ensure list is an array
   const handleUpdate = (serviceId: number) => {
@@ -63,6 +73,11 @@ const ListService = () => {
 
                   if (res?.status === "ACCEPTED") {
                     toast.success(`Service Id ${id} deleted successfully`);
+                    if (list.length === 1 && page > 1) {
+                      setPage(page - 1);
+                    } else {
+                      await refetch();
+                    }
                   } else {
                     toast.error(res?.detail || "Delete failed");
                   }
@@ -109,6 +124,8 @@ const ListService = () => {
               icon={<BiSearch className="w-5 h-5" />}
               // className="px-6 py-5 flex items-center justify-between border-t border-gray-100 dark:border-gray-800"
               id="input"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
             />
           }
           footer={
@@ -116,7 +133,7 @@ const ListService = () => {
               <span>
                 Showing page {page} of {totalPage}
               </span>
-              <span>Total row : {list?.length}</span>
+              <span>Total row : {filteredList?.length}</span>
               <div className="flex gap-2">
                 <Button disabled={page === 1} onClick={() => setPage(page - 1)}>
                   <BsArrowLeft className=" font-bold" />
@@ -190,7 +207,7 @@ const ListService = () => {
 
                 {/* Table Body */}
                 <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
-                  {list.map((item) => (
+                  {filteredList.map((item) => (
                     <TableRow key={item.serviceId}>
                       <TableCell className="px-5 py-4 sm:px-6 text-center">
                         <div className="flex items-center gap-3">

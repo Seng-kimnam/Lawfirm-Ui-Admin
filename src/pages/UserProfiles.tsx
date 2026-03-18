@@ -296,7 +296,7 @@ const UserProfiles = () => {
                       {currentUser.expertises.map((expertise, index) => (
                         <li
                           key={index}
-                          className=" text-white px-2 py-1 rounded-md"
+                          className=" dark:text-white px-2 py-1 rounded-md"
                         >
                           {expertise}
                         </li>

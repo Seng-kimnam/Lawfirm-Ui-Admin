@@ -8,7 +8,7 @@ import {
 import Badge from "../ui/badge/Badge";
 import { filterTaskByStatus } from "@/Service/TaskService";
 import { request } from "@/constants/api";
-import { getTaskList } from "@/constants/constants_url";
+import { getTaskByLawyer, getTaskList } from "@/constants/constants_url";
 import { TaskInterface, TaskStatusFilter } from "@/model/Task";
 import { useEffect, useState } from "react";
 
@@ -17,17 +17,34 @@ export default function RecentOrders() {
   const [status, setStatus] = useState<TaskStatusFilter>("ALL");
   const [rows, setRows] = useState<TaskInterface[]>([]);
   const [loading, setLoading] = useState(false);
+  const role = localStorage.getItem("role");
+  const isLawyer = role === "ROLE_LAWYER";
+  const lawyerId = localStorage.getItem("appUserId") || "";
 
   useEffect(() => {
     const load = async () => {
       setLoading(true);
       try {
-        const res =
-          status === "ALL"
-            ? await request(getTaskList(page), "GET")
-            : await filterTaskByStatus(status);
+        if (isLawyer) {
+          const res = await request(getTaskByLawyer(lawyerId, page), "GET");
+          console.log("res", res);
+          const list = res?.payload?.content || res?.payload || [];
+          const filtered =
+            status === "ALL"
+              ? list
+              : list.filter(
+                  (task: TaskInterface) =>
+                    task.status?.toUpperCase() === status,
+                );
+          setRows(filtered);
+        } else {
+          const res =
+            status === "ALL"
+              ? await request(getTaskList(page), "GET")
+              : await filterTaskByStatus(status);
 
-        setRows(res?.payload?.content || res?.payload || []);
+          setRows(res?.payload?.content || res?.payload || []);
+        }
       } catch (error) {
         console.error("Failed to load tasks:", error);
         setRows([]);
@@ -37,8 +54,9 @@ export default function RecentOrders() {
     };
 
     load();
-  }, [status, page]);
+  }, [status, page, isLawyer, lawyerId]);
 
+  console.log("rows", rows);
   return (
     <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white px-4 pb-3 pt-4 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6">
       <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
@@ -63,25 +81,27 @@ export default function RecentOrders() {
 
       <div className="max-w-full overflow-x-auto">
         <Table>
-          <TableHeader className="border-y border-gray-100 dark:border-gray-800">
-            <TableRow>
-              <TableCell className="py-3 text-start text-xl dark:text-gray-400">
-                Client Name
-              </TableCell>
-              <TableCell className="py-3 text-start text-xl dark:text-gray-400">
-                Title request
-              </TableCell>
-              <TableCell className="py-3 text-start text-xl dark:text-gray-400">
-                Date Request
-              </TableCell>
-              <TableCell className="py-3 text-start text-xl dark:text-gray-400">
-                Confirm By
-              </TableCell>
-              <TableCell className="py-3 text-start text-xl dark:text-gray-400">
-                Status
-              </TableCell>
-            </TableRow>
-          </TableHeader>
+          {rows.length > 0 && (
+            <TableHeader className="border-y border-gray-100 dark:border-gray-800">
+              <TableRow>
+                <TableCell className="py-3 text-start text-xl dark:text-gray-400">
+                  Client Name
+                </TableCell>
+                <TableCell className="py-3 text-start text-xl dark:text-gray-400">
+                  Title request
+                </TableCell>
+                <TableCell className="py-3 text-start text-xl dark:text-gray-400">
+                  Date Request
+                </TableCell>
+                <TableCell className="py-3 text-start text-xl dark:text-gray-400">
+                  Confirm By
+                </TableCell>
+                <TableCell className="py-3 text-start text-xl dark:text-gray-400">
+                  Status
+                </TableCell>
+              </TableRow>
+            </TableHeader>
+          )}
 
           <TableBody className="divide-y divide-gray-100 dark:divide-gray-800">
             {loading ? (
@@ -106,10 +126,10 @@ export default function RecentOrders() {
                   <TableCell className="py-3">
                     <div>
                       <p className="text-[18px] text-gray-800 dark:text-white/90">
-                        {task.legalCase.client.clientName}
+                        {task.legalCase?.client?.clientName ?? "N/A"}
                       </p>
                       <span className="text-[14px] text-gray-600 dark:text-gray-400">
-                        {task.legalCase.client.email}
+                        {task.legalCase?.client?.email ?? "N/A"}
                       </span>
                     </div>
                   </TableCell>
@@ -120,7 +140,7 @@ export default function RecentOrders() {
 
                   <TableCell className="py-3 text-theme-sm dark:text-gray-400">
                     {new Date(
-                      task.legalCase.client.createdAt,
+                      task.legalCase?.client?.createdAt ?? "",
                     ).toLocaleDateString("en-US", {
                       year: "numeric",
                       month: "short",
@@ -131,7 +151,7 @@ export default function RecentOrders() {
                   <TableCell className="py-3 text-theme-sm dark:text-gray-400">
                     Attorney{" "}
                     <span className="font-extrabold">
-                      {task.lawyer.fullName}
+                      {task.lawyer?.fullName ?? "N/A"}
                     </span>
                   </TableCell>
 

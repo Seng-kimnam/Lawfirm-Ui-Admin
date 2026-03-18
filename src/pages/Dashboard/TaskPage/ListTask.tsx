@@ -13,7 +13,7 @@ import Button from "../../../utils/button/Button";
 
 import { BsArrowLeft, BsArrowRight, BsExclamation } from "react-icons/bs";
 import { BiSearch } from "react-icons/bi";
-import { GetTask } from "@/Service/TaskService.tsx";
+import { GetTask, GetTaskByLawyer } from "@/Service/TaskService.tsx";
 import { Edit, Trash } from "iconsax-reactjs";
 import toast from "react-hot-toast";
 import { request } from "@/constants/api.tsx";
@@ -21,7 +21,12 @@ import { AiOutlinePlus } from "react-icons/ai";
 const ListService = () => {
   const navigate = useNavigate();
   const { taskList, page, totalPage, setPage, refetch } = GetTask();
-  console.log("taskList", taskList);
+  const {
+    taskListByLawyer,
+    page: pageByLawyer,
+    totalPage: totalPageByLawyer,
+    setPage: setPageByLawyer,
+  } = GetTaskByLawyer();
   const goto = useNavigate();
   function handleViewDetails(id: number) {
     navigate(`/service-detail/${id}`);
@@ -118,6 +123,10 @@ const ListService = () => {
   }
   const role = localStorage.getItem("role");
   const isLawyer = role === "ROLE_LAWYER";
+  const activeTaskList = isLawyer ? taskListByLawyer : taskList;
+  const activePage = isLawyer ? pageByLawyer : page;
+  const activeTotalPage = isLawyer ? totalPageByLawyer : totalPage;
+  const activeSetPage = isLawyer ? setPageByLawyer : setPage;
   // Ensure list is an array
   return (
     <div>
@@ -148,27 +157,30 @@ const ListService = () => {
           footer={
             <div className="flex justify-between items-center">
               <span>
-                Showing page {page} of {totalPage}
+                Showing page {activePage} of {activeTotalPage}
               </span>
               <div className="flex gap-2">
-                <Button disabled={page === 1} onClick={() => setPage(page - 1)}>
+                <Button
+                  disabled={activePage === 1}
+                  onClick={() => activeSetPage(activePage - 1)}
+                >
                   <BsArrowLeft className=" font-bold" />
                 </Button>
                 <div className="flex items-center gap-1 flex-wrap">
-                  {Array.from({ length: totalPage }, (_, i) => (
+                  {Array.from({ length: activeTotalPage }, (_, i) => (
                     <Button
                       key={i + 1}
-                      variant={i + 1 === page ? "primary" : "outline"}
+                      variant={i + 1 === activePage ? "primary" : "outline"}
                       size="sm"
-                      onClick={() => setPage(i + 1)}
+                      onClick={() => activeSetPage(i + 1)}
                     >
                       {i + 1}
                     </Button>
                   ))}
                 </div>
                 <Button
-                  disabled={page === totalPage}
-                  onClick={() => setPage(page + 1)}
+                  disabled={activePage === activeTotalPage}
+                  onClick={() => activeSetPage(activePage + 1)}
                 >
                   <BsArrowRight className=" font-bold" />
                 </Button>
@@ -180,15 +192,16 @@ const ListService = () => {
             <div className="max-w-[1130px] overflow-x-auto">
               <Table>
                 {/* Table Header */}
-                <TableHeader className="border-b text-center border-gray-100 dark:border-white/[0.05]">
-                  <TableRow>
-                    <TableCell
-                      // isHeader
-                      className="px-5 py-3 font-medium text-gray-500  whitespace-nowrap dark:text-gray-400"
-                    >
-                      Task ID
-                    </TableCell>
-                    {/* <TableCell
+                {activeTaskList && activeTaskList.length > 0 && (
+                  <TableHeader className="border-b text-center border-gray-100 dark:border-white/[0.05]">
+                    <TableRow>
+                      <TableCell
+                        // isHeader
+                        className="px-5 py-3 font-medium text-gray-500  whitespace-nowrap dark:text-gray-400"
+                      >
+                        Task ID
+                      </TableCell>
+                      {/* <TableCell
                       // isHeader
                       className="px-5 py-3 font-medium text-gray-500  whitespace-nowrap dark:text-gray-400"
                     >
@@ -206,76 +219,78 @@ const ListService = () => {
                     >
                       Court Name
                     </TableCell> */}
-                    <TableCell
-                      // isHeader
-                      className="px-5 py-3 font-medium text-gray-500  whitespace-nowrap dark:text-gray-400"
-                    >
-                      Title
-                    </TableCell>
-                    <TableCell
-                      // isHeader
-                      className="px-5 py-3 font-medium text-gray-500  whitespace-nowrap dark:text-gray-400"
-                    >
-                      Priority
-                    </TableCell>
-                    <TableCell
-                      // isHeader
-                      className="px-5 py-3 font-medium text-gray-500  whitespace-nowrap dark:text-gray-400"
-                    >
-                      Status
-                    </TableCell>
-                    <TableCell
-                      // isHeader
-                      className="px-5 py-3 font-medium text-gray-500  whitespace-nowrap min-w-40 dark:text-gray-400"
-                    >
-                      Started Date
-                    </TableCell>
-                    <TableCell
-                      // isHeader
-                      className="px-5 py-3 font-medium text-gray-500  whitespace-nowrap min-w-40 dark:text-gray-400"
-                    >
-                      Due Date
-                    </TableCell>
-                    {/* <TableCell
+                      <TableCell
+                        // isHeader
+                        className="px-5 py-3 font-medium text-gray-500  whitespace-nowrap dark:text-gray-400"
+                      >
+                        Title
+                      </TableCell>
+                      <TableCell
+                        // isHeader
+                        className="px-5 py-3 font-medium text-gray-500  whitespace-nowrap dark:text-gray-400"
+                      >
+                        Priority
+                      </TableCell>
+                      <TableCell
+                        // isHeader
+                        className="px-5 py-3 font-medium text-gray-500  whitespace-nowrap dark:text-gray-400"
+                      >
+                        Status
+                      </TableCell>
+                      <TableCell
+                        // isHeader
+                        className="px-5 py-3 font-medium text-gray-500  whitespace-nowrap min-w-40 dark:text-gray-400"
+                      >
+                        Started Date
+                      </TableCell>
+                      <TableCell
+                        // isHeader
+                        className="px-5 py-3 font-medium text-gray-500  whitespace-nowrap min-w-40 dark:text-gray-400"
+                      >
+                        Due Date
+                      </TableCell>
+                      {/* <TableCell
                       // isHeader
                       className="px-5 py-3 font-medium text-gray-500  text-theme-xs dark:text-gray-400"
                     >
                       Created By
                     </TableCell> */}
-                    <TableCell
-                      // isHeader
-                      className="px-5 py-3 font-medium text-gray-500  whitespace-nowrap min-w-40  dark:text-gray-400"
-                    >
-                      Created At
-                    </TableCell>
-                    <TableCell
-                      // isHeader
-                      className="px-5 py-3 font-medium text-gray-500  whitespace-nowrap min-w-40 dark:text-gray-400"
-                    >
-                      Updated At
-                    </TableCell>
-                    <TableCell
-                      // isHeader
-                      className="px-5 py-3 font-medium text-gray-500  text-theme-xs dark:text-gray-400"
-                    >
-                      Action
-                    </TableCell>
-                  </TableRow>
-                </TableHeader>
+                      <TableCell
+                        // isHeader
+                        className="px-5 py-3 font-medium text-gray-500  whitespace-nowrap min-w-40  dark:text-gray-400"
+                      >
+                        Created At
+                      </TableCell>
+                      <TableCell
+                        // isHeader
+                        className="px-5 py-3 font-medium text-gray-500  whitespace-nowrap min-w-40 dark:text-gray-400"
+                      >
+                        Updated At
+                      </TableCell>
+                      <TableCell
+                        // isHeader
+                        className="px-5 py-3 font-medium text-gray-500  text-theme-xs dark:text-gray-400"
+                      >
+                        Action
+                      </TableCell>
+                    </TableRow>
+                  </TableHeader>
+                )}
                 {/* Table Body */}
                 <TableBody className="divide-y text-center divide-gray-100 dark:divide-white/[0.05]">
-                  {taskList.map((item) => (
-                    <TableRow key={item.taskId}>
-                      <TableCell className="px-5 py-4 sm:px-6 ">
-                        <div className="flex items-center gap-3">
-                          <div>
-                            <span className="block font-medium text-gray-800 text-theme-sm dark:text-white/90">
-                              {item.taskId ?? "N/A"}
-                            </span>
+                  {activeTaskList.length > 0 ? (
+                    activeTaskList.map((item) => (
+                      <TableRow key={item.taskId}>
+                        <TableCell className="px-5 py-4 sm:px-6 ">
+                          <div className="flex items-center gap-3">
+                            <div>
+                              <span className="block font-medium text-gray-800 text-theme-sm dark:text-white/90">
+                                {item.taskId ?? "N/A"}
+                              </span>
+                            </div>
                           </div>
-                        </div>
-                      </TableCell>
-                      {/* <TableCell className="px-4 py-3 text-gray-500  text-theme-sm  dark:text-white/90">
+                        </TableCell>
+                        {/* <TableCell className="px-4 py-3 text-gray-500  text-theme-sm  dark:text-white/90">
                         {item.lawyer.fullName ?? "N/A"}
                       </TableCell>
                       <TableCell className="px-4 py-3 text-gray-500  text-theme-sm  dark:text-white/90">
@@ -284,16 +299,16 @@ const ListService = () => {
                       <TableCell className="px-4 py-3 text-gray-500  text-theme-sm  dark:text-white/90">
                         {item.legalCase.court.courtName ?? "N/A"}
                       </TableCell> */}
-                      <TableCell className="px-5 py-4 sm:px-6 ">
-                        <div className="flex items-center gap-3">
-                          <div>
-                            <span className="block font-medium text-gray-800 text-theme-sm dark:text-white/90">
-                              {item.title ?? "N/A"}
-                            </span>
+                        <TableCell className="px-5 py-4 sm:px-6 ">
+                          <div className="flex items-center gap-3">
+                            <div>
+                              <span className="block font-medium text-gray-800 text-theme-sm dark:text-white/90">
+                                {item.title ?? "N/A"}
+                              </span>
+                            </div>
                           </div>
-                        </div>
-                      </TableCell>
-                      {/* <TableCell className="px-4 py-3 text-gray-500  text-theme-sm dark:text-white/90">
+                        </TableCell>
+                        {/* <TableCell className="px-4 py-3 text-gray-500  text-theme-sm dark:text-white/90">
                         <Badge
                           size="sm"
                           color={
@@ -307,121 +322,125 @@ const ListService = () => {
                           {item.status}
                         </Badge>
                       </TableCell> */}
-                      <TableCell className="px-5 py-4 sm:px-6 ">
-                        <div className="flex items-center gap-3">
-                          <div>
-                            <span
-                              className={`block font-medium text-theme-sm dark:text-white/90 ${formatReadablePriority(item.priority)?.color || "text-gray-800"}`}
-                            >
-                              {formatReadablePriority(item.priority)
-                                ?.priority || "N/A"}
-                            </span>
+                        <TableCell className="px-5 py-4 sm:px-6 ">
+                          <div className="flex items-center gap-3">
+                            <div>
+                              <span
+                                className={`block font-medium text-theme-sm dark:text-white/90 ${formatReadablePriority(item.priority)?.color || "text-gray-800"}`}
+                              >
+                                {formatReadablePriority(item.priority)
+                                  ?.priority || "N/A"}
+                              </span>
+                            </div>
                           </div>
-                        </div>
-                      </TableCell>
-                      <TableCell className="px-5 py-4 sm:px-6 ">
-                        <div className="flex items-center gap-3">
-                          <div>
-                            <span
-                              className={`block font-medium text-theme-sm dark:text-white/90 ${formatReadableStatus(item.status)?.color || "text-gray-800"}`}
-                            >
-                              {formatReadableStatus(item.status)?.status ||
-                                "N/A"}
-                            </span>
+                        </TableCell>
+                        <TableCell className="px-5 py-4 sm:px-6 ">
+                          <div className="flex items-center gap-3">
+                            <div>
+                              <span
+                                className={`block font-medium text-theme-sm dark:text-white/90 ${formatReadableStatus(item.status)?.color || "text-gray-800"}`}
+                              >
+                                {formatReadableStatus(item.status)?.status ||
+                                  "N/A"}
+                              </span>
+                            </div>
                           </div>
-                        </div>
-                      </TableCell>
-                      <TableCell className="px-5 py-4 sm:px-6 ">
-                        <div className="flex items-center gap-3">
-                          <div>
-                            <span className="block font-medium text-gray-800 text-theme-sm dark:text-white/90">
-                              {new Date(
-                                item.startedDate ?? "",
-                              ).toLocaleDateString("en-US", {
-                                year: "numeric",
-                                month: "long",
-                                day: "numeric",
-                              })}
-                            </span>
-                          </div>
-                        </div>
-                      </TableCell>
-
-                      <TableCell className="px-5 py-4 sm:px-6 ">
-                        <div className="flex items-center gap-3">
-                          <div>
-                            <span className="block font-medium text-gray-800 text-theme-sm dark:text-white/90">
-                              {new Date(item.dueDate ?? "").toLocaleDateString(
-                                "en-US",
-                                {
+                        </TableCell>
+                        <TableCell className="px-5 py-4 sm:px-6 ">
+                          <div className="flex items-center gap-3">
+                            <div>
+                              <span className="block font-medium text-gray-800 text-theme-sm dark:text-white/90">
+                                {new Date(
+                                  item.startedDate ?? "",
+                                ).toLocaleDateString("en-US", {
                                   year: "numeric",
                                   month: "long",
                                   day: "numeric",
-                                },
-                              )}
-                            </span>
+                                })}
+                              </span>
+                            </div>
                           </div>
-                        </div>
-                      </TableCell>
-                      <TableCell className="px-5 py-4 sm:px-6 ">
-                        <div className="flex items-center gap-3">
-                          <div>
-                            <span className="block font-medium text-gray-800 text-theme-sm dark:text-white/90">
-                              {new Date(
-                                item.createdAt ?? "",
-                              ).toLocaleDateString("en-US", {
-                                year: "numeric",
-                                month: "long",
-                                day: "numeric",
-                              })}
-                            </span>
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell className="px-5 py-4 sm:px-6 ">
-                        <div className="flex items-center gap-3">
-                          <div>
-                            <span className="block font-medium text-gray-800 text-theme-sm dark:text-white/90">
-                              {new Date(
-                                item.updatedAt ?? "",
-                              ).toLocaleDateString("en-US", {
-                                year: "numeric",
-                                month: "long",
-                                day: "numeric",
-                              })}
-                            </span>
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell className="px-5 py-4 sm:px-6 ">
-                        <div className="flex items-center gap-3">
-                          {/* Update Button */}
-                          <button
-                            onClick={() => goto(`/edit-task/${item.taskId}`)}
-                            className="p-2 text-sm rounded-md bg-blue-500 text-white hover:bg-blue-600"
-                          >
-                            <Edit size="24" color="#ffffff" />
-                          </button>
+                        </TableCell>
 
-                          {/* Delete Button */}
-                          <button
-                            onClick={() => handleDeleteCase(item?.taskId)}
-                            className="p-2 text-sm rounded-md bg-red-500 text-white hover:bg-red-600"
-                          >
-                            <Trash size="24" color="#ffffff" />
-                          </button>
-                          <button
-                            onClick={() =>
-                              goto(`/task-detail-info/${item.taskId}`)
-                            }
-                            className="p-2 text-sm rounded-md bg-green-700 text-white hover:bg-green-500"
-                          >
-                            <BsExclamation size="24" color="#ffffff" />
-                          </button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                        <TableCell className="px-5 py-4 sm:px-6 ">
+                          <div className="flex items-center gap-3">
+                            <div>
+                              <span className="block font-medium text-gray-800 text-theme-sm dark:text-white/90">
+                                {new Date(
+                                  item.dueDate ?? "",
+                                ).toLocaleDateString("en-US", {
+                                  year: "numeric",
+                                  month: "long",
+                                  day: "numeric",
+                                })}
+                              </span>
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell className="px-5 py-4 sm:px-6 ">
+                          <div className="flex items-center gap-3">
+                            <div>
+                              <span className="block font-medium text-gray-800 text-theme-sm dark:text-white/90">
+                                {new Date(
+                                  item.createdAt ?? "",
+                                ).toLocaleDateString("en-US", {
+                                  year: "numeric",
+                                  month: "long",
+                                  day: "numeric",
+                                })}
+                              </span>
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell className="px-5 py-4 sm:px-6 ">
+                          <div className="flex items-center gap-3">
+                            <div>
+                              <span className="block font-medium text-gray-800 text-theme-sm dark:text-white/90">
+                                {new Date(
+                                  item.updatedAt ?? "",
+                                ).toLocaleDateString("en-US", {
+                                  year: "numeric",
+                                  month: "long",
+                                  day: "numeric",
+                                })}
+                              </span>
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell className="px-5 py-4 sm:px-6 ">
+                          <div className="flex items-center gap-3">
+                            {/* Update Button */}
+                            <button
+                              onClick={() => goto(`/edit-task/${item.taskId}`)}
+                              className="p-2 text-sm rounded-md bg-blue-500 text-white hover:bg-blue-600"
+                            >
+                              <Edit size="24" color="#ffffff" />
+                            </button>
+
+                            {/* Delete Button */}
+                            <button
+                              onClick={() => handleDeleteCase(item?.taskId)}
+                              className="p-2 text-sm rounded-md bg-red-500 text-white hover:bg-red-600"
+                            >
+                              <Trash size="24" color="#ffffff" />
+                            </button>
+                            <button
+                              onClick={() =>
+                                goto(`/task-detail-info/${item.taskId}`)
+                              }
+                              className="p-2 text-sm rounded-md bg-green-700 text-white hover:bg-green-500"
+                            >
+                              <BsExclamation size="24" color="#ffffff" />
+                            </button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  ) : (
+                    <p className="text-center text-red-700 text-3xl inline-bl">
+                      Task not found
+                    </p>
+                  )}
                 </TableBody>
               </Table>
             </div>

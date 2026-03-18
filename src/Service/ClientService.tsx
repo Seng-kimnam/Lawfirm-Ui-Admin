@@ -1,13 +1,9 @@
-import {
-  getClientList,
-  getServiceUrl,
-  postServiceUrl,
-  putServiceUrl,
-} from "../constants/constants_url";
+import { putServiceUrl } from "../constants/constants_url";
 import { ServiceItem } from "../model/Service";
 import { request } from "../constants/api";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { ClientInterface, ClientRequest } from "@/model/Client";
+import { ClientDocumentInterface } from "@/model/Document";
 
 export const GetClient = () => {
   const [clientList, setClientList] = useState<ClientInterface[]>([]);
@@ -85,8 +81,8 @@ export const postService = async (req: ClientRequest) => {
     if (response.status === "CREATED") {
       return response.data;
     }
-  } catch (error) {
-    alert(Error);
+  } catch {
+    alert("Failed to create client.");
   }
 };
 
@@ -102,9 +98,209 @@ export const putService = async (req: ServiceItem) => {
     if (response.status === 200) {
       return response.data;
     }
-  } catch (error: any) {
-    alert(
-      error.response?.data?.message || error.message || "Something went wrong",
-    );
+  } catch (error: unknown) {
+    const errorMessage =
+      typeof error === "object" &&
+      error !== null &&
+      "response" in error &&
+      typeof (error as { response?: { data?: { message?: string } } }).response
+        ?.data?.message === "string"
+        ? (error as { response?: { data?: { message?: string } } }).response
+            ?.data?.message
+        : error instanceof Error
+          ? error.message
+          : "Something went wrong";
+
+    alert(errorMessage);
   }
+};
+
+export const GetClientRequestDocument = () => {
+  const [clientDocumentList, setClientDocumentList] = useState<
+    ClientDocumentInterface[]
+  >([]);
+  const [page, setPage] = useState<number>(1); // backend uses page 0-based
+  const [totalPage, setTotalPage] = useState(1);
+  const [keyword, setKeyword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
+  type DocumentCollectionResponse = {
+    payload?:
+      | ClientDocumentInterface[]
+      | {
+          totalPages?: number;
+          content?: ClientDocumentInterface[];
+        };
+    data?:
+      | ClientDocumentInterface[]
+      | {
+          totalPages?: number;
+          content?: ClientDocumentInterface[];
+        };
+  };
+
+  type ClientDocumentSearchItem = {
+    id: string;
+    clientId: number;
+    clientName: string;
+    name: string;
+    fileName: string;
+    fileUrl: string;
+    fileSize: string;
+    fileType: string;
+    description?: string;
+    createdAt?: string;
+    updatedAt?: string;
+  };
+
+  const groupSearchPayload = useCallback(
+    (items: ClientDocumentSearchItem[]): ClientDocumentInterface[] => {
+      const groupedDocuments = new Map<number, ClientDocumentInterface>();
+
+      items.forEach((item) => {
+        const normalizedClientId = Number(item.id);
+        const existingClient = groupedDocuments.get(normalizedClientId);
+
+        if (existingClient) {
+          existingClient.documents.push({
+            name: item.name || item.fileName || "Untitled document",
+            fileUrl: item.fileUrl,
+            fileSize: item.fileSize,
+            fileType: item.fileType,
+          });
+          return;
+        }
+
+        groupedDocuments.set(normalizedClientId, {
+          id: normalizedClientId,
+          clientId: item.clientId,
+          clientName: item.clientName,
+          description: item.description || "",
+          createdAt: item.createdAt || "",
+          updatedAt: item.updatedAt || "",
+          documents: [
+            {
+              name: item.name || item.fileName || "Untitled document",
+              fileUrl: item.fileUrl,
+              fileSize: item.fileSize,
+              fileType: item.fileType,
+            },
+          ],
+        });
+      });
+
+      return Array.from(groupedDocuments.values());
+    },
+    [],
+  );
+
+  const normalizeDocumentPayload = useCallback(
+    (response: unknown): ClientDocumentInterface[] => {
+      const normalizedResponse = response as DocumentCollectionResponse;
+      const payload =
+        normalizedResponse?.payload ?? normalizedResponse?.data ?? response;
+
+      if (Array.isArray(payload)) {
+        const isGroupedDocumentPayload = payload.every(
+          (item) =>
+            typeof item === "object" &&
+            item !== null &&
+            "documents" in item &&
+            Array.isArray(item.documents),
+        );
+
+        if (isGroupedDocumentPayload) {
+          return payload as ClientDocumentInterface[];
+        }
+
+        return groupSearchPayload(payload as ClientDocumentSearchItem[]);
+      }
+
+      if (
+        typeof payload === "object" &&
+        payload !== null &&
+        "content" in payload &&
+        Array.isArray(payload.content)
+      ) {
+        const isGroupedDocumentPayload = payload.content.every(
+          (item) =>
+            typeof item === "object" &&
+            item !== null &&
+            "documents" in item &&
+            Array.isArray(item.documents),
+        );
+
+        if (isGroupedDocumentPayload) {
+          return payload.content as ClientDocumentInterface[];
+        }
+
+        return groupSearchPayload(
+          payload.content as ClientDocumentSearchItem[],
+        );
+      }
+
+      return [];
+    },
+    [groupSearchPayload],
+  );
+
+  const fetchData = useCallback(
+    async (searchKeyword = keyword) => {
+      setIsLoading(true);
+
+      try {
+        const normalizedKeyword = searchKeyword.trim();
+        const endpoint = normalizedKeyword
+          ? "files/client-documents/search"
+          : "files/client-documents/all";
+        const params = normalizedKeyword
+          ? { keyword: normalizedKeyword }
+          : undefined;
+
+        const res = (await request(
+          endpoint,
+          "GET",
+          undefined,
+          params,
+        )) as DocumentCollectionResponse;
+
+        console.log("Hello", res);
+        const normalizedDocuments = normalizeDocumentPayload(res);
+        const totalPages =
+          (typeof res?.payload === "object" && !Array.isArray(res.payload)
+            ? res.payload.totalPages
+            : undefined) ??
+          (typeof res?.data === "object" && !Array.isArray(res.data)
+            ? res.data.totalPages
+            : undefined) ??
+          1;
+
+        setClientDocumentList(normalizedDocuments);
+        setTotalPage(totalPages);
+        setPage(1);
+      } catch (error) {
+        console.error("Error fetching services:", error);
+        setClientDocumentList([]);
+        setTotalPage(1);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [keyword, normalizeDocumentPayload],
+  );
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  return {
+    clientDocumentList,
+    page,
+    setPage,
+    totalPage,
+    refetch: fetchData,
+    keyword,
+    setKeyword,
+    isLoading,
+  };
 };

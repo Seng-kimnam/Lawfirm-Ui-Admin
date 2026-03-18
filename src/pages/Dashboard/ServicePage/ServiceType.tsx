@@ -16,7 +16,7 @@ import {
   deleteServiceTypes,
   GetServiceType,
 } from "../../../Service/ServiceTypeService.tsx";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { CustomModal } from "../../../utils/CustomModal.tsx";
 import Label from "../../../components/form/Label.tsx";
 import {
@@ -38,6 +38,15 @@ const ServiceTypes = () => {
 
   const [open, setOpen] = useState<boolean>(false);
   const { list, page, totalPage, setPage, refetch } = GetServiceType();
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const filteredList = useMemo(() => {
+    const term = searchTerm.trim().toLowerCase();
+    if (!term) return list;
+    return list.filter((item) =>
+      (item.expertName ?? "").toLowerCase().includes(term),
+    );
+  }, [list, searchTerm]);
   async function handleOk() {
     if (newServiceType.expertName === "") {
       return;
@@ -174,7 +183,7 @@ const ServiceTypes = () => {
       </CustomModal>
       <div className="space-y-6">
         <ComponentCard
-          title="List Services"
+          title="List Services Type"
           desc="A list of all services available in the system."
           headerActions={
             <>
@@ -194,6 +203,8 @@ const ServiceTypes = () => {
               placeholder="Search service type..."
               icon={<BiSearch className="w-5 h-5" />}
               id="input"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
             />
           }
           footer={
@@ -268,7 +279,7 @@ const ServiceTypes = () => {
 
                 {/* Table Body */}
                 <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
-                  {list.map((item) => (
+                  {filteredList.map((item) => (
                     <TableRow key={item.expertiseId}>
                       <TableCell className="px-5 py-4 sm:px-6 ">
                         <div className="flex items-center justify-center gap-3">

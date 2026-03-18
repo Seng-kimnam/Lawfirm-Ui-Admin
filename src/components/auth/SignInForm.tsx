@@ -28,12 +28,13 @@ export default function SignInForm() {
 
     try {
       const res = await request(loginUrl, "POST", data);
-
+      console.log("Login response", res);
       if (res?.success) {
         const { payload } = res;
         const { roleName } = payload.currentUser.role;
         // console.log("rol ", roleName);
         localStorage.setItem("token", payload.token);
+        localStorage.setItem("appUserId", payload.currentUser.appUserId);
         localStorage.setItem("role", roleName);
         localStorage.setItem("profileImage", payload?.currentUser.image);
         navigate("/");

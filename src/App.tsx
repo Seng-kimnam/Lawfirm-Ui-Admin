@@ -48,6 +48,7 @@ import OtpPage from "./pages/AuthPages/OtpPage.tsx";
 import ResetPassword from "./pages/AuthPages/ResetPassword.tsx";
 import UserProfiles from "./pages/UserProfiles.tsx";
 import Banner from "./pages/Dashboard/CustomerPage/Banner.tsx";
+import ClientRequestDocument from "./pages/Dashboard/filePage/ClientRequestDocument.tsx";
 
 export default function App() {
   return (
@@ -115,6 +116,10 @@ export default function App() {
               <Route path="/edit-file-doc/:id" element={<AddFileDocument />} />
               <Route path="/doc-category" element={<DocumentCategoryList />} />
               <Route path="/list-file-doc" element={<ListFileDocument />} />
+              <Route
+                path="/client-request-document"
+                element={<ClientRequestDocument />}
+              />
 
               {/* ---------------------------------- */}
               <Route path="/addtask" element={<AddTask />} />

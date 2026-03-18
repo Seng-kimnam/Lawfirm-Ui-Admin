@@ -73,6 +73,7 @@ const LawyerForm = () => {
   const [inputExpertise, setInputExpertise] = useState("");
   const [uploadedImagePath, setUploadedImagePath] = useState<File | null>(null);
   const [isPrefilling, setIsPrefilling] = useState(false);
+  const [prefillExpertises, setPrefillExpertises] = useState<any[]>([]);
   const [uploadedPreviewUrl, setUploadedPreviewUrl] = useState<string | null>(
     null,
   );
@@ -128,6 +129,34 @@ const LawyerForm = () => {
             ? status
             : "ACTIVE";
 
+        const rawExpertiseList =
+          (lawyer as any).expertiseIdList ??
+          (lawyer as any).expertises ??
+          (lawyer as any).expertiseList ??
+          [];
+        setPrefillExpertises(
+          Array.isArray(rawExpertiseList) ? rawExpertiseList : [],
+        );
+
+        const normalizeExpertiseIds = (items: any[], listOptions: any[]) =>
+          items
+            .map((item) => {
+              if (typeof item === "number") return item;
+              if (typeof item === "string") {
+                const asNumber = Number(item);
+                if (Number.isFinite(asNumber) && asNumber > 0) return asNumber;
+                const byName = listOptions.find(
+                  (e) => e.expertName === item,
+                );
+                return Number(byName?.expertiseId ?? NaN);
+              }
+              if (item && typeof item === "object") {
+                return Number((item as { expertiseId?: number }).expertiseId);
+              }
+              return NaN;
+            })
+            .filter((id) => Number.isFinite(id) && id > 0);
+
         reset({
           fullName: lawyer.fullName ?? "",
           gender: normalizedGender,
@@ -139,8 +168,8 @@ const LawyerForm = () => {
           title: lawyer.title ?? "",
           description: lawyer.description ?? "",
           image: typeof lawyer.image === "string" ? lawyer.image : "",
-          expertiseIdList: Array.isArray(lawyer.expertiseIdList)
-            ? lawyer.expertiseIdList
+          expertiseIdList: Array.isArray(rawExpertiseList)
+            ? normalizeExpertiseIds(rawExpertiseList, list)
             : [],
           facebookLink: lawyer.facebookLink ?? "",
           tiktokLink: lawyer.tiktokLink ?? "",
@@ -160,7 +189,38 @@ const LawyerForm = () => {
     };
   }, [id, isEdit, reset]);
 
+  useEffect(() => {
+    if (!isEdit) return;
+    if (expertises.length > 0) return;
+    if (prefillExpertises.length === 0) return;
+    if (list.length === 0) return;
+
+    const normalized = prefillExpertises
+      .map((item) => {
+        if (typeof item === "number") return item;
+        if (typeof item === "string") {
+          const asNumber = Number(item);
+          if (Number.isFinite(asNumber) && asNumber > 0) return asNumber;
+          const byName = list.find((e) => e.expertName === item);
+          return Number(byName?.expertiseId ?? NaN);
+        }
+        if (item && typeof item === "object") {
+          return Number((item as { expertiseId?: number }).expertiseId);
+        }
+        return NaN;
+      })
+      .filter((id) => Number.isFinite(id) && id > 0);
+
+    if (normalized.length > 0) {
+      setValue("expertiseIdList", normalized, {
+        shouldDirty: false,
+        shouldValidate: true,
+      });
+    }
+  }, [expertises.length, isEdit, list, prefillExpertises, setValue]);
+
   const handleAddExpertise = (expertiseId: number) => {
+    if (!expertiseId) return;
     if (!expertises.includes(expertiseId)) {
       const newExpertises = [...expertises, expertiseId];
       setValue("expertiseIdList", newExpertises, {
@@ -173,9 +233,9 @@ const LawyerForm = () => {
 
   const handleRemoveExpertise = (expertise: number) => {
     const newExpertises = expertises.filter((e) => e !== expertise);
-    reset({
-      ...watch(),
-      expertiseIdList: newExpertises,
+    setValue("expertiseIdList", newExpertises, {
+      shouldDirty: true,
+      shouldValidate: true,
     });
   };
   const getExpertiseName = (id: number) =>
@@ -219,6 +279,7 @@ const LawyerForm = () => {
       const res = isEdit
         ? await updateLawyerByIdService(id as string, payloadToSend)
         : await registerLawyerService(finishedData);
+      
       if (res.success) {
         toast.success(res.message);
         if (isEdit) {
@@ -299,7 +360,7 @@ const LawyerForm = () => {
                 <Input
                   id="email"
                   type="email"
-                  placeholder="email@example.com"
+                  placeholder="Ex: john.doe@gmail.com"
                   {...register("email", {
                     required: "Email is required",
                     pattern: {
@@ -320,7 +381,7 @@ const LawyerForm = () => {
                 <Label htmlFor="phoneNumber">Phone Number </Label>
                 <Input
                   id="phoneNumber"
-                  placeholder="+1 (555) 000-0000"
+                  placeholder="Ex: +85512345678"
                   {...register("phoneNumber", {
                     required: "Phone number is required",
                   })}
@@ -463,7 +524,8 @@ const LawyerForm = () => {
                   validate: (value) => {
                     if (!value) return true;
                     return (
-                      value.length >= 6 || "Password must be at least 6 characters"
+                      value.length >= 6 ||
+                      "Password must be at least 6 characters"
                     );
                   },
                 })}

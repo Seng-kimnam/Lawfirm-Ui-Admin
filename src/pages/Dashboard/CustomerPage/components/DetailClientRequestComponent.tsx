@@ -4,6 +4,14 @@ import { Modal } from "@/components/ui/modal";
 import Button from "@/components/ui/button/Button";
 import { updateClientRequestById } from "@/Service/ClientRequestService";
 import { ClientRequest } from "@/model/Client";
+import { ClientDocumentInterface } from "@/model/Document";
+import { request } from "@/constants/api";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 interface ClientData {
   clientId: number;
@@ -32,6 +40,13 @@ const DetailClientRequestComponent = ({
   createdAt,
   updatedAt,
 }: ClientData) => {
+  const readOnlyInputClassName =
+    "h-11 w-full rounded-lg border border-gray-200 bg-slate-100 px-4 py-2.5 text-sm text-slate-600 outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 cursor-not-allowed";
+  const editableInputClassName =
+    "h-11 w-full rounded-lg border border-gray-300 dark:border-slate-700 bg-transparent px-4 py-2.5 text-sm text-slate-900 dark:text-slate-100 outline-none focus:border-brand-300";
+  const readOnlyTextareaClassName =
+    "w-full rounded-lg border border-gray-200 bg-slate-100 px-4 py-2.5 text-sm text-slate-600 outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 cursor-not-allowed";
+
   const [clientDetail, setClientDetail] = useState<ClientData>({
     clientId,
     clientName,
@@ -45,6 +60,11 @@ const DetailClientRequestComponent = ({
     createdAt,
     updatedAt,
   });
+  const [clientIdList, setClientIdList] = useState<number[]>([]);
+  const [clientDocuments, setClientDocuments] = useState<
+    ClientDocumentInterface[]
+  >([]);
+  const [isDocumentLoading, setIsDocumentLoading] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -58,7 +78,7 @@ const DetailClientRequestComponent = ({
     status,
     feedBack,
     clientImage,
-  }); 
+  });
 
   useEffect(() => {
     setClientDetail({
@@ -84,6 +104,7 @@ const DetailClientRequestComponent = ({
       feedBack,
       clientImage,
     });
+    setClientIdList([clientId]);
   }, [
     clientId,
     clientName,
@@ -96,6 +117,49 @@ const DetailClientRequestComponent = ({
     createdAt,
     updatedAt,
   ]);
+
+  useEffect(() => {
+    if (clientIdList.length === 0) {
+      setClientDocuments([]);
+      return;
+    }
+
+    const fetchClientRequestDocuments = async () => {
+      setIsDocumentLoading(true);
+
+      try {
+        const responses = await Promise.all(
+          clientIdList.map(async (id) => {
+            const res = await request(
+              `files/client-request-documents/${id}`,
+              "GET",
+              undefined,
+              undefined,
+            );
+            return res?.payload ?? res?.data ?? res;
+          }),
+        );
+        console.log("dd", responses);
+
+        const normalizedDocuments = responses.flatMap((item) => {
+          if (Array.isArray(item)) {
+            return item;
+          }
+
+          return item ? [item] : [];
+        });
+
+        setClientDocuments(normalizedDocuments);
+      } catch (error) {
+        console.error("Error fetching client request documents:", error);
+        setClientDocuments([]);
+      } finally {
+        setIsDocumentLoading(false);
+      }
+    };
+
+    fetchClientRequestDocuments();
+  }, [clientIdList]);
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -302,6 +366,62 @@ const DetailClientRequestComponent = ({
             </p>
           </div>
 
+          <div className="p-4 rounded-lg border-2 border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700/30">
+            <p className="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-3">
+              Client Request Documents
+            </p>
+            {isDocumentLoading ? (
+              <p className="text-sm text-slate-500 dark:text-slate-400">
+                Loading documents...
+              </p>
+            ) : clientDocuments.length > 0 ? (
+              <div className="space-y-3">
+                {clientDocuments.map((documentGroup) => (
+                  <div
+                    key={documentGroup.clientId}
+                    className="rounded-lg border border-slate-200 bg-white p-3 dark:border-slate-700 dark:bg-slate-800"
+                  >
+                    <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+                      {documentGroup.clientName ||
+                        `Client #${documentGroup.clientId}`}
+                    </p>
+                    <p className="mb-3 text-sm text-slate-500 dark:text-slate-400">
+                      {documentGroup.description || "No description available"}
+                    </p>
+                    {documentGroup.documents?.length > 0 ? (
+                      <div className="grid gap-3 sm:grid-cols-2">
+                        {documentGroup.documents.map((document) => (
+                          <a
+                            key={`${documentGroup.clientId}-${document.name}`}
+                            href={document.fileUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="rounded-lg border border-slate-200 bg-slate-50 p-3 transition-colors hover:bg-slate-100 dark:border-slate-600 dark:bg-slate-700/40 dark:hover:bg-slate-700"
+                          >
+                            <p className="font-medium text-slate-900 dark:text-slate-100">
+                              {document.name}
+                            </p>
+                            <p className="text-xs text-slate-500 dark:text-slate-400">
+                              {document.fileType} • {document.fileSize}
+                            </p>
+                          </a>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-sm text-slate-500 dark:text-slate-400">
+                        No documents found for this request.
+                      </p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-slate-500 dark:text-slate-400">
+                No documents found for this request.
+              </p>
+            )}
+          </div>
+
           {/* Timestamps */}
           <div className="grid grid-cols-2 gap-4 pt-4 border-t border-slate-200 dark:border-slate-600">
             <div className="flex items-start gap-2">
@@ -327,6 +447,9 @@ const DetailClientRequestComponent = ({
               </div>
             </div>
           </div>
+          {/* <iframe> */}
+
+          {/* </iframe> */}
         </div>
       </div>
 
@@ -341,7 +464,8 @@ const DetailClientRequestComponent = ({
               Edit Client Request
             </h3>
             <p className="text-sm text-muted-foreground">
-              Update request ID #{clientDetail.clientId}
+              Only status and feedback can be updated for request #
+              {clientDetail.clientId}
             </p>
           </div>
 
@@ -353,9 +477,9 @@ const DetailClientRequestComponent = ({
               <input
                 name="clientName"
                 value={editForm.clientName}
-                onChange={handleInputChange}
+                readOnly
                 required
-                className="h-11 w-full rounded-lg border border-gray-300 dark:border-slate-700 bg-transparent px-4 py-2.5 text-sm text-slate-900 dark:text-slate-100 outline-none focus:border-brand-300"
+                className={readOnlyInputClassName}
               />
             </div>
             <div>
@@ -364,9 +488,9 @@ const DetailClientRequestComponent = ({
                 type="email"
                 name="email"
                 value={editForm.email}
-                onChange={handleInputChange}
+                readOnly
                 required
-                className="h-11 w-full rounded-lg border border-gray-300 dark:border-slate-700 bg-transparent px-4 py-2.5 text-sm text-slate-900 dark:text-slate-100 outline-none focus:border-brand-300"
+                className={readOnlyInputClassName}
               />
             </div>
             <div>
@@ -376,9 +500,9 @@ const DetailClientRequestComponent = ({
               <input
                 name="phoneNumber"
                 value={editForm.phoneNumber}
-                onChange={handleInputChange}
+                readOnly
                 required
-                className="h-11 w-full rounded-lg border border-gray-300 dark:border-slate-700 bg-transparent px-4 py-2.5 text-sm text-slate-900 dark:text-slate-100 outline-none focus:border-brand-300"
+                className={readOnlyInputClassName}
               />
             </div>
             <div>
@@ -388,9 +512,9 @@ const DetailClientRequestComponent = ({
               <input
                 name="address"
                 value={editForm.address}
-                onChange={handleInputChange}
+                readOnly
                 required
-                className="h-11 w-full rounded-lg border border-gray-300 dark:border-slate-700 bg-transparent px-4 py-2.5 text-sm text-slate-900 dark:text-slate-100 outline-none focus:border-brand-300"
+                className={readOnlyInputClassName}
               />
             </div>
             <div>
@@ -399,7 +523,7 @@ const DetailClientRequestComponent = ({
                 name="status"
                 value={editForm.status}
                 onChange={handleInputChange}
-                className="h-11 w-full rounded-lg border border-gray-300 dark:border-slate-700 bg-transparent px-4 py-2.5 text-sm text-slate-900 dark:text-slate-100 outline-none focus:border-brand-300"
+                className={editableInputClassName}
               >
                 <option value="PENDING">PENDING</option>
                 <option value="APPROVED">APPROVED</option>
@@ -418,7 +542,7 @@ const DetailClientRequestComponent = ({
                 value={editForm.feedBack}
                 onChange={handleInputChange}
                 required
-                className="h-11 w-full rounded-lg border border-gray-300 dark:border-slate-700 bg-transparent px-4 py-2.5 text-sm text-slate-900 dark:text-slate-100 outline-none focus:border-brand-300"
+                className={editableInputClassName}
               />
             </div>
           </div>
@@ -430,10 +554,10 @@ const DetailClientRequestComponent = ({
             <textarea
               name="complaint"
               value={editForm.complaint}
-              onChange={handleInputChange}
+              readOnly
               required
               rows={4}
-              className="w-full rounded-lg border border-gray-300 dark:border-slate-700 bg-transparent px-4 py-2.5 text-sm text-slate-900 dark:text-slate-100 outline-none focus:border-brand-300"
+              className={readOnlyTextareaClassName}
             />
           </div>
 

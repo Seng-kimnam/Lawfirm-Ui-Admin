@@ -76,7 +76,7 @@ const PopUpAddCategory = ({ categoryId, isEditing, refetch }: CategoryProp) => {
     try {
       const res = await postCategory(data);
 
-      const { status, message } = res?.response?.data;
+      const { status, message } = res?.response?.data || {};
       if (res?.success) {
         setIsOpen(false);
         refetch();
@@ -101,7 +101,6 @@ const PopUpAddCategory = ({ categoryId, isEditing, refetch }: CategoryProp) => {
       const res = await putCategoryById(data, categoryId as number);
       const { status, message } = res?.response?.data;
 
-      console.log("update ", res);
       if (res?.success) {
         setIsOpen(false);
 

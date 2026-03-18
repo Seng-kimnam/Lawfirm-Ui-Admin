@@ -32,8 +32,10 @@ import { Edit, Trash } from "iconsax-reactjs";
 
 const ListFileDocument = () => {
   const navigate = useNavigate();
-  const { documentList, page, totalPage, setPage } = DocumentOperation();
+  const { documentList, page, totalPage, setPage, refetch } =
+    DocumentOperation();
   // Ensure list is an array
+  console.log("file ", documentList);
   const handleUpdateDoc = (id: number) => {
     navigate(`/edit-file-doc/${id}`);
   };
@@ -77,11 +79,14 @@ const ListFileDocument = () => {
                   );
 
                   toast.dismiss(loadingId);
-
-                  if (res?.status === "ACCEPTED") {
-                    toast.success(`Service ID ${id} deleted successfully`);
+                  console.log(res);
+                  if (res?.status === "OK") {
+                    toast.success(`Document ID ${id} deleted successfully`);
+                    refetch();
                   } else {
-                    toast.error(res?.detail || "Delete failed");
+                    toast.error(
+                      res?.detail || `Delete document with id ${id} failed`,
+                    );
                   }
                 } catch (error) {
                   toast.dismiss(loadingId);
@@ -164,190 +169,198 @@ const ListFileDocument = () => {
               <Table>
                 {/* Table Header */}
                 <TableHeader className="border-b dark:text-center  border-gray-100  dark:border-white/50">
-                  <TableRow className="dark:text-center">
-                    <TableCell
-                      // isHeader
-                      className="px-5 py-3 w-28 font-medium text-gray-500 text-start text-theme-xs dark:text-white"
-                    >
-                      Document Id
-                    </TableCell>
-                    <TableCell
-                      // isHeader
-                      className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-white"
-                    >
-                      Title
-                    </TableCell>
-                    <TableCell
-                      // isHeader
-                      className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-white"
-                    >
-                      File Cover
-                    </TableCell>
-                    <TableCell
-                      // isHeader
-                      className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-white"
-                    >
-                      Document PDF
-                    </TableCell>
-                    <TableCell
-                      // isHeader
-                      className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-white"
-                    >
-                      Category Name
-                    </TableCell>
-                    <TableCell
-                      // isHeader
-                      className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-white"
-                    >
-                      Created At
-                    </TableCell>
-                    <TableCell
-                      // isHeader
-                      className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-white"
-                    >
-                      Updated At
-                    </TableCell>
-                    <TableCell
-                      // isHeader
-                      className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-white"
-                    >
-                      Actions
-                    </TableCell>
-                  </TableRow>
+                  {documentList && (
+                    <TableRow className="dark:text-center">
+                      <TableCell
+                        // isHeader
+                        className="px-5 py-3 w-28 font-medium text-gray-500 text-start text-theme-xs dark:text-white"
+                      >
+                        Document Id
+                      </TableCell>
+                      <TableCell
+                        // isHeader
+                        className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-white"
+                      >
+                        Title
+                      </TableCell>
+                      <TableCell
+                        // isHeader
+                        className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-white"
+                      >
+                        File Cover
+                      </TableCell>
+                      <TableCell
+                        // isHeader
+                        className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-white"
+                      >
+                        Document PDF
+                      </TableCell>
+                      <TableCell
+                        // isHeader
+                        className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-white"
+                      >
+                        Category Name
+                      </TableCell>
+                      <TableCell
+                        // isHeader
+                        className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-white"
+                      >
+                        Created At
+                      </TableCell>
+                      <TableCell
+                        // isHeader
+                        className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-white"
+                      >
+                        Updated At
+                      </TableCell>
+                      <TableCell
+                        // isHeader
+                        className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-white"
+                      >
+                        Actions
+                      </TableCell>
+                    </TableRow>
+                  )}
                 </TableHeader>
 
                 {/* Table Body */}
                 <TableBody className="divide-y divide-gray-100 dark:divide-white/5">
-                  {documentList?.map((item) => (
-                    <TableRow key={item.docId}>
-                      <TableCell className="px-5 py-4 sm:px-6 text-start">
-                        <div className="flex items-center gap-3">
-                          <div>
-                            <span className="block font-medium text-gray-800 text-theme-sm dark:text-white">
-                              {item.docId ?? "N/A"}
-                            </span>
+                  {documentList ? (
+                    documentList?.map((item) => (
+                      <TableRow key={item.docId}>
+                        <TableCell className="px-5 py-4 sm:px-6 text-start">
+                          <div className="flex items-center gap-3">
+                            <div>
+                              <span className="block font-medium text-gray-800 text-theme-sm dark:text-white">
+                                {item.docId ?? "N/A"}
+                              </span>
+                            </div>
                           </div>
-                        </div>
-                      </TableCell>
+                        </TableCell>
 
-                      <TableCell className="px-5 py-4 sm:px-6 text-start">
-                        <div className="flex items-center gap-3">
-                          <div>
-                            <span className="block font-medium text-gray-800 text-theme-sm dark:text-white">
-                              {item?.title ?? "N/A"}
-                            </span>
+                        <TableCell className="px-5 py-4 sm:px-6 text-start">
+                          <div className="flex items-center gap-3">
+                            <div>
+                              <span className="block font-medium text-gray-800 text-theme-sm dark:text-white">
+                                {item?.title ?? "N/A"}
+                              </span>
+                            </div>
                           </div>
-                        </div>
-                      </TableCell>
-                      <TableCell className="px-5 py-4 sm:px-6 text-start">
-                        <div className="flex items-center gap-3">
-                          <div>
-                            <Dialog>
-                              <DialogTrigger asChild>
-                                <img
-                                  className="h-20 w-28"
-                                  src={`http://localhost:8080/api/v1/files/preview-file?fileName=${item.fileCover}`}
-                                  alt={item.fileCover}
-                                />
-                              </DialogTrigger>
-                              <DialogContent className="w-full z-999999  content-center justify-center max-w-[95vw] md:max-w-[90vw] lg:max-w-[80vw]">
-                                <DialogHeader>
-                                  {/* <DialogTitle>{title}</DialogTitle> */}
-                                  <p className="text-center text-3xl underline  font-battambang tracking-wide">
-                                    {item.title}
-                                  </p>
-                                  {/* <PdfViewer /> */}
-                                </DialogHeader> 
-                                <img
-                                  className="h-[80vh] object-cover border-2 border-black "
-                                  src={`http://localhost:8080/api/v1/files/preview-file?fileName=${item.fileCover}`}
-                                  alt={item.fileCover}
-                                />
-                                {/* Hello */}
-                              </DialogContent>
-                            </Dialog>
+                        </TableCell>
+                        <TableCell className="px-5 py-4 sm:px-6 text-start">
+                          <div className="flex items-center gap-3">
+                            <div>
+                              <Dialog>
+                                <DialogTrigger asChild>
+                                  <img
+                                    className="h-20 w-28"
+                                    src={`http://localhost:8080/api/v1/files/preview-file?fileName=${item.fileCover}`}
+                                    alt={item.fileCover}
+                                  />
+                                </DialogTrigger>
+                                <DialogContent className="w-full z-999999  content-center justify-center max-w-[95vw] md:max-w-[90vw] lg:max-w-[80vw]">
+                                  <DialogHeader>
+                                    {/* <DialogTitle>{title}</DialogTitle> */}
+                                    <p className="text-center text-3xl underline  font-battambang tracking-wide">
+                                      {item.title}
+                                    </p>
+                                    {/* <PdfViewer /> */}
+                                  </DialogHeader>
+                                  <img
+                                    className="h-[80vh] object-cover border-2 border-black "
+                                    src={`http://localhost:8080/api/v1/files/preview-file?fileName=${item.fileCover}`}
+                                    alt={item.fileCover}
+                                  />
+                                  {/* Hello */}
+                                </DialogContent>
+                              </Dialog>
+                            </div>
                           </div>
-                        </div>
-                      </TableCell>
-                      <TableCell className="px-5 py-4 sm:px-6 text-start">
-                        <div className="flex items-center gap-3">
-                          <div>
-                            <Dialog>
-                              <DialogTrigger asChild>
-                                <img
-                                  className="h-20 w-28"
-                                  src={`http://localhost:8080/api/v1/files/preview-file?fileName=${item.fileCover}`}
-                                  alt={item.fileCover}
-                                />
-                              </DialogTrigger>
-                              <DialogContent className="w-full max-w-[95vw] z-99999  md:max-w-[90vw] lg:max-w-[80vw]">
-                                <DialogHeader>
-                                  {/* <DialogTitle>{title}</DialogTitle> */}
-                                  <p className=" font-battambang tracking-wide">
-                                    {item.title}
-                                  </p>
-                                  {/* <PdfViewer /> */}
-                                </DialogHeader>
-                                <EmbeddedPdfViewer
-                                  docId={item.docId}
-                                  fileUrl={`http://localhost:9000/lawfirm-bucket/${item.fileUrl}`}
-                                  title={item.title}
-                                />
-                                {/* Hello */}
-                              </DialogContent>
-                            </Dialog>
+                        </TableCell>
+                        <TableCell className="px-5 py-4 sm:px-6 text-start">
+                          <div className="flex items-center gap-3">
+                            <div>
+                              <Dialog>
+                                <DialogTrigger asChild>
+                                  <img
+                                    className="h-20 w-28"
+                                    src={`http://localhost:8080/api/v1/files/preview-file?fileName=${item.fileCover}`}
+                                    alt={item.fileCover}
+                                  />
+                                </DialogTrigger>
+                                <DialogContent className="w-full max-w-[95vw] z-99999  md:max-w-[90vw] lg:max-w-[80vw]">
+                                  <DialogHeader>
+                                    {/* <DialogTitle>{title}</DialogTitle> */}
+                                    <p className=" font-battambang tracking-wide">
+                                      {item.title}
+                                    </p>
+                                    {/* <PdfViewer /> */}
+                                  </DialogHeader>
+                                  <EmbeddedPdfViewer
+                                    docId={item.docId}
+                                    fileUrl={`http://localhost:9000/lawfirm-bucket/${item.fileUrl}`}
+                                    title={item.title}
+                                  />
+                                  {/* Hello */}
+                                </DialogContent>
+                              </Dialog>
+                            </div>
                           </div>
-                        </div>
-                      </TableCell>
+                        </TableCell>
 
-                      <TableCell className="px-5 py-4 sm:px-6 text-start">
-                        <div className="flex items-center gap-3">
-                          <div>
-                            <span className="block font-medium text-gray-800 text-theme-sm dark:text-white">
-                              {item?.categoryName ?? "N/A"}
-                            </span>
+                        <TableCell className="px-5 py-4 sm:px-6 text-start">
+                          <div className="flex items-center gap-3">
+                            <div>
+                              <span className="block font-medium text-gray-800 text-theme-sm dark:text-white">
+                                {item?.categoryName ?? "N/A"}
+                              </span>
+                            </div>
                           </div>
-                        </div>
-                      </TableCell>
-                      <TableCell className="px-5 py-4 sm:px-6 text-start">
-                        <div className="flex items-center gap-3">
-                          <div>
-                            <span className="block font-medium text-gray-800 text-theme-sm dark:text-white">
-                              {dateFormatter(item?.createdAt) ?? "N/A"}
-                            </span>
+                        </TableCell>
+                        <TableCell className="px-5 py-4 sm:px-6 text-start">
+                          <div className="flex items-center gap-3">
+                            <div>
+                              <span className="block font-medium text-gray-800 text-theme-sm dark:text-white">
+                                {dateFormatter(item?.createdAt) ?? "N/A"}
+                              </span>
+                            </div>
                           </div>
-                        </div>
-                      </TableCell>
-                      <TableCell className="px-5 py-4 sm:px-6 text-start">
-                        <div className="flex items-center gap-3">
-                          <div>
-                            <span className="block font-medium text-gray-800 text-theme-sm dark:text-white">
-                              {dateFormatter(item.updatedAt) ?? "N/A"}
-                            </span>
+                        </TableCell>
+                        <TableCell className="px-5 py-4 sm:px-6 text-start">
+                          <div className="flex items-center gap-3">
+                            <div>
+                              <span className="block font-medium text-gray-800 text-theme-sm dark:text-white">
+                                {dateFormatter(item.updatedAt) ?? "N/A"}
+                              </span>
+                            </div>
                           </div>
-                        </div>
-                      </TableCell>
-                      <TableCell className="px-5 py-4 sm:px-6 text-start">
-                        <div className="flex items-center gap-3">
-                          {/* Update Button */}
-                          <button
-                            onClick={() => handleUpdateDoc(item.docId)}
-                            className="p-2 text-sm rounded-md bg-blue-500 text-white hover:bg-blue-600"
-                          >
-                            <Edit size="24" color="#ffffff" />
-                          </button>
+                        </TableCell>
+                        <TableCell className="px-5 py-4 sm:px-6 text-start">
+                          <div className="flex items-center gap-3">
+                            {/* Update Button */}
+                            <button
+                              onClick={() => handleUpdateDoc(item.docId)}
+                              className="p-2 text-sm rounded-md bg-blue-500 text-white hover:bg-blue-600"
+                            >
+                              <Edit size="24" color="#ffffff" />
+                            </button>
 
-                          {/* Delete Button */}
-                          <button
-                            onClick={() => handleDeleteDocument(item?.docId)}
-                            className="p-2 text-sm rounded-md bg-red-500 text-white hover:bg-red-600"
-                          >
-                            <Trash size="24" color="#ffffff" />
-                          </button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                            {/* Delete Button */}
+                            <button
+                              onClick={() => handleDeleteDocument(item?.docId)}
+                              className="p-2 text-sm rounded-md bg-red-500 text-white hover:bg-red-600"
+                            >
+                              <Trash size="24" color="#ffffff" />
+                            </button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  ) : (
+                    <p className="text-center text-red-600 text-3xl ">
+                      Document not found
+                    </p>
+                  )}
                 </TableBody>
               </Table>
             </div>

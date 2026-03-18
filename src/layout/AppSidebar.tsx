@@ -89,6 +89,12 @@ const navItems: NavItem[] = [
       { name: "Service Type", path: "/servicetype" },
     ],
   },
+  {
+    icon: <UserOctagon size="26" />,
+    name: "Our Lawyer",
+    roles: ["ROLE_ADMIN"],
+    subItems: [{ name: "Lawyer List", path: "/list-lawyer" }],
+  },
 
   {
     icon: <HiUsers />,
@@ -98,12 +104,6 @@ const navItems: NavItem[] = [
       { name: "Client List", path: "/list-client" },
       { name: "Banner", path: "/banner" },
     ],
-  },
-  {
-    icon: <UserOctagon size="26" />,
-    name: "Our Lawyer",
-    roles: ["ROLE_ADMIN"],
-    subItems: [{ name: "Lawyer List", path: "/list-lawyer" }],
   },
 
   //  {/* file doc  */}
@@ -116,7 +116,8 @@ const navItems: NavItem[] = [
     name: "File Document",
     roles: ["ROLE_ADMIN", "ROLE_LAWYER"],
     subItems: [
-      { name: "Document List", path: "/list-file-doc" },
+      { name: "Client Document", path: "/client-request-document" },
+      { name: "Law Document", path: "/list-file-doc" },
       { name: "Document Category", path: "/doc-category" },
       { name: "Document Form", path: "/add-file-doc" },
     ],

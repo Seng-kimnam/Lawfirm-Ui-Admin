@@ -58,7 +58,8 @@ export const registerLawyerService = async (data: LawyerProfileRequest) => {
     "application/json",
   );
 
-  return response.data;
+  console.log("Register lawyer response:", response);
+  return response;
 };
 
 export const updateLawyerByIdService = async (

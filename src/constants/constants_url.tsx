@@ -65,6 +65,11 @@ export const getTaskList = (page: Number) => {
   return `tasks?page=${page}&size=10&sortBy=taskId&ascending=true`;
 };
 
+export const getTaskByLawyer = (lawyerId: string, page: Number) => {
+  return `tasks/my-tasks/${lawyerId}?page=${page}&size=10&sortBy=taskId&ascending=true`;
+};
+
+
 export const getClientDetailByEmail = (
   email: string | null,
   page = 1,

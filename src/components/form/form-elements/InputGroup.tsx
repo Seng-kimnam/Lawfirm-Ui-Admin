@@ -35,7 +35,7 @@ export default function InputGroup() {
           <PhoneInput
             selectPosition="start"
             countries={countries}
-            placeholder="+1 (555) 000-0000"
+            placeholder="+855 000-0000"
             onChange={handlePhoneNumberChange}
           />
         </div>{" "}
@@ -44,7 +44,7 @@ export default function InputGroup() {
           <PhoneInput
             selectPosition="end"
             countries={countries}
-            placeholder="+1 (555) 000-0000"
+            placeholder="+855 000-0000"
             onChange={handlePhoneNumberChange}
           />
         </div>

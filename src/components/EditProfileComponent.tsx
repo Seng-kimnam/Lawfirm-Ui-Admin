@@ -267,7 +267,7 @@ export function EditProfileModal({
                 <Label htmlFor="phoneNumber">Phone Number </Label>
                 <Input
                   id="phoneNumber"
-                  placeholder="+1 (555) 000-0000"
+                  placeholder="+855 000-0000"
                   {...register("phoneNumber", {
                     required: "Phone number is required",
                   })}

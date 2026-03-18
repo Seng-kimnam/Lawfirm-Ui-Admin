@@ -50,8 +50,9 @@ export const request = async (
       params: params,
       headers: headers,
     });
+
     return response.data;
-  } catch (error : any) {
+  } catch (error: any) {
     return error; // so caller can catch it
   }
 };
